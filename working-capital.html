@@ -294,6 +294,20 @@ table.t.lg .sub-note{font-size:12.5px}
 @media (max-width:860px){#gs-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:520px){#gs-steps{grid-template-columns:1fr}}
 
+/* ---- who gets the cash: shareholders, bondholders, government ---- */
+.cs{color:var(--accent)} .cb{color:var(--face)} .cg{color:var(--bad)}
+b.cs,b.cb,b.cg,span.cs,span.cb{font-weight:600}
+.who{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:14px;color:var(--muted)}
+.who span{font-weight:600;padding:3px 10px;border-radius:999px;font-size:13px}
+.who .w-s{background:var(--accent-soft);color:var(--accent)}
+.who .w-b{background:var(--face-soft);color:var(--face)}
+.who .w-g{background:var(--bad-soft);color:var(--bad)}
+table.t tr.r-s td:first-child{color:var(--accent);font-weight:600;box-shadow:inset 4px 0 0 var(--accent)}
+table.t tr.r-b td:first-child{color:var(--face);font-weight:600;box-shadow:inset 4px 0 0 var(--face)}
+table.t td.colhl{background:var(--accent-soft)}
+.chain{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:10px 14px;font-size:15.5px;line-height:1.7}
+.chain span{font-family:var(--mono);font-size:14.5px;white-space:nowrap}
+
 </style>
 </head>
 <body>
