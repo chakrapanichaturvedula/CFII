@@ -308,6 +308,23 @@ table.t td.colhl{background:var(--accent-soft)}
 .chain{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:10px 14px;font-size:15.5px;line-height:1.7}
 .chain span{font-family:var(--mono);font-size:14.5px;white-space:nowrap}
 
+/* ---- dividend timeline ---- */
+.who .w-n{background:var(--good-soft);color:var(--good)}
+.tl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:relative;padding-top:18px}
+.tl::before{content:"";position:absolute;left:12px;right:12px;top:24px;height:3px;background:var(--line);border-radius:3px}
+.tl-i{position:relative;padding:22px 12px 0 0}
+.tl-i::before{content:"";position:absolute;left:4px;top:0;width:15px;height:15px;border-radius:50%;background:var(--surface);border:3px solid var(--muted)}
+.tl-i.key::before{border-color:var(--accent);background:var(--accent)}
+.tl-d{display:block;font-family:var(--mono);font-size:13.5px;color:var(--muted)}
+.tl-i b{display:block;font-family:var(--display);font-size:18px;margin:2px 0 4px}
+.tl-i.key b{color:var(--accent)}
+.tl-i p{font-size:14.5px;color:var(--muted)}
+@media (max-width:700px){.tl{grid-template-columns:1fr 1fr;row-gap:14px}.tl::before{display:none}}
+b.g{color:var(--good)} b.r{color:var(--bad)}
+.cgr{color:var(--good)} .who .w-m{background:var(--faint);color:var(--muted)}
+.chain span.cgr,.chain span.cg{font-weight:600}
+#cb-q button{flex:1 1 40px}
+
 </style>
 </head>
 <body>
@@ -320,12 +337,13 @@ table.t td.colhl{background:var(--accent-soft)}
  <div class="inner">
   <p class="eyebrow">Module 3 · Session 7</p>
   <h1>Leverage: a larger effect from a smaller force</h1>
-  <p class="lede">Fixed costs act like a lever. Fixed operating costs magnify the effect of sales on profit. Fixed interest magnifies the effect of profit on EPS.</p>
+  <p class="lede">A cost that does not change when sales change works like a lever. A fixed operating cost makes profit swing more than sales. A fixed interest payment makes EPS swing more than profit.</p>
   <div class="three" style="margin-top:8px">
-   <div class="card"><span class="tag">Operating leverage</span><div class="formula" style="font-size:16px">DOL = %Δ EBIT / %Δ Sales</div><p>Comes from fixed operating costs.</p></div>
-   <div class="card"><span class="tag">Financial leverage</span><div class="formula" style="font-size:16px">DFL = %Δ EPS / %Δ EBIT</div><p>Comes from fixed interest.</p></div>
-   <div class="card"><span class="tag f2">Total leverage</span><div class="formula" style="font-size:16px;border-left-color:var(--face)">DTL = %Δ EPS / %Δ Sales</div><p>= DOL × DFL</p></div>
+   <div class="card fcard" style="--fc:var(--face)"><span class="tag fc">Operating leverage</span><div class="formula" style="font-size:16px;border-left-color:var(--face)">DOL = %Δ EBIT / %Δ Sales</div><p>Comes from fixed operating costs.</p></div>
+   <div class="card fcard" style="--fc:var(--accent)"><span class="tag fc">Financial leverage</span><div class="formula" style="font-size:16px">DFL = %Δ EPS / %Δ EBIT</div><p>Comes from fixed interest.</p></div>
+   <div class="card fcard" style="--fc:var(--bad)"><span class="tag fc">Total leverage</span><div class="formula" style="font-size:16px;border-left-color:var(--bad)">DTL = %Δ EPS / %Δ Sales</div><p>= DOL × DFL</p></div>
   </div>
+  <p class="note">These three colours are used throughout the deck. Ross 14e does not cover DOL and DFL; the formulas here are the ones in standard Indian texts.</p>
   <p class="keys">Move with <kbd>→</kbd> <kbd>←</kbd>. <kbd>O</kbd> shows all slides.</p>
  </div>
 </section>
@@ -338,6 +356,7 @@ table.t td.colhl{background:var(--accent-soft)}
    <div class="card"><span class="tag">Mr A</span><h3>Pays fixed maintenance of ₹2 lakh a year</h3><p>That is his only expense. Collections this year: ₹20 lakh.</p></div>
    <div class="card"><span class="tag f2">Mr B</span><h3>Pays a toll collector 10% of collections</h3><p>The collector also maintains the bridge. Collections this year: ₹20 lakh.</p></div>
   </div>
+  <p>Both make a profit of ₹18 lakh this year. Before the next slide, guess:</p>
   <ul class="pts">
    <li class="f">If collections rise by 10%, by what % does each one's profit rise?</li>
    <li class="f">If collections fall by 10%?</li>
@@ -357,18 +376,29 @@ table.t td.colhl{background:var(--accent-soft)}
  </div>
 </section>
 
-<section class="slide" data-title="Measuring DOL">
+<section class="slide" data-title="Where DOL comes from">
  <div class="inner">
   <p class="eyebrow">Operating leverage · ABC Ltd, soft toys</p>
-  <h2>DOL is highest near break-even</h2>
-  <p>Price ₹10 a toy, variable cost ₹6, fixed cost ₹1,000.</p>
-  <div class="formula">DOL = Contribution / EBIT = Q(P − V) / [Q(P − V) − F]</div>
+  <h2>Why DOL = Contribution / EBIT</h2>
+  <p>Price ₹10 a toy, variable cost ₹6, fixed cost ₹1,000. Pick the units sold and a change in sales.</p>
+  <div class="ctls">
+   <div class="ctl"><label for="dl-q">Units sold <output for="dl-q"></output></label><input type="range" id="dl-q" min="300" max="1200" step="50" value="400"></div>
+   <div class="ctl"><label for="dl-g">Sales rise by <output for="dl-g"></output></label><input type="range" id="dl-g" min="5" max="30" step="5" value="10"></div>
+  </div>
+  <div class="four" id="dl-s"></div>
+ </div>
+</section>
+
+<section class="slide" data-title="DOL near break-even">
+ <div class="inner">
+  <p class="eyebrow">Operating leverage · ABC Ltd</p>
+  <h2>DOL is highest just above break-even</h2>
   <div class="two wide-l">
    <div class="fig"><svg id="dol-c" role="img" aria-label="Degree of operating leverage against units sold"></svg></div>
    <div style="display:flex;flex-direction:column;gap:12px">
     <div class="ctl"><label for="dol-q">Units sold <output for="dol-q"></output></label><input type="range" id="dol-q" min="260" max="1200" step="10" value="400"></div>
-    <div class="kpis"><div class="kpi"><span>Contribution</span><b id="dol-k"></b></div><div class="kpi"><span>EBIT</span><b id="dol-e"></b></div><div class="kpi hi"><span>DOL</span><b id="dol-v"></b></div></div>
-    <p class="note f">Break-even is F / (P − V) = 1,000 / 4 = 250 units. At break-even EBIT is zero and DOL is undefined. Check yourself: 400 units gives 2.67, 600 gives 1.71, 800 gives 1.45.</p>
+    <div class="kpis"><div class="kpi"><span>Contribution</span><b id="dol-k"></b></div><div class="kpi"><span>EBIT</span><b id="dol-e"></b></div><div class="kpi hi"><span>DOL</span><b id="dol-v" class="cb"></b></div></div>
+    <p class="note f">Break-even is F / (P − V) = 1,000 / 4 = 250 units. Near it, EBIT is tiny, so a small change in sales is a big percentage change in EBIT. Check: 400 units gives 2.67, 600 gives 1.71, 800 gives 1.45.</p>
    </div>
   </div>
  </div>
@@ -382,18 +412,32 @@ table.t td.colhl{background:var(--accent-soft)}
   <div class="formula">EPS = (EBIT − Interest)(1 − t) / Number of shares</div>
   <div class="ctl" style="max-width:560px"><label for="fl-r">B's interest rate on ₹50 lakh <output for="fl-r"></output></label><input type="range" id="fl-r" min="0" max="24" step="1" value="10"></div>
   <div class="two">
-   <div class="card"><span class="tag">A: 10 lakh shares, no debt</span><div class="big mono" id="fl-a"></div><p class="mono" id="fl-aw"></p></div>
-   <div class="card"><span class="tag f2">B: 5 lakh shares, ₹50 lakh debt</span><div class="big mono" id="fl-b" style="color:var(--face)"></div><p class="mono" id="fl-bw"></p></div>
+   <div class="card"><span class="tag">A: 10 lakh shares, no debt</span><div class="big mono" id="fl-a" style="color:var(--muted)"></div><p class="mono" id="fl-aw"></p></div>
+   <div class="card fcard" style="--fc:var(--accent)"><span class="tag fc">B: 5 lakh shares, ₹50 lakh debt</span><div class="big mono" id="fl-b"></div><p class="mono" id="fl-bw"></p></div>
   </div>
   <p class="note" id="fl-n"></p>
  </div>
 </section>
 
-<section class="slide" data-title="Three financing plans">
+<section class="slide" data-title="Where DFL comes from">
+ <div class="inner">
+  <p class="eyebrow">Financial leverage · Mr B's bridge, interest 10%</p>
+  <h2>Why DFL = EBIT / (EBIT − Interest)</h2>
+  <div class="four">
+   <div class="card f"><h3>1 · Today</h3><p class="mono" style="color:var(--ink)">EBIT 18, interest 5<br>EPS = (18 − 5) × 0.7 / 5<br>= ₹1.82</p></div>
+   <div class="card f"><h3>2 · EBIT rises 10%</h3><p class="mono" style="color:var(--ink)">EBIT 19.8, interest still 5<br>EPS = (19.8 − 5) × 0.7 / 5<br>= ₹2.07</p></div>
+   <div class="card f"><h3>3 · Compare the changes</h3><p class="mono" style="color:var(--ink)">%Δ EPS = (2.07 − 1.82) / 1.82<br>= 13.85%<br>DFL = 13.85% / 10% = 1.385</p></div>
+   <div class="card soft f"><h3>4 · Spot the formula</h3><p class="mono" style="color:var(--ink)">The extra 1.8 of EBIT all goes to shareholders, but on a base of 13, not 18:<br>1.8/13 = 10% × 18/13<br><b class="cs">DFL = EBIT / (EBIT − I) = 18 / 13</b></p></div>
+  </div>
+  <p class="note f">Mr A has no interest, so his DFL is 18/18 = 1: EPS moves exactly with EBIT. The tax rate and the number of shares cancel out, which is why they are not in the formula.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="Indifference EBIT">
  <div class="inner">
   <p class="eyebrow">Financial leverage · ABC Ltd's new factory</p>
   <h2>₹10 crore to raise: how much debt?</h2>
-  <p>Debt at 8%, tax 30%, shares at ₹10. Plan 1: all equity. Plan 2: 25% debt. Plan 3: 50% debt.</p>
+  <p>Debt at 8%, tax 30%, shares at ₹10. Plan 1: all equity (1 crore shares). Plan 2: 25% debt (0.75 crore shares). Plan 3: 50% debt (0.5 crore shares).</p>
   <div class="two wide-l">
    <div class="fig"><svg id="pl-c" role="img" aria-label="EPS against EBIT under three financing plans"></svg></div>
    <div style="display:flex;flex-direction:column;gap:12px">
@@ -402,21 +446,20 @@ table.t td.colhl{background:var(--accent-soft)}
     <p class="legend"><span><i style="background:var(--muted)"></i>Plan 1</span><span><i style="background:var(--face)"></i>Plan 2</span><span><i style="background:var(--accent)"></i>Plan 3</span></p>
    </div>
   </div>
-  <p class="note f">All three lines cross at EBIT ₹80 lakh, a pre-tax return of 8% on ₹10 crore, equal to the interest rate. Financial leverage helps only when the return on investment beats the cost of debt.</p>
+  <div class="chain f"><b>Find the crossing:</b> EPS of plan 1 = EPS of plan 2 → <span>E × 0.7 / 1 = (E − 0.2) × 0.7 / 0.75</span> → <span>0.75 E = E − 0.2</span> → <span>0.25 E = 0.2</span> → <span class="cs">E = ₹0.8 crore</span>. That is 8% on ₹10 crore, the interest rate. Plan 3 crosses at the same point.</div>
  </div>
 </section>
 
-<section class="slide" data-title="DFL and DTL">
+<section class="slide" data-title="Total leverage">
  <div class="inner">
-  <p class="eyebrow">Measuring financial and total leverage</p>
-  <h2>Two short formulas</h2>
+  <p class="eyebrow">Combining the two</p>
+  <h2>DTL = DOL × DFL</h2>
   <div class="two">
-   <div class="formula">DFL = EBIT / (EBIT − Interest)<small>Assumes no preference dividends.</small></div>
-   <div class="formula" style="border-left-color:var(--face)">DTL = DOL × DFL = Contribution / (EBIT − Interest)</div>
+   <div class="formula" style="border-left-color:var(--bad)">DTL = DOL × DFL = Contribution / EBIT × EBIT / (EBIT − I) = Contribution / (EBIT − I)<small>EBIT cancels: sales feed EBIT, EBIT feeds EPS.</small></div>
+   <div class="card soft"><p style="color:var(--ink)">A 10% rise in sales lifts EBIT by DOL × 10%, and that lifts EPS by DFL × (DOL × 10%). So EPS moves by DOL × DFL × 10%.</p></div>
   </div>
-  <h3 class="f">Toll bridges, interest at 10%</h3>
   <div class="scroll f"><table class="t">
-   <thead><tr><th></th><th>DOL</th><th>DFL</th><th>DTL</th></tr></thead>
+   <thead><tr><th>Toll bridges, interest at 10%</th><th class="cb">DOL</th><th class="cs">DFL</th><th class="cg">DTL</th></tr></thead>
    <tbody><tr><td>Mr A: fixed costs, no debt</td><td>20 / 18 = 1.11</td><td>18 / 18 = 1.00</td><td>1.11</td></tr>
    <tr><td>Mr B: variable costs, ₹50 lakh debt</td><td>18 / 18 = 1.00</td><td>18 / 13 = 1.385</td><td>1.385</td></tr></tbody></table></div>
   <p class="note f">A takes operating risk, B takes financial risk. A 10% rise in collections lifts A's EPS by 11.1% and B's by 13.85%.</p>
@@ -425,18 +468,19 @@ table.t td.colhl{background:var(--accent-soft)}
 
 <section class="slide" data-title="Practice: XYZ call centre">
  <div class="inner">
-  <p class="eyebrow">Practice problem</p>
+  <p class="eyebrow">Activity · Predict, then check</p>
   <h2>XYZ Ltd needs ₹50 lakh for a call centre</h2>
   <div class="three">
    <div class="card"><span class="tag">Option 1</span><p>5,00,000 shares at ₹10</p></div>
    <div class="card"><span class="tag">Option 2</span><p>2,00,000 shares at ₹10 and 3,000 debentures of ₹1,000</p></div>
    <div class="card"><span class="tag">Option 3</span><p>1,00,000 shares at ₹10 and 4,000 debentures of ₹1,000</p></div>
   </div>
-  <p>Debentures pay 12%, tax 35%. Fixed costs ₹2 lakh, variable cost 20% of sales. Work out EPS, ROE, DOL, DFL and DTL at EBIT of ₹8 lakh, then press Show answers.</p>
-  <div class="ctl" style="max-width:520px"><label for="xy-e">EBIT (₹ lakh) <output for="xy-e"></output></label><input type="range" id="xy-e" min="0" max="16" step="0.5" value="8"></div>
-  <div><button class="btn primary" id="xy-b" type="button">Show answers</button></div>
+  <p>Debentures pay 12%, tax 35%. Fixed costs ₹2 lakh, variable cost 20% of sales. EBIT is ₹8 lakh.</p>
+  <div class="quiz" data-key="leverage-xyz-predict"><div class="q" data-a="2"><p class="qt">Before computing: which option gives shareholders the highest EPS at EBIT ₹8 lakh?</p><div class="opts" style="grid-template-columns:repeat(3,minmax(0,1fr))"><button>Option 1: no debt</button><button>Option 2</button><button>Option 3: most debt</button></div><p class="why">EBIT ₹8 lakh is 16% on ₹50 lakh, above the 12% debt cost, so more debt raises EPS. Below ₹6 lakh the order reverses.</p></div></div>
+  <div class="ctl" style="max-width:520px"><label for="xy-e">Now try other EBITs (₹ lakh) <output for="xy-e"></output></label><input type="range" id="xy-e" min="0" max="16" step="0.5" value="8"></div>
+  <div><button class="btn primary" id="xy-b" type="button">Show the full answers</button></div>
   <div class="scroll" id="xy-w" hidden><table class="t" id="xy-t"></table></div>
-  <p class="note" id="xy-n" hidden>At EBIT ₹6 lakh all three options give the same EPS of ₹0.78: every option is indifferent at a 12% pre-tax return on ₹50 lakh.</p>
+  <p class="note" id="xy-n" hidden>At EBIT ₹6 lakh all three options give the same EPS of ₹0.78: each is indifferent at a 12% pre-tax return on ₹50 lakh.</p>
  </div>
 </section>
 
@@ -445,7 +489,7 @@ table.t td.colhl{background:var(--accent-soft)}
   <p class="eyebrow">Session 7 · Summary</p>
   <h2>What to remember</h2>
   <ul class="pts">
-   <li class="f">Fixed costs create leverage: operating fixed costs magnify sales into EBIT; interest magnifies EBIT into EPS.</li>
+   <li class="f"><b class="cb">Fixed operating costs</b> magnify sales into EBIT; <b class="cs">fixed interest</b> magnifies EBIT into EPS; together they give <b class="cg">total leverage</b>.</li>
    <li class="f">Leverage is a double-edged sword: it magnifies falls exactly as it magnifies rises.</li>
    <li class="f">Leverage is greatest just above break-even and fades as the firm moves away from it.</li>
    <li class="f">Borrowing raises EPS only when the return on the investment exceeds the interest rate. The indifference EBIT is where the two are equal.</li>
@@ -671,21 +715,30 @@ window.D = (() => {
 const {inr,num,pct,slider,plot,chart,$}=D;
 const L=v=>'₹'+(+v.toFixed(2)).toLocaleString('en-IN')+' lakh';
 /* toll bridges, operating */
-const tb=slider('tb-c',v=>(v>0?'+':'')+v+'%',v=>{const c=20*(1+v/100),pA=c-2,pB=c*.9;
+slider('tb-c',v=>(v>0?'+':'')+v+'%',v=>{const c=20*(1+v/100),pA=c-2,pB=c*.9;
  const ch=(n,o)=>((n-o)/o*100);
- $('#tb-t').innerHTML=`<thead><tr><th></th><th>Collections</th><th>Costs</th><th>Profit</th><th>Change in profit</th><th>Change ÷ change in collections</th></tr></thead><tbody>
+ $('#tb-t').innerHTML=`<thead><tr><th></th><th>Collections</th><th>Costs</th><th>Profit</th><th>Change in profit</th><th class="cb">Change ÷ change in collections</th></tr></thead><tbody>
  <tr><td>Mr A, now</td><td>${L(20)}</td><td>${L(2)}</td><td>${L(18)}</td><td></td><td></td></tr>
- <tr class="hl"><td>Mr A, after</td><td>${L(c)}</td><td>${L(2)}</td><td>${L(pA)}</td><td class="${v<0?'neg':'pos'}">${ch(pA,18).toFixed(1)}%</td><td>${v?(ch(pA,18)/v).toFixed(2):'n/a'}</td></tr>
+ <tr class="hl"><td>Mr A, after</td><td>${L(c)}</td><td>${L(2)}</td><td>${L(pA)}</td><td class="${v<0?'neg':'pos'}">${ch(pA,18).toFixed(1)}%</td><td class="cb">${v?(ch(pA,18)/v).toFixed(2):'n/a'}</td></tr>
  <tr><td>Mr B, now</td><td>${L(20)}</td><td>${L(2)}</td><td>${L(18)}</td><td></td><td></td></tr>
- <tr class="hl"><td>Mr B, after</td><td>${L(c)}</td><td>${L(c*.1)}</td><td>${L(pB)}</td><td class="${v<0?'neg':'pos'}">${ch(pB,18).toFixed(1)}%</td><td>${v?(ch(pB,18)/v).toFixed(2):'n/a'}</td></tr></tbody>`;
- $('#tb-n').textContent=v?`A's profit moves ${(ch(pA,18)/v).toFixed(2)} times as much as collections because his ₹2 lakh does not change. B's costs move with collections, so his profit moves one for one. Which is the better business depends on which way collections go.`:'Move the slider.';});
-tb.run();
+ <tr class="hl"><td>Mr B, after</td><td>${L(c)}</td><td>${L(c*.1)}</td><td>${L(pB)}</td><td class="${v<0?'neg':'pos'}">${ch(pB,18).toFixed(1)}%</td><td class="cb">${v?(ch(pB,18)/v).toFixed(2):'n/a'}</td></tr></tbody>`;
+ $('#tb-n').textContent=v?`A's profit moves ${(ch(pA,18)/v).toFixed(2)} times as much as collections because his ₹2 lakh does not change. B's costs move with collections, so his profit moves one for one. That ratio is the degree of operating leverage.`:'Move the slider.';}).run();
+
+/* where DOL comes from */
+const dq=slider('dl-q',v=>num(v),dl),dg=slider('dl-g',v=>v+'%',dl);
+function dl(){const Q=dq.v,g=dg.v/100,K=4*Q,E=K-1000,K2=K*(1+g),E2=K2-1000,pe=(E2-E)/E;
+ const c=(t,b,cls='')=>`<div class="card ${cls}"><h3>${t}</h3><p class="mono" style="color:var(--ink)">${b}</p></div>`;
+ $('#dl-s').innerHTML=c('1 · Today',`Sales ${num(Q)} × ₹10 = ${num(10*Q)}<br>Contribution ${num(Q)} × 4 = ${num(K)}<br>EBIT ${num(K)} − 1,000 = ${num(E)}`)+
+  c(`2 · Sales up ${dg.v}%`,`Contribution up ${dg.v}%: ${num(K2,0)}<br>Fixed cost still 1,000<br>EBIT ${num(K2,0)} − 1,000 = ${num(E2,0)}`)+
+  c('3 · Compare the changes',`%Δ EBIT = ${num(E2-E,0)} / ${num(E)} = ${(pe*100).toFixed(1)}%<br>DOL = ${(pe*100).toFixed(1)}% / ${dg.v}% = ${(pe/g).toFixed(2)}`)+
+  c('4 · Spot the formula',`EBIT rises by ${dg.v}% of contribution, on a base of EBIT:<br>%Δ EBIT = ${dg.v}% × ${num(K)} / ${num(E)}<br><b class="cb">DOL = Contribution / EBIT = ${(K/E).toFixed(2)}</b>`,'soft');}
+dq.run();dg.run();
 
 /* DOL curve */
-let dq;
-const drawDOL=chart('dol-c',svg=>{const pts=[];for(let q=262;q<=1200;q+=4)pts.push([q,4*q/(4*q-1000)]);const q=dq.v;
- plot(svg,{xd:[200,1200],yd:[0,10],xt:[200,400,600,800,1000,1200],yt:[0,2,4,6,8,10],xl:'Units sold',yl:'DOL',lines:[{pts,c:'--accent'}],vl:[{x:250,label:'Break-even 250'}],hl:[{y:1,label:'DOL → 1 far from break-even'}],dots:[{x:q,y:Math.min(10,4*q/(4*q-1000)),c:'--accent',label:'DOL '+(4*q/(4*q-1000)).toFixed(2)}]});});
-dq=slider('dol-q',v=>num(v),v=>{$('#dol-k').textContent=inr(4*v);$('#dol-e').textContent=inr(4*v-1000);$('#dol-v').textContent=(4*v/(4*v-1000)).toFixed(2);drawDOL();});dq.run();
+let dq2;
+const drawDOL=chart('dol-c',svg=>{const pts=[];for(let q=262;q<=1200;q+=4)pts.push([q,4*q/(4*q-1000)]);const q=dq2.v;
+ plot(svg,{xd:[200,1200],yd:[0,10],xt:[200,400,600,800,1000,1200],yt:[0,2,4,6,8,10],xl:'Units sold',yl:'DOL',lines:[{pts,c:'--face'}],vl:[{x:250,label:'Break-even 250'}],hl:[{y:1,label:'DOL → 1 far from break-even'}],dots:[{x:q,y:Math.min(10,4*q/(4*q-1000)),c:'--face',label:'DOL '+(4*q/(4*q-1000)).toFixed(2)}]});});
+dq2=slider('dol-q',v=>num(v),v=>{$('#dol-k').textContent=inr(4*v);$('#dol-e').textContent=inr(4*v-1000);$('#dol-v').textContent=(4*v/(4*v-1000)).toFixed(2);drawDOL();});dq2.run();
 
 /* toll bridges, financial */
 slider('fl-r',v=>v+'%',r=>{const a=18*.7/10,I=50*r/100,b=(18-I)*.7/5;$('#fl-a').textContent='₹'+a.toFixed(2);$('#fl-b').textContent='₹'+b.toFixed(2);
@@ -701,17 +754,15 @@ pe=slider('pl-e',v=>'₹'+v.toFixed(2),e=>{$('#pl-t').innerHTML='<thead><tr><th>
 
 /* XYZ practice */
 const opt=[{sh:5,eq:50,I:0},{sh:2,eq:20,I:3.6},{sh:1,eq:10,I:4.8}];
-const xe=slider('xy-e',v=>'₹'+v,e=>{const S=(e+2)/.8,cm=.8*S,dol=e>0?cm/e:NaN;
- const cell=v=>isFinite(v)?v:'n/a';
+slider('xy-e',v=>'₹'+v,e=>{const S=(e+2)/.8,cm=.8*S,dol=e>0?cm/e:NaN;
  $('#xy-t').innerHTML=`<thead><tr><th>At EBIT ₹${e} lakh</th><th>Option 1</th><th>Option 2</th><th>Option 3</th></tr></thead><tbody>
  <tr><td>Interest (₹ lakh)</td>${opt.map(o=>`<td>${o.I.toFixed(2)}</td>`).join('')}</tr>
  <tr class="hl"><td>EPS</td>${opt.map(o=>{const v=(e-o.I)*.65/o.sh;return `<td class="${v<0?'neg':''}">₹${v.toFixed(2)}</td>`}).join('')}</tr>
  <tr><td>ROE</td>${opt.map(o=>`<td>${((e-o.I)*.65/o.eq*100).toFixed(1)}%</td>`).join('')}</tr>
- <tr><td>DOL (sales ₹${S.toFixed(1)} lakh)</td>${opt.map(()=>`<td>${cell(dol.toFixed(2))}</td>`).join('')}</tr>
- <tr><td>DFL</td>${opt.map(o=>`<td>${e>o.I?(e/(e-o.I)).toFixed(2):'n/a'}</td>`).join('')}</tr>
- <tr class="tot"><td>DTL</td>${opt.map(o=>`<td>${e>o.I&&e>0?(dol*e/(e-o.I)).toFixed(2):'n/a'}</td>`).join('')}</tr></tbody>`;});
-xe.run();
-$('#xy-b').addEventListener('click',()=>{const w=$('#xy-w'),h=w.hidden;w.hidden=!h;$('#xy-n').hidden=!h;$('#xy-b').textContent=h?'Hide answers':'Show answers';});
+ <tr><td class="cb">DOL (sales ₹${S.toFixed(1)} lakh)</td>${opt.map(()=>`<td>${isFinite(dol)?dol.toFixed(2):'n/a'}</td>`).join('')}</tr>
+ <tr><td class="cs">DFL</td>${opt.map(o=>`<td>${e>o.I?(e/(e-o.I)).toFixed(2):'n/a'}</td>`).join('')}</tr>
+ <tr class="tot"><td class="cg">DTL</td>${opt.map(o=>`<td>${e>o.I&&e>0?(dol*e/(e-o.I)).toFixed(2):'n/a'}</td>`).join('')}</tr></tbody>`;}).run();
+$('#xy-b').addEventListener('click',()=>{const w=$('#xy-w'),h=w.hidden;w.hidden=!h;$('#xy-n').hidden=!h;$('#xy-b').textContent=h?'Hide the answers':'Show the full answers';});
 }
 
 D.start();

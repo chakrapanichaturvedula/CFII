@@ -308,6 +308,23 @@ table.t td.colhl{background:var(--accent-soft)}
 .chain{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:10px 14px;font-size:15.5px;line-height:1.7}
 .chain span{font-family:var(--mono);font-size:14.5px;white-space:nowrap}
 
+/* ---- dividend timeline ---- */
+.who .w-n{background:var(--good-soft);color:var(--good)}
+.tl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:relative;padding-top:18px}
+.tl::before{content:"";position:absolute;left:12px;right:12px;top:24px;height:3px;background:var(--line);border-radius:3px}
+.tl-i{position:relative;padding:22px 12px 0 0}
+.tl-i::before{content:"";position:absolute;left:4px;top:0;width:15px;height:15px;border-radius:50%;background:var(--surface);border:3px solid var(--muted)}
+.tl-i.key::before{border-color:var(--accent);background:var(--accent)}
+.tl-d{display:block;font-family:var(--mono);font-size:13.5px;color:var(--muted)}
+.tl-i b{display:block;font-family:var(--display);font-size:18px;margin:2px 0 4px}
+.tl-i.key b{color:var(--accent)}
+.tl-i p{font-size:14.5px;color:var(--muted)}
+@media (max-width:700px){.tl{grid-template-columns:1fr 1fr;row-gap:14px}.tl::before{display:none}}
+b.g{color:var(--good)} b.r{color:var(--bad)}
+.cgr{color:var(--good)} .who .w-m{background:var(--faint);color:var(--muted)}
+.chain span.cgr,.chain span.cg{font-weight:600}
+#cb-q button{flex:1 1 40px}
+
 </style>
 </head>
 <body>
@@ -318,7 +335,7 @@ table.t td.colhl{background:var(--accent-soft)}
 
 <section class="slide title-slide" data-title="Overview">
  <div class="inner">
-  <p class="eyebrow">Module 5 · Sessions 10 to 12 · RWJK Ch 26</p>
+  <p class="eyebrow">Module 5 · Sessions 10 to 12 · RWJJS Ch 26</p>
   <h1>Short-Term Finance and Planning</h1>
   <p class="lede">Profitable firms still run out of cash. This module follows a rupee from paying a supplier to collecting from a customer, and plans the borrowing needed in between.</p>
   <div class="goals">
@@ -327,6 +344,7 @@ table.t td.colhl{background:var(--accent-soft)}
    <div><b>3</b>Weigh flexible against restrictive short-term policies</div>
    <div><b>4</b>Prepare a cash budget and choose short-term financing</div>
   </div>
+  <p class="who"><span class="w-n">Source of cash</span><span class="w-g">Use of cash</span><span class="w-s">Inventory</span><span class="w-b">Receivables</span><span class="w-m">Payables</span> keep these colours throughout the deck.</p>
   <p class="keys">Move with <kbd>→</kbd> <kbd>←</kbd>. <kbd>O</kbd> shows all slides.</p>
  </div>
 </section>
@@ -339,8 +357,12 @@ table.t td.colhl{background:var(--accent-soft)}
    <div class="card"><span class="tag">Current assets</span><p>Expected to turn into cash within the year.</p><ul class="pts"><li>Cash and marketable securities</li><li>Accounts receivable</li><li>Inventory</li></ul></div>
    <div class="card"><span class="tag f2">Current liabilities</span><p>Expected to need cash payment within the year.</p><ul class="pts"><li>Accounts payable</li><li>Accrued wages</li><li>Taxes payable</li></ul></div>
   </div>
-  <div class="formula f">Cash = Long-term debt + Equity + Current liabilities − Current assets other than cash − Fixed assets</div>
-  <p class="note f">So cash goes up when long-term debt or equity goes up, or when fixed assets or non-cash working capital go down. That gives us sources and uses of cash.</p>
+  <div class="four">
+   <div class="card f"><h3>1 · The balance sheet balances</h3><p class="mono" style="color:var(--ink)">Assets = Liabilities + Equity</p></div>
+   <div class="card f"><h3>2 · Split it up</h3><p class="mono" style="color:var(--ink)">Cash + Other current assets + Fixed assets<br>= Current liabilities + Long-term debt + Equity</p></div>
+   <div class="card f"><h3>3 · Keep cash alone</h3><p class="mono" style="color:var(--ink)">Cash = <span class="cgr">Long-term debt + Equity + Current liabilities</span> <span class="cg">− Other current assets − Fixed assets</span></p></div>
+   <div class="card soft f"><h3>4 · Read it</h3><p style="color:var(--ink)">An increase in anything with a <b class="g">+</b> sign raises cash: a <b class="g">source</b>. An increase in anything with a <b class="r">−</b> sign lowers cash: a <b class="r">use</b>.</p></div>
+  </div>
  </div>
 </section>
 
@@ -383,9 +405,9 @@ table.t td.colhl{background:var(--accent-soft)}
   <h2>From the statements to the cycles</h2>
   <p>Inventory: ₹2,00,000 at the start, ₹3,00,000 at the end. Receivables: ₹1,60,000 to ₹2,00,000. Payables: ₹75,000 to ₹1,00,000. Net sales ₹11,50,000, cost of goods sold ₹8,20,000.</p>
   <div class="three">
-   <div class="card f"><span class="tag">Inventory period</span><p class="mono">Average = ₹2,50,000<br>Turnover = 8,20,000 / 2,50,000 = 3.28<br>Period = 365 / 3.28 = <b class="c">111.3 days</b></p></div>
-   <div class="card f"><span class="tag">Receivables period</span><p class="mono">Average = ₹1,80,000<br>Turnover = 11,50,000 / 1,80,000 = 6.39<br>Period = 365 / 6.39 = <b class="c">57.1 days</b></p></div>
-   <div class="card f"><span class="tag f2">Payables period</span><p class="mono">Average = ₹87,500<br>Turnover = 8,20,000 / 87,500 = 9.37<br>Period = 365 / 9.37 = <b class="fc">38.9 days</b></p></div>
+   <div class="card f fcard" style="--fc:var(--accent)"><span class="tag fc">Inventory period</span><p class="mono">Average = ₹2,50,000<br>Turnover = 8,20,000 / 2,50,000 = 3.28<br>Period = 365 / 3.28 = <b class="c">111.3 days</b></p></div>
+   <div class="card f fcard" style="--fc:var(--face)"><span class="tag fc">Receivables period</span><p class="mono">Average = ₹1,80,000<br>Turnover = 11,50,000 / 1,80,000 = 6.39<br>Period = 365 / 6.39 = <b class="c">57.1 days</b></p></div>
+   <div class="card f fcard" style="--fc:var(--muted)"><span class="tag fc">Payables period</span><p class="mono">Average = ₹87,500<br>Turnover = 8,20,000 / 87,500 = 9.37<br>Period = 365 / 9.37 = <b class="fc">38.9 days</b></p></div>
   </div>
   <div class="kpis f"><div class="kpi"><span>Operating cycle</span><b>168.4 days</b></div><div class="kpi hi"><span>Cash cycle</span><b>129.5 days</b></div></div>
   <p class="note f">The firm must finance its inventory and receivables for about 130 days. To cut that, look first at the inventory and receivables periods: both look long.</p>
@@ -444,8 +466,15 @@ table.t td.colhl{background:var(--accent-soft)}
    <div class="ctl"><label for="cb-app">Payables period (days) <output for="cb-app"></output></label><input type="range" id="cb-app" min="0" max="90" step="15" value="45"><small>Purchases are 50% of next quarter's sales</small></div>
    <div class="ctl"><label for="cb-min">Minimum cash balance <output for="cb-min"></output></label><input type="range" id="cb-min" min="0" max="150" step="10" value="50"><small>Opening cash ₹80; capex ₹200 in Q2</small></div>
   </div>
-  <div class="scroll"><table class="t" id="cb-t"></table></div>
-  <p class="note" id="cb-n"></p>
+  <div class="two wide-l" style="align-items:start">
+   <div class="scroll"><table class="t sm" id="cb-t"></table></div>
+   <div style="display:flex;flex-direction:column;gap:10px">
+    <p class="eyebrow">How one quarter is built</p>
+    <div class="seg" id="cb-q"><button class="on" data-v="0">Q1</button><button data-v="1">Q2</button><button data-v="2">Q3</button><button data-v="3">Q4</button></div>
+    <div class="chain" id="cb-c"></div>
+    <p class="note" id="cb-n"></p>
+   </div>
+  </div>
   <p class="hint">Figures are rounded to the nearest crore, so a total can differ by 1 from the sum of the rounded lines.</p>
  </div>
 </section>
@@ -713,7 +742,7 @@ fl=slider('fp-l',v=>'₹'+v,()=>drawFP());fl.run();
 
 /* cash budget */
 const sales=[500,600,650,800],nextQ1=550;
-const ca=slider('cb-acp',v=>v,cb),cpp=slider('cb-app',v=>v,cb),cm=slider('cb-min',v=>'₹'+v,cb);
+let cq=0;const ca=slider('cb-acp',v=>v,cb),cpp=slider('cb-app',v=>v,cb),cm=slider('cb-min',v=>'₹'+v,cb);
 function cb(){const fIn=1-ca.v/90,fPay=1-cpp.v/90;
  const purch=[300,325,400,nextQ1*.5],R=[],coll=[],pay=[],wages=sales.map(s=>.3*s),capex=[0,200,0,0],intdiv=[50,50,50,50];
  let beg=250,ap=125;
@@ -725,9 +754,13 @@ function cb(){const fIn=1-ca.v/90,fPay=1-cpp.v/90;
  $('#cb-t').innerHTML=`<thead><tr><th></th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th></tr></thead><tbody>`+
   r('Sales',sales)+r('Cash collections',coll,'tot')+r('Payments to suppliers',pay)+r('Wages, taxes, other (30% of sales)',wages)+r('Capital expenditure',capex)+r('Interest and dividends',intdiv)+r('Total disbursements',out,'tot')+
   r('Net cash inflow',net,'sign')+r('Beginning cash',begC.slice(0,4))+r('Ending cash',endC,'sign')+r('Less minimum balance',[cm.v,cm.v,cm.v,cm.v],'',v=>'−'+num(v))+r('Cumulative surplus (deficit)',cum,'hl sign')+'</tbody>';
+ const k=cq,frac=(x)=>{const t=Math.round(x*90);return t===90?'all':t===0?'none':(t%30===0?`${t/30}/3`:`${t}/90`);};
+ const begR=k===0?250:R[k-1],begP=k===0?125:(1-fPay)*purch[k-1];
+ $('#cb-c').innerHTML=`<b>Collections in Q${k+1}</b><br>Last quarter's unpaid sales: <span>${num(begR)}</span><br>ACP ${ca.v} days of a 90-day quarter, so ${frac(1-fIn)} of this quarter's sales are still unpaid at its end and <span>${frac(fIn)}</span> come in now: <span>${frac(fIn)} × ${num(sales[k])} = ${num(fIn*sales[k])}</span><br>Total: <span class="cgr">${num(begR)} + ${num(fIn*sales[k])} = ${num(coll[k])}</span>
+ <br><br><b>Payments to suppliers in Q${k+1}</b><br>Purchases = 50% of next quarter's sales = <span>${num(purch[k])}</span><br>Payables ${cpp.v} days, so <span>${frac(fPay)}</span> is paid this quarter: <span>${num(fPay*purch[k])}</span><br>Plus last quarter's unpaid purchases <span>${num(begP)}</span><br>Total: <span class="cg">${num(begP)} + ${num(fPay*purch[k])} = ${num(pay[k])}</span>`;
  const worst=Math.min(...cum),q=cum.indexOf(worst)+1;
  $('#cb-n').textContent=worst<0?`The largest shortfall is ₹${num(-worst)} crore in Q${q}. The firm should arrange a credit line of at least that much before the year starts.`:'No shortfall at any point: the firm can invest the surplus in short-term securities.';}
-ca.run();cpp.run();cm.run();
+seg($('#cb-q'),v=>{cq=+v;cb();});ca.run();cpp.run();cm.run();
 }
 
 D.start();

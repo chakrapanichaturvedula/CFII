@@ -308,6 +308,23 @@ table.t td.colhl{background:var(--accent-soft)}
 .chain{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:10px 14px;font-size:15.5px;line-height:1.7}
 .chain span{font-family:var(--mono);font-size:14.5px;white-space:nowrap}
 
+/* ---- dividend timeline ---- */
+.who .w-n{background:var(--good-soft);color:var(--good)}
+.tl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:relative;padding-top:18px}
+.tl::before{content:"";position:absolute;left:12px;right:12px;top:24px;height:3px;background:var(--line);border-radius:3px}
+.tl-i{position:relative;padding:22px 12px 0 0}
+.tl-i::before{content:"";position:absolute;left:4px;top:0;width:15px;height:15px;border-radius:50%;background:var(--surface);border:3px solid var(--muted)}
+.tl-i.key::before{border-color:var(--accent);background:var(--accent)}
+.tl-d{display:block;font-family:var(--mono);font-size:13.5px;color:var(--muted)}
+.tl-i b{display:block;font-family:var(--display);font-size:18px;margin:2px 0 4px}
+.tl-i.key b{color:var(--accent)}
+.tl-i p{font-size:14.5px;color:var(--muted)}
+@media (max-width:700px){.tl{grid-template-columns:1fr 1fr;row-gap:14px}.tl::before{display:none}}
+b.g{color:var(--good)} b.r{color:var(--bad)}
+.cgr{color:var(--good)} .who .w-m{background:var(--faint);color:var(--muted)}
+.chain span.cgr,.chain span.cg{font-weight:600}
+#cb-q button{flex:1 1 40px}
+
 </style>
 </head>
 <body>
