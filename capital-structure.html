@@ -324,6 +324,8 @@ b.g{color:var(--good)} b.r{color:var(--bad)}
 .cgr{color:var(--good)} .who .w-m{background:var(--faint);color:var(--muted)}
 .chain span.cgr,.chain span.cg{font-weight:600}
 #cb-q button{flex:1 1 40px}
+table.t td.okc{background:var(--good-soft);color:var(--good);font-weight:700}
+table.t tr.hl td.okc{background:var(--good-soft)}
 
 </style>
 </head>
@@ -444,12 +446,15 @@ b.g{color:var(--good)} b.r{color:var(--bad)}
 <section class="slide" data-title="Homemade leverage">
  <div class="inner">
   <p class="eyebrow">Session 5 · Activity · The fundamental insight of M&amp;M</p>
-  <h2>Can an investor copy the levered firm on her own?</h2>
-  <p>The firm stays all equity. Our investor has <b>₹1,200</b> of her own. She can also borrow at 8%, as the firm can, and buy shares of the all-equity firm at ₹50. Her target: the levered firm's ROE of <b>3.0%, 11.3% and 19.7%</b>.</p>
-  <div class="ctl" style="max-width:560px"><label for="hm-b">She borrows <output for="hm-b"></output></label><input type="range" id="hm-b" min="0" max="2000" step="100" value="0"><small id="hm-x"></small></div>
-  <div class="scroll"><table class="t" id="hm-t"></table></div>
-  <p id="hm-n" style="min-height:3em"></p>
-  <details class="card"><summary style="cursor:pointer;font-weight:600">The other way round: homemade unleverage</summary><p style="margin-top:8px;color:var(--ink)">If the firm borrows but she prefers the all-equity payoff, she buys 24 shares of the levered firm (₹1,200) and ₹800 of its debt. Earnings 36, 136, 236 plus interest 64 give 100, 200, 300 on ₹2,000: 5%, 10%, 15%, the unlevered ROE.</p></details>
+  <h2>Can an investor copy the levered firm's ROE on her own?</h2>
+  <p>She has <b>₹1,200</b>. She can buy shares of the all-equity firm at ₹50 and borrow at 8%, as the firm can. Move her borrowing until the bottom row on the right matches the bottom row on the left.</p>
+  <div class="ctl" style="max-width:640px"><label for="hm-b">She borrows <output for="hm-b"></output></label><input type="range" id="hm-b" min="0" max="2000" step="100" value="0"><small id="hm-x"></small></div>
+  <div class="two">
+   <div class="card fcard" style="--fc:var(--accent)"><span class="tag fc">Target · the levered firm (debt ₹8,000, 240 shares)</span><div class="scroll"><table class="t sm" id="hm-l"></table></div></div>
+   <div class="card fcard" style="--fc:var(--face)"><span class="tag fc">Her own version · all-equity firm + her own borrowing</span>
+    <div class="scroll"><table class="t sm" id="hm-r"></table></div></div>
+  </div>
+  <p id="hm-n" style="min-height:2.6em"></p>
  </div>
 </section>
 
@@ -813,20 +818,18 @@ const drawEE=chart('ee-c',svg=>{const e=ee.v,U=x=>x/400,L=x=>(x-640)/240;
   vl:[{x:1600,label:'Break-even ₹1,600'}],dots:[{x:e,y:U(e),c:'--muted'},{x:e,y:L(e),c:'--accent'}]});});
 ee=slider('ee-e',v=>inr(v),v=>{$('#ee-u').textContent=inr(v/400,2);$('#ee-l').textContent=inr((v-640)/240,2);drawEE();});ee.run();
 
-/* homemade leverage activity */
-const tgt=[(1000-640)/12000,(2000-640)/12000,(3000-640)/12000];
-slider('hm-b',v=>inr(v),b=>{const sh=(1200+b)/50,eps=[2.5,5,7.5],int=.08*b;
- const net=eps.map(x=>sh*x-int),ret=net.map(x=>x/1200);
- $('#hm-x').textContent=`She buys (1,200 + ${num(b)}) / 50 = ${num(sh,0)} shares. Her own debt-equity ratio: ${num(b)} / 1,200 = ${(b/1200).toFixed(2)} (the firm's would be 2/3 = 0.67).`;
- $('#hm-t').innerHTML=`<thead><tr><th></th>${states.map(s=>`<th>${s[0]}</th>`).join('')}</tr></thead><tbody>
- <tr><td>EPS of the all-equity firm</td>${eps.map(x=>`<td>₹${x.toFixed(2)}</td>`).join('')}</tr>
- <tr><td>Earnings on ${num(sh,0)} shares</td>${eps.map(x=>`<td>${num(sh*x)}</td>`).join('')}</tr>
- <tr class="r-b"><td>Less interest on ₹${num(b)} at 8%</td>${eps.map(()=>`<td>${num(int)}</td>`).join('')}</tr>
- <tr class="tot"><td>Net profit</td>${net.map(x=>`<td class="${x<0?'neg':''}">${num(x)}</td>`).join('')}</tr>
- <tr class="hl"><td>Return on her ₹1,200</td>${ret.map(x=>`<td>${pct(x)}</td>`).join('')}</tr>
- <tr class="r-s"><td>Target: levered firm's ROE</td>${tgt.map(x=>`<td>${pct(x)}</td>`).join('')}</tr></tbody>`;
- const ok=Math.abs(ret[1]-tgt[1])<1e-6;
- $('#hm-n').innerHTML=ok?'<b class="g">Matched.</b> Borrowing ₹800 against her own ₹1,200 copies the firm\'s 2/3 debt-equity ratio, and her returns equal the levered firm\'s in every state. She does not need the firm to borrow for her. Next: what this means for the price of the levered firm\'s shares.':b<800?'<b>Not enough leverage yet.</b> Her returns swing less than the levered firm\'s. Borrow more.':'<b class="r">Too much leverage.</b> Her returns now swing more than the levered firm\'s. Borrow less.';}).run();
+/* homemade leverage activity: both panels start from EBIT */
+const EB=[1000,2000,3000],tgt=EB.map(e=>(e-640)/12000);
+const th=`<thead><tr><th></th><th>Recession</th><th>Expected</th><th>Expansion</th></tr></thead>`;
+const tr=(n,a,cls='',f=v=>num(v),cc=()=>'')=>`<tr class="${cls}"><td>${n}</td>${a.map((v,k)=>`<td class="${cc(k)}">${f(v)}</td>`).join('')}</tr>`;
+$('#hm-l').innerHTML=th+'<tbody>'+tr('EBIT',EB)+tr('− Interest 8% × 8,000',EB.map(()=>640),'r-b')+tr('= Net income',EB.map(e=>e-640),'tot')+tr('÷ 240 shares = EPS',EB.map(e=>(e-640)/240),'',v=>'₹'+v.toFixed(2))+tr('Shareholders\' money',EB.map(()=>12000),'',v=>'₹'+num(v))+tr('ROE = NI / ₹12,000',tgt,'r-s hl',v=>pct(v))+'</tbody>';
+slider('hm-b',v=>inr(v),b=>{const n=(1200+b)/50,int=.08*b,eps=EB.map(e=>e/400),earn=eps.map(x=>n*x),net=earn.map(x=>x-int),ret=net.map(x=>x/1200);
+ const ok=ret.map((r,k)=>Math.abs(r-tgt[k])<1e-9),all=ok.every(Boolean);
+ $('#hm-x').textContent=`(1,200 + ${num(b)}) / ₹50 = ${num(n)} shares. Her debt-equity: ${num(b)} / 1,200 = ${(b/1200).toFixed(2)}.`;
+ $('#hm-r').innerHTML=th+'<tbody>'+tr('EBIT of the all-equity firm',EB)+tr('÷ 400 shares = EPS',eps,'',v=>'₹'+v.toFixed(2))+tr(`× her ${num(n)} shares`,earn)+tr(`− her interest 8% × ${num(b)}`,earn.map(()=>int),'r-b')+tr('= Her net profit',net,'tot')+
+  tr('Return on her ₹1,200',ret,'r-s hl',v=>pct(v),k=>ok[k]?'okc':'')+'</tbody>';
+ $('#hm-n').innerHTML=all?'<b class="g">Matched in every state.</b> Borrowing ₹800 against her own ₹1,200 copies the firm\'s 2/3 debt-equity ratio, so she gets the levered firm\'s ROE without the firm borrowing at all. Next: what this means for the price of the levered firm\'s shares.'
+ :b<800?'<b>Not there yet.</b> Her returns swing less than the levered firm\'s. Borrow more.':'<b class="r">Too far.</b> Her returns now swing more than the levered firm\'s. Borrow less.';}).run();
 
 /* same payoff, same price */
 slider('sp-p',v=>'₹'+v,P=>{const ca=24*P,vl=240*P+8000;$('#sp-p1').textContent='₹'+P;$('#sp-p2').textContent='₹'+P;$('#sp-ca').textContent=inr(ca);$('#sp-v').textContent=inr(vl);
