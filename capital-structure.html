@@ -562,13 +562,12 @@ table.t.alg td:first-child{font-family:var(--body);color:var(--muted)}
   <div class="two wide-l">
    <div class="fig"><svg id="p-c" role="img" aria-label="Cost of equity, WACC and cost of debt against debt-equity ratio"></svg></div>
    <div style="display:flex;flex-direction:column;gap:10px">
-    <div class="seg" id="p-t"><button class="on" data-v="0">No taxes</button><button data-v="1">Corporate tax 21%</button></div>
     <div class="ctl"><label for="p-b">Debt B, out of ₹20,000 <output for="p-b"></output></label><input type="range" id="p-b" min="0" max="15000" step="1000" value="8000"></div>
     <div class="kpis"><div class="kpi hi"><span>R<sub>S</sub></span><b id="p-rs"></b></div><div class="kpi"><span>WACC</span><b id="p-w"></b></div></div>
     <p class="legend"><span><i style="background:var(--accent)"></i>R<sub>S</sub></span><span><i style="background:var(--ink)"></i>WACC</span><span><i style="background:var(--face)"></i>R<sub>B</sub></span></p>
    </div>
   </div>
-  <div class="card soft"><p style="color:var(--ink)"><b>With taxes (book):</b> "Some of the increase in equity risk and return is offset by the interest tax shield." At the book's numbers: 10% + (2/3) × 0.79 × 2% = <b class="cs">11.05%</b>, against 11.33% without taxes. The 0.28-point gap is the part offset by the tax shield.</p></div>
+  <p class="note">WACC stays flat at R<sub>0</sub> = 10%: the cheaper debt is exactly offset by the dearer equity. With corporate taxes this changes; we return to it after the tax shield.</p>
  </div>
 </section>
 
@@ -603,6 +602,35 @@ table.t.alg td:first-child{font-family:var(--body);color:var(--muted)}
    <div class="ctl"><label for="vl-b">Perpetual debt B <output for="vl-b"></output></label><input type="range" id="vl-b" min="0" max="16000" step="1000" value="8000"></div>
   </div>
   <div class="kpis f"><div class="kpi"><span>V<sub>U</sub> = 1,580 / R<sub>0</sub></span><b id="vl-u"></b></div><div class="kpi"><span>Tax shield T<sub>C</sub>B</span><b id="vl-s" class="cb"></b></div><div class="kpi hi"><span>V<sub>L</sub></span><b id="vl-l"></b></div><div class="kpi"><span>Levered equity S = V<sub>L</sub> − B</span><b id="vl-e" class="cs"></b></div></div>
+ </div>
+</section>
+
+<section class="slide" data-title="M&amp;M II, with taxes">
+ <div class="inner">
+  <p class="eyebrow">Session 6 · 16.5 M&amp;M Proposition II (corporate taxes) · as the book states it</p>
+  <h2>Some of the increase in equity risk and return is offset by the interest tax shield</h2>
+  <div class="lf">
+   <div class="lf-row">
+    <div class="lf-t" style="--fc:var(--accent)"><b>R<sub>S</sub></b><small>cost of equity</small></div>
+    <div class="lf-op">=</div>
+    <div class="lf-t" style="--fc:var(--ink)"><b>R<sub>0</sub></b><small>what the assets earn</small></div>
+    <div class="lf-op">+</div>
+    <div class="lf-t" style="--fc:var(--face)"><b>B / S</b><small>borrowed rupees per rupee of equity</small></div>
+    <div class="lf-op">×</div>
+    <div class="lf-t" style="--fc:var(--bad)"><b>(1 − T<sub>C</sub>)</b><small>new: the part the tax shield does not absorb</small></div>
+    <div class="lf-op">×</div>
+    <div class="lf-t" style="--fc:var(--good)"><b>(R<sub>0</sub> − R<sub>B</sub>)</b><small>the spread</small></div>
+   </div>
+  </div>
+  <div class="two wide-l">
+   <div class="fig"><svg id="t2-c" role="img" aria-label="Cost of equity with and without taxes, and WACC with taxes, against debt-equity ratio"></svg></div>
+   <div style="display:flex;flex-direction:column;gap:10px">
+    <div class="ctl"><label for="t2-b">Debt B, out of ₹20,000 <output for="t2-b"></output></label><input type="range" id="t2-b" min="0" max="15000" step="1000" value="8000"></div>
+    <div class="kpis"><div class="kpi"><span>R<sub>S</sub>, no taxes</span><b id="t2-n"></b></div><div class="kpi hi"><span>R<sub>S</sub>, T<sub>C</sub> = 21%</span><b id="t2-t"></b></div><div class="kpi"><span>WACC, T<sub>C</sub> = 21%</span><b id="t2-w"></b></div></div>
+    <p class="legend"><span><i style="background:var(--muted)"></i>R<sub>S</sub>, no taxes</span><span><i style="background:var(--accent)"></i>R<sub>S</sub>, with taxes</span><span><i style="background:var(--ink)"></i>WACC, with taxes</span></p>
+   </div>
+  </div>
+  <div class="chain" id="t2-x"></div>
  </div>
 </section>
 
@@ -917,8 +945,19 @@ const draw=chart('p-c',svg=>{const pts=f=>{const a=[];for(let x=0;x<=3.0001;x+=.
   lines:[{pts:pts(Rs),c:'--accent',label:'Cost of equity'},{pts:pts(Wc),c:'--ink',label:'WACC'},{pts:[[0,RB],[3,RB]],c:'--face',dash:'5 4'}],
   vl:[{x:2/3,label:'Book: B/S = 2/3'}],dots:[{x:Math.min(x,3),y:Rs(Math.min(x,3)),c:'--accent',label:Rs(Math.min(x,3)).toFixed(2)+'%'}]});});
 function upd(){const x=pb.v/(V-pb.v);$('#p-rs').textContent=Rs(x).toFixed(2)+'%';$('#p-w').textContent=Wc(x).toFixed(2)+'%';draw();}
-seg($('#p-t'),v=>{tax=+v?.21:0;upd();});pb.run();
+pb.run();
 }
+
+
+/* M&M II with taxes */
+{const R0=10,RB=8,V=20000,T=.21;let tb;
+ const Rn=x=>R0+x*(R0-RB),Rt=x=>R0+x*(1-T)*(R0-RB),Wt=x=>Rt(x)/(1+x)+x/(1+x)*RB*(1-T);
+ const draw=chart('t2-c',svg=>{const pts=f=>{const a=[];for(let x=0;x<=3.0001;x+=.05)a.push([x,f(x)]);return a;};const x=tb.v/(V-tb.v);
+  plot(svg,{xd:[0,3],yd:[0,20],xt:[0,.5,1,1.5,2,2.5,3],yt:[0,5,10,15,20],xf:v=>v,yf:v=>v+'%',xl:'Debt-equity ratio B/S',yl:'Cost of capital',
+   lines:[{pts:pts(Rn),c:'--muted',dash:'5 4'},{pts:pts(Rt),c:'--accent'},{pts:pts(Wt),c:'--ink',label:'WACC, with taxes'},{pts:[[0,RB*(1-T)],[3,RB*(1-T)]],c:'--face',dash:'2 4'}],
+   vl:[{x:2/3,label:'Book: B/S = 2/3'}],dots:[{x:Math.min(x,3),y:Rt(Math.min(x,3)),c:'--accent'},{x:Math.min(x,3),y:Rn(Math.min(x,3)),c:'--muted'}]});});
+ tb=slider('t2-b',v=>inr(v),B=>{const S=V-B,x=B/S;$('#t2-n').textContent=Rn(x).toFixed(2)+'%';$('#t2-t').textContent=Rt(x).toFixed(2)+'%';$('#t2-w').textContent=Wt(x).toFixed(2)+'%';
+  $('#t2-x').innerHTML=B?`<b>With the book's numbers:</b> <span>R<sub>S</sub> = 10% + (${num(B)}/${num(S)}) × 0.79 × 2% = ${Rt(x).toFixed(2)}%</span>, against <span>${Rn(x).toFixed(2)}%</span> without taxes. The gap of <span class="cg">${(Rn(x)-Rt(x)).toFixed(2)} points</span> is the part of the extra risk and return offset by the interest tax shield. WACC now falls as debt rises, from 10% to ${Wt(x).toFixed(2)}%: debt lowers the firm's cost of capital, which is the other face of V<sub>L</sub> = V<sub>U</sub> + T<sub>C</sub>B.`:'With no debt there is no tax shield: R<sub>S</sub> = WACC = R<sub>0</sub> = 10%.';draw();});tb.run();}
 
 /* who gets EBIT */
 let ebit=2000;const td=slider('tx-d',v=>inr(v),tx),tt=slider('tx-t',v=>v+'%',tx);
