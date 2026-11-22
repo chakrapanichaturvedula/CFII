@@ -392,7 +392,7 @@ b.g{color:var(--good)} b.r{color:var(--bad)}
 <section class="slide" data-title="EPS and ROE">
  <div class="inner">
   <p class="eyebrow">Session 5 · Leverage, EPS and ROE</p>
-  <h2>Borrowing makes EPS swing harder</h2>
+  <h2>Borrowing raises expected EPS, but makes it swing harder</h2>
   <div class="ctls">
    <div class="ctl"><label for="lv-d">Debt raised to buy back shares <output for="lv-d"></output></label><input type="range" id="lv-d" min="0" max="16000" step="2000" value="8000"><small id="lv-sh"></small></div>
    <div class="ctl"><label>Follow one state step by step</label><div class="seg" id="lv-st"><button data-v="0">Recession</button><button class="on" data-v="1">Expected</button><button data-v="2">Expansion</button></div></div>
@@ -402,6 +402,7 @@ b.g{color:var(--good)} b.r{color:var(--bad)}
    <div class="scroll"><table class="t" id="lv-l"></table></div>
   </div>
   <div class="chain" id="lv-c"></div>
+  <div class="card soft"><h3>The point of this slide: higher expected EPS, but more risk</h3><p style="color:var(--ink)" id="lv-k"></p></div>
  </div>
 </section>
 
@@ -452,15 +453,30 @@ b.g{color:var(--good)} b.r{color:var(--bad)}
  </div>
 </section>
 
+<section class="slide" data-title="Same payoff, same price">
+ <div class="inner">
+  <p class="eyebrow">Session 5 · From homemade leverage to M&amp;M Proposition I</p>
+  <h2>Same payoff for the same money means the same price</h2>
+  <p>An investor with ₹1,200 who wants the levered firm's payoff has two ways to get it.</p>
+  <div class="two">
+   <div class="card fcard" style="--fc:var(--accent)"><span class="tag fc">Strategy A · buy the levered firm</span><p style="color:var(--ink)">Buy 24 shares of the levered firm at <b id="sp-p1"></b> each.</p><p class="mono" style="color:var(--ink)">Cost: 24 × <span id="sp-p2"></span> = <b id="sp-ca"></b><br>Payoff: 24 × EPS of ₹1.50, ₹5.67, ₹9.83<br>= <b>36, 136, 236</b></p></div>
+   <div class="card fcard" style="--fc:var(--face)"><span class="tag fc">Strategy B · homemade leverage</span><p style="color:var(--ink)">Borrow ₹800 at 8%, add ₹1,200 of her own, buy 40 shares of the unlevered firm at ₹50.</p><p class="mono" style="color:var(--ink)">Cost to her: <b>₹1,200</b><br>Payoff: 100, 200, 300 less interest 64<br>= <b>36, 136, 236</b></p></div>
+  </div>
+  <div class="ctl" style="max-width:560px"><label for="sp-p">Suppose the levered firm's share is priced at <output for="sp-p"></output></label><input type="range" id="sp-p" min="44" max="56" step="1" value="55"></div>
+  <p id="sp-msg" style="min-height:3.2em"></p>
+  <div class="kpis"><div class="kpi"><span>Unlevered firm V<sub>U</sub></span><b>400 × ₹50 = ₹20,000</b></div><div class="kpi hi"><span>Levered firm V<sub>L</sub> = 240 × price + 8,000</span><b id="sp-v"></b></div></div>
+ </div>
+</section>
+
 <section class="slide" data-title="Proposition I, no taxes">
  <div class="inner">
   <p class="eyebrow">Session 6 · M&amp;M Proposition I (no taxes)</p>
   <h2>Capital structure does not change firm value</h2>
   <div class="formula" style="font-size:clamp(24px,3vw,34px)">V<sub>L</sub> = V<sub>U</sub></div>
   <ul class="pts">
-   <li class="f">Whatever the firm chooses, investors can reach the other payoff on their own account, as the last slide showed.</li>
-   <li class="f">So nobody will pay extra for a levered firm, or accept less for an unlevered one.</li>
-   <li class="f">If the two values ever differed, investors would buy the cheaper one and create the other payoff themselves, until the values were equal again.</li>
+   <li class="f">Investors can create any amount of leverage on their own account, as the last two slides showed.</li>
+   <li class="f">So the levered firm's shares can only sell at the price that makes both routes cost the same: ₹50.</li>
+   <li class="f">At ₹50, the levered firm is worth 240 × 50 + 8,000 = ₹20,000, the same as the unlevered firm. The firm's choice of debt has not changed its value.</li>
   </ul>
  </div>
 </section>
@@ -783,6 +799,8 @@ function tab(D_,title){const sh=400-D_/50,i=.08*D_,eq=20000-D_;
 function draw5(){const v=lv.v,sh=400-v/50,i=.08*v,eq=20000-v,e=states[st][1];
  $('#lv-u').innerHTML=tab(0,'No debt, 400 shares');$('#lv-l').innerHTML=tab(v,`Debt ₹${num(v)}, ${sh} shares`);
  $('#lv-sh').textContent=`Buys back ${v/50} shares at ₹50; ${sh} remain. D/E = ${v?num(v)+' / '+num(eq)+' = '+(v/eq).toFixed(2):'0'}.`;
+ const ru=[2.5,7.5],rl=[(1000-i)/sh,(3000-i)/sh],eu=5,el=(2000-i)/sh;
+ $('#lv-k').innerHTML=v?`Expected EPS rises from ₹5.00 to <b class="cs">₹${el.toFixed(2)}</b>, but the range widens from ₹2.50–7.50 to <b class="cs">₹${rl[0].toFixed(2)}–${rl[1].toFixed(2)}</b>. Shareholders get more on average and carry more risk. Are they better off? Higher EPS alone cannot tell us; homemade leverage, in a few slides, answers the question.`:'With no debt, EPS ranges from ₹2.50 to ₹7.50. Add debt to see what changes.';
  $('#lv-c').innerHTML=v?`<b>${states[st][0]}, with debt:</b> EBIT ${num(e)} − <span class="cb">interest 8% × ${num(v)} = ${num(i)}</span> = <span class="cs">net income ${num(e-i)}</span> → <span class="cs">EPS = ${num(e-i)} / ${sh} = ₹${((e-i)/sh).toFixed(2)}</span> → <span class="cs">ROE = ${num(e-i)} / ${num(eq)} = ${pct((e-i)/eq)}</span>. Without debt: EPS = ${num(e)} / 400 = ₹${(e/400).toFixed(2)}.`:'Move the slider to add debt.';}
 seg($('#lv-st'),v=>{st=+v;draw5();});lv.run();
 
@@ -808,7 +826,13 @@ slider('hm-b',v=>inr(v),b=>{const sh=(1200+b)/50,eps=[2.5,5,7.5],int=.08*b;
  <tr class="hl"><td>Return on her ₹1,200</td>${ret.map(x=>`<td>${pct(x)}</td>`).join('')}</tr>
  <tr class="r-s"><td>Target: levered firm's ROE</td>${tgt.map(x=>`<td>${pct(x)}</td>`).join('')}</tr></tbody>`;
  const ok=Math.abs(ret[1]-tgt[1])<1e-6;
- $('#hm-n').innerHTML=ok?'<b class="g">Matched.</b> Borrowing ₹800 against her own ₹1,200 copies the firm\'s 2/3 debt-equity ratio, and her returns equal the levered firm\'s in every state. She does not need the firm to borrow for her.':b<800?'<b>Not enough leverage yet.</b> Her returns swing less than the levered firm\'s. Borrow more.':'<b class="r">Too much leverage.</b> Her returns now swing more than the levered firm\'s. Borrow less.';}).run();
+ $('#hm-n').innerHTML=ok?'<b class="g">Matched.</b> Borrowing ₹800 against her own ₹1,200 copies the firm\'s 2/3 debt-equity ratio, and her returns equal the levered firm\'s in every state. She does not need the firm to borrow for her. Next: what this means for the price of the levered firm\'s shares.':b<800?'<b>Not enough leverage yet.</b> Her returns swing less than the levered firm\'s. Borrow more.':'<b class="r">Too much leverage.</b> Her returns now swing more than the levered firm\'s. Borrow less.';}).run();
+
+/* same payoff, same price */
+slider('sp-p',v=>'₹'+v,P=>{const ca=24*P,vl=240*P+8000;$('#sp-p1').textContent='₹'+P;$('#sp-p2').textContent='₹'+P;$('#sp-ca').textContent=inr(ca);$('#sp-v').textContent=inr(vl);
+ $('#sp-msg').innerHTML=P>50?`<b class="r">Strategy A costs ₹${num(ca)}</b> for exactly the payoff Strategy B gives for ₹1,200. Nobody buys the levered shares at ₹${P}; holders sell them and use Strategy B instead. The price falls until both routes cost the same, at ₹50.`
+ :P<50?`<b class="r">Strategy A costs only ₹${num(ca)}</b> for the same payoff as Strategy B. Everyone wants the levered shares, so their price rises until both routes cost the same, at ₹50.`
+ :`<b class="g">Both routes cost ₹1,200 and pay the same.</b> Nobody can do better by switching, so ₹50 is the only price that lasts. Then V<sub>L</sub> = 240 × 50 + 8,000 = ₹20,000 = V<sub>U</sub>: borrowing has not changed the value of the firm.`;}).run();
 
 /* Proposition II chart */
 let tax=0;const r0=slider('m2-r0',v=>v+'%',m2),rb=slider('m2-rb',v=>v+'%',m2),bb=slider('m2-b',v=>inr(v),m2);
