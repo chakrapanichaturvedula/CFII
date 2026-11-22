@@ -294,6 +294,20 @@ table.t.lg .sub-note{font-size:12.5px}
 @media (max-width:860px){#gs-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:520px){#gs-steps{grid-template-columns:1fr}}
 
+/* ---- who gets the cash: shareholders, bondholders, government ---- */
+.cs{color:var(--accent)} .cb{color:var(--face)} .cg{color:var(--bad)}
+b.cs,b.cb,b.cg,span.cs,span.cb{font-weight:600}
+.who{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:14px;color:var(--muted)}
+.who span{font-weight:600;padding:3px 10px;border-radius:999px;font-size:13px}
+.who .w-s{background:var(--accent-soft);color:var(--accent)}
+.who .w-b{background:var(--face-soft);color:var(--face)}
+.who .w-g{background:var(--bad-soft);color:var(--bad)}
+table.t tr.r-s td:first-child{color:var(--accent);font-weight:600;box-shadow:inset 4px 0 0 var(--accent)}
+table.t tr.r-b td:first-child{color:var(--face);font-weight:600;box-shadow:inset 4px 0 0 var(--face)}
+table.t td.colhl{background:var(--accent-soft)}
+.chain{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:10px 14px;font-size:15.5px;line-height:1.7}
+.chain span{font-family:var(--mono);font-size:14.5px;white-space:nowrap}
+
 </style>
 </head>
 <body>
@@ -304,30 +318,31 @@ table.t.lg .sub-note{font-size:12.5px}
 
 <section class="slide title-slide" data-title="Overview">
  <div class="inner">
-  <p class="eyebrow">Module 2 · Sessions 5 and 6 · RWJK Ch 16</p>
+  <p class="eyebrow">Module 2 · Sessions 5 and 6 · RWJJS Ch 16</p>
   <h1>Capital Structure: Basic Concepts</h1>
-  <p class="lede">Does the mix of debt and equity change what a firm is worth? In a perfect market, no. Add corporate taxes, and debt starts to add value.</p>
+  <p class="lede">A firm can pay for its assets with owners' money or with borrowed money. Does the mix change what the firm is worth? Without taxes, no. With corporate taxes, borrowing adds value.</p>
   <div class="goals">
-   <div><b>1</b>See how financial leverage changes EPS and ROE</div>
-   <div><b>2</b>Use homemade leverage to undo the firm's choice</div>
-   <div><b>3</b>State M&amp;M Propositions I and II, with and without taxes</div>
-   <div><b>4</b>Compute the value of the unlevered and levered firm</div>
+   <div><b>1</b>See how borrowing changes EPS and ROE</div>
+   <div><b>2</b>Undo the firm's borrowing yourself: homemade leverage</div>
+   <div><b>3</b>Derive M&amp;M Propositions I and II from one example</div>
+   <div><b>4</b>Value the levered firm: V<sub>L</sub> = V<sub>U</sub> + T<sub>C</sub>B</div>
   </div>
+  <p class="who"><span class="w-s">Shareholders</span><span class="w-b">Bondholders (lenders)</span><span class="w-g">Government (taxes)</span> keep these colours throughout the deck.</p>
   <p class="keys">Move with <kbd>→</kbd> <kbd>←</kbd>. <kbd>O</kbd> shows all slides.</p>
  </div>
 </section>
 
 <section class="slide" data-title="The pie">
  <div class="inner">
-  <p class="eyebrow">Session 5 · The capital structure question</p>
+  <p class="eyebrow">Session 5 · 16.1 The capital structure question</p>
   <h2>The value of the firm is a pie: V = B + S</h2>
   <div class="two">
    <div class="fig sm" style="min-height:280px"><svg id="pie-c" role="img" aria-label="Firm value split into debt and equity"></svg></div>
    <div style="display:flex;flex-direction:column;gap:14px">
-    <div class="ctl"><label for="pie-d">Debt share of firm value <output for="pie-d"></output></label><input type="range" id="pie-d" min="0" max="80" value="40"></div>
-    <div class="kpis"><div class="kpi"><span>Debt B</span><b id="pie-b"></b></div><div class="kpi"><span>Equity S</span><b id="pie-s"></b></div><div class="kpi hi"><span>Firm V</span><b>₹20,000</b></div></div>
-    <p class="f">If management's goal is to make the firm as valuable as possible, it should pick the debt-equity ratio that makes <b>the pie as big as possible</b>.</p>
-    <p class="note f">Here the slices change but the pie does not. The rest of this module asks when cutting the pie differently can make it bigger.</p>
+    <p>A firm owns ₹20,000 of assets. Someone paid for them: <b class="cs">shareholders (S)</b> with equity, <b class="cb">bondholders (B)</b> with loans. The value of the firm is the sum of the two slices.</p>
+    <div class="ctl"><label for="pie-d">Share paid for by borrowing <output for="pie-d"></output></label><input type="range" id="pie-d" min="0" max="80" value="40"></div>
+    <div class="kpis"><div class="kpi"><span>Debt B</span><b id="pie-b" class="cb"></b></div><div class="kpi"><span>Equity S</span><b id="pie-s" class="cs"></b></div><div class="kpi hi"><span>Firm V</span><b>₹20,000</b></div></div>
+    <p class="note f">The question of this module: is there a way of slicing the pie that makes <b>the pie itself</b> bigger? If so, management should choose that debt-equity ratio.</p>
    </div>
   </div>
  </div>
@@ -335,53 +350,61 @@ table.t.lg .sub-note{font-size:12.5px}
 
 <section class="slide" data-title="Whose value?">
  <div class="inner">
-  <p class="eyebrow">Session 5 · Firm value versus shareholder value</p>
-  <h2>Why should shareholders care about firm value?</h2>
+  <p class="eyebrow">Session 5 · 16.2 Firm value or shareholder value?</p>
+  <h2>Shareholders own S, not V. Why should they care about V?</h2>
   <div class="two">
-   <div class="card"><h3>Question 1</h3><p>Shareholders own S, not V. Should managers maximise firm value or shareholder value?</p></div>
-   <div class="card"><h3>Question 2</h3><p>Which debt-equity ratio maximises the shareholders' wealth?</p></div>
+   <div class="card"><h3>Question 1</h3><p>Should managers maximise the value of the whole firm, or only the value of the shares?</p></div>
+   <div class="card"><h3>Question 2</h3><p>Which debt-equity ratio makes shareholders best off?</p></div>
   </div>
-  <div class="card soft f"><h3>Answer</h3><p style="color:var(--ink)">A change in capital structure benefits shareholders if and only if the value of the firm rises. So the two goals point to the same debt-equity ratio.</p></div>
+  <div class="card soft f"><h3>Answer</h3><p style="color:var(--ink)">A change in capital structure helps shareholders only if it raises the value of the whole firm. So both goals lead to the same debt-equity ratio.</p></div>
  </div>
 </section>
 
 <section class="slide" data-title="The proposal">
  <div class="inner">
-  <p class="eyebrow">Session 5 · An example</p>
-  <h2>An all-equity firm thinks about borrowing</h2>
-  <p class="lede">It would borrow ₹8,000 at 8% and use the money to buy back 160 shares at ₹50. Perhaps some original shareholders want to cash out.</p>
+  <p class="eyebrow">Session 5 · 16.3 An example from the book</p>
+  <h2>An all-equity firm thinks about borrowing ₹8,000</h2>
+  <p class="lede">It would borrow ₹8,000 at 8% and use the money to buy back 160 of its shares at ₹50. Perhaps some shareholders want to cash out.</p>
   <div class="scroll" style="max-width:640px"><table class="t">
    <thead><tr><th></th><th>Current</th><th>Proposed</th></tr></thead>
-   <tbody><tr><td>Assets</td><td>₹20,000</td><td>₹20,000</td></tr><tr><td>Debt</td><td>₹0</td><td>₹8,000</td></tr><tr><td>Equity</td><td>₹20,000</td><td>₹12,000</td></tr><tr><td>Debt-equity ratio</td><td>0</td><td>2/3</td></tr><tr><td>Interest rate</td><td>n/a</td><td>8%</td></tr><tr><td>Shares outstanding</td><td>400</td><td>240</td></tr><tr><td>Share price</td><td>₹50</td><td>₹50</td></tr></tbody></table></div>
-  <p class="note">No taxes for now. Three states of the economy: recession, expected and expansion, with EBIT of ₹1,000, ₹2,000 and ₹3,000.</p>
+   <tbody><tr><td>Assets</td><td>₹20,000</td><td>₹20,000</td></tr><tr class="r-b"><td>Debt</td><td>₹0</td><td>₹8,000</td></tr><tr class="r-s"><td>Equity</td><td>₹20,000</td><td>₹12,000</td></tr><tr><td>Debt-equity ratio</td><td>0</td><td>8,000 / 12,000 = 2/3</td></tr><tr><td>Interest rate</td><td>n/a</td><td>8%</td></tr><tr class="r-s"><td>Shares outstanding</td><td>400</td><td>400 − 160 = 240</td></tr><tr><td>Share price</td><td>₹50</td><td>₹50</td></tr></tbody></table></div>
+  <p class="note">No taxes for now. Three states of the economy: recession, expected and expansion, with EBIT of ₹1,000, ₹2,000 and ₹3,000. The assets are the same in both columns; only the financing differs.</p>
  </div>
 </section>
 
 <section class="slide" data-title="EPS and ROE">
  <div class="inner">
   <p class="eyebrow">Session 5 · Leverage, EPS and ROE</p>
-  <h2>Debt makes EPS swing harder</h2>
-  <div class="ctl" style="max-width:520px"><label for="lv-d">Debt raised to buy back shares <output for="lv-d"></output></label><input type="range" id="lv-d" min="0" max="16000" step="2000" value="8000"><small id="lv-sh"></small></div>
+  <h2>Borrowing makes EPS swing harder</h2>
+  <div class="ctls">
+   <div class="ctl"><label for="lv-d">Debt raised to buy back shares <output for="lv-d"></output></label><input type="range" id="lv-d" min="0" max="16000" step="2000" value="8000"><small id="lv-sh"></small></div>
+   <div class="ctl"><label>Follow one state step by step</label><div class="seg" id="lv-st"><button data-v="0">Recession</button><button class="on" data-v="1">Expected</button><button data-v="2">Expansion</button></div></div>
+  </div>
   <div class="two">
    <div class="scroll"><table class="t" id="lv-u"></table></div>
    <div class="scroll"><table class="t" id="lv-l"></table></div>
   </div>
-  <p class="note" id="lv-n"></p>
+  <div class="chain" id="lv-c"></div>
  </div>
 </section>
 
-<section class="slide" data-title="EBIT and EPS">
+<section class="slide" data-title="Break-even EBIT">
  <div class="inner">
-  <p class="eyebrow">Session 5 · Break-even EBIT</p>
-  <h2>Debt helps above the break-even point and hurts below it</h2>
+  <p class="eyebrow">Session 5 · When does borrowing pay?</p>
+  <h2>Debt helps above the break-even EBIT and hurts below it</h2>
   <div class="two wide-l">
    <div class="fig"><svg id="ee-c" role="img" aria-label="EPS against EBIT with and without debt"></svg></div>
-   <div style="display:flex;flex-direction:column;gap:12px">
+   <div style="display:flex;flex-direction:column;gap:10px">
     <div class="ctl"><label for="ee-e">EBIT <output for="ee-e"></output></label><input type="range" id="ee-e" min="0" max="3500" step="50" value="2000"></div>
-    <div class="kpis"><div class="kpi"><span>EPS, no debt</span><b id="ee-u"></b></div><div class="kpi"><span>EPS, ₹8,000 debt</span><b id="ee-l"></b></div></div>
-    <p class="legend"><span><i style="background:var(--face)"></i>No debt</span><span><i style="background:var(--accent)"></i>With debt</span></p>
-    <p class="note f">The lines cross at EBIT ₹1,600: a return on assets of 1,600 / 20,000 = 8%, exactly the interest rate. Debt pays off only when the assets earn more than the debt costs.</p>
+    <div class="kpis"><div class="kpi"><span>EPS, no debt</span><b id="ee-u"></b></div><div class="kpi"><span>EPS, ₹8,000 debt</span><b id="ee-l" class="cs"></b></div></div>
+    <p class="legend"><span><i style="background:var(--muted)"></i>No debt</span><span><i style="background:var(--accent)"></i>With debt</span></p>
    </div>
+  </div>
+  <div class="four">
+   <div class="card f"><h3>1 · EPS without debt</h3><p class="mono">EBIT / 400</p></div>
+   <div class="card f"><h3>2 · EPS with debt</h3><p class="mono">(EBIT − 640) / 240</p></div>
+   <div class="card f"><h3>3 · Set them equal</h3><p class="mono">EBIT/400 = (EBIT − 640)/240<br>240 EBIT = 400 EBIT − 2,56,000<br>160 EBIT = 2,56,000<br>EBIT = ₹1,600</p></div>
+   <div class="card soft f"><h3>4 · What it means</h3><p style="color:var(--ink)">₹1,600 on ₹20,000 of assets is 8%, the interest rate. Borrowing raises EPS only when the assets earn more than the debt costs.</p></div>
   </div>
  </div>
 </section>
@@ -392,7 +415,7 @@ table.t.lg .sub-note{font-size:12.5px}
   <h2>The M&amp;M world</h2>
   <div class="three">
    <div class="card"><h3>Homogeneous expectations</h3><p>Everyone agrees on the firm's future cash flows.</p></div>
-   <div class="card"><h3>Same business risk class</h3><p>Firms being compared differ only in how they are financed.</p></div>
+   <div class="card"><h3>Same business risk class</h3><p>The firms compared differ only in how they are financed.</p></div>
    <div class="card"><h3>Perpetual cash flows</h3><p>EBIT is expected to continue forever.</p></div>
   </div>
   <div class="card soft"><h3>Perfect capital markets</h3>
@@ -402,12 +425,13 @@ table.t.lg .sub-note{font-size:12.5px}
 
 <section class="slide" data-title="Homemade leverage">
  <div class="inner">
-  <p class="eyebrow">Session 5 · The fundamental insight of M&amp;M</p>
-  <h2>Investors can copy, or undo, the firm's leverage on their own</h2>
-  <div class="seg" id="hm-m" style="max-width:620px"><button class="on" data-v="lev">Homemade leverage</button><button data-v="unlev">Homemade unleverage</button></div>
-  <p id="hm-d"></p>
+  <p class="eyebrow">Session 5 · Activity · The fundamental insight of M&amp;M</p>
+  <h2>Can an investor copy the levered firm on her own?</h2>
+  <p>The firm stays all equity. Our investor has <b>₹1,200</b> of her own. She can also borrow at 8%, as the firm can, and buy shares of the all-equity firm at ₹50. Her target: the levered firm's ROE of <b>3.0%, 11.3% and 19.7%</b>.</p>
+  <div class="ctl" style="max-width:560px"><label for="hm-b">She borrows <output for="hm-b"></output></label><input type="range" id="hm-b" min="0" max="2000" step="100" value="0"><small id="hm-x"></small></div>
   <div class="scroll"><table class="t" id="hm-t"></table></div>
-  <p class="note" id="hm-n"></p>
+  <p id="hm-n" style="min-height:3em"></p>
+  <details class="card"><summary style="cursor:pointer;font-weight:600">The other way round: homemade unleverage</summary><p style="margin-top:8px;color:var(--ink)">If the firm borrows but she prefers the all-equity payoff, she buys 24 shares of the levered firm (₹1,200) and ₹800 of its debt. Earnings 36, 136, 236 plus interest 64 give 100, 200, 300 on ₹2,000: 5%, 10%, 15%, the unlevered ROE.</p></details>
  </div>
 </section>
 
@@ -417,46 +441,50 @@ table.t.lg .sub-note{font-size:12.5px}
   <h2>Capital structure does not change firm value</h2>
   <div class="formula" style="font-size:clamp(24px,3vw,34px)">V<sub>L</sub> = V<sub>U</sub></div>
   <ul class="pts">
-   <li class="f">If a levered firm were worth more, investors would buy the unlevered firm's shares on personal borrowing and get the same payoff for less.</li>
-   <li class="f">If it were worth less, they would buy the levered firm's shares and some of its debt, and get the unlevered payoff for less.</li>
-   <li class="f">Either way, trading pushes the two values together. Investors will not pay the firm for leverage they can create themselves.</li>
+   <li class="f">Whatever the firm chooses, investors can reach the other payoff on their own account, as the last slide showed.</li>
+   <li class="f">So nobody will pay extra for a levered firm, or accept less for an unlevered one.</li>
+   <li class="f">If the two values ever differed, investors would buy the cheaper one and create the other payoff themselves, until the values were equal again.</li>
   </ul>
  </div>
 </section>
 
-<section class="slide" data-title="Proposition II">
+<section class="slide" data-title="Proposition II, from the example">
+ <div class="inner">
+  <p class="eyebrow">Session 6 · M&amp;M Proposition II (no taxes)</p>
+  <h2>Where does R<sub>S</sub> = R<sub>0</sub> + (B/S)(R<sub>0</sub> − R<sub>B</sub>) come from?</h2>
+  <p>In the expected state the all-equity firm earns 2,000 / 20,000 = <b>10%</b>. That is R<sub>0</sub>, the return on unlevered equity. Debt costs R<sub>B</sub> = 8%.</p>
+  <div class="four">
+   <div class="card f"><h3>1 · The firm's return does not change</h3><p style="color:var(--ink)">The assets still earn 10% however they are financed (Proposition I). So the average return to all investors is still R<sub>0</sub> = 10%.</p></div>
+   <div class="card f"><h3>2 · Split it between the two groups</h3><p class="mono" style="color:var(--ink)">(B/V) × R<sub>B</sub> + (S/V) × R<sub>S</sub> = R<sub>0</sub><br>(8,000/20,000) × 8% + (12,000/20,000) × R<sub>S</sub> = 10%</p></div>
+   <div class="card f"><h3>3 · Solve for R<sub>S</sub></h3><p class="mono" style="color:var(--ink)">3.2% + 0.6 R<sub>S</sub> = 10%<br>0.6 R<sub>S</sub> = 6.8%<br>R<sub>S</sub> = 11.33%</p></div>
+   <div class="card soft f"><h3>4 · Spot the formula</h3><p class="mono" style="color:var(--ink)">R<sub>S</sub> = 10% + (8,000/12,000)(10% − 8%)<br>= 10% + (2/3)(2%) = 11.33%<br><b>R<sub>S</sub> = R<sub>0</sub> + (B/S)(R<sub>0</sub> − R<sub>B</sub>)</b></p></div>
+  </div>
+  <p class="note f">Check: 11.33% is the levered firm's expected ROE from the table, 1,360 / 12,000. Shareholders earn more because they now carry the risk of the debt as well as the business. The book's slide does the same steps in symbols: multiply both sides by (B + S)/S and rearrange.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="Proposition II, the picture">
  <div class="inner">
   <p class="eyebrow">Session 6 · M&amp;M Proposition II</p>
-  <h2>Leverage raises the risk and the required return on equity</h2>
+  <h2>More debt, riskier equity, higher required return</h2>
   <div class="seg" id="m2-t" style="max-width:420px"><button class="on" data-v="0">No taxes</button><button data-v="1">Corporate tax 21%</button></div>
   <div class="formula" id="m2-f"></div>
   <div class="two wide-l">
    <div class="fig"><svg id="m2-c" role="img" aria-label="Cost of equity, WACC and cost of debt against debt-equity ratio"></svg></div>
    <div style="display:flex;flex-direction:column;gap:12px">
-    <div class="ctl"><label for="m2-r0">R<sub>0</sub>, return on unlevered equity <output for="m2-r0"></output></label><input type="range" id="m2-r0" min="8" max="20" step="0.5" value="12"></div>
+    <div class="ctl"><label for="m2-r0">R<sub>0</sub>, return on unlevered equity <output for="m2-r0"></output></label><input type="range" id="m2-r0" min="8" max="20" step="0.5" value="10"></div>
     <div class="ctl"><label for="m2-rb">R<sub>B</sub>, cost of debt <output for="m2-rb"></output></label><input type="range" id="m2-rb" min="4" max="10" step="0.5" value="8"></div>
-    <div class="ctl"><label for="m2-de">Debt-equity ratio B/S <output for="m2-de"></output></label><input type="range" id="m2-de" min="0" max="3" step="0.05" value="1"></div>
+    <div class="ctl"><label for="m2-b">Debt B, out of ₹20,000 <output for="m2-b"></output></label><input type="range" id="m2-b" min="0" max="15000" step="1000" value="8000"></div>
     <div class="kpis"><div class="kpi hi"><span>R<sub>S</sub></span><b id="m2-rs"></b></div><div class="kpi"><span>WACC</span><b id="m2-w"></b></div></div>
-    <p class="legend"><span><i style="background:var(--accent)"></i>R<sub>S</sub></span><span><i style="background:var(--face)"></i>WACC</span><span><i style="background:var(--muted)"></i>R<sub>B</sub></span></p>
+    <p class="legend"><span><i style="background:var(--accent)"></i>Cost of equity R<sub>S</sub></span><span><i style="background:var(--ink)"></i>WACC</span><span><i style="background:var(--face)"></i>Cost of debt R<sub>B</sub></span></p>
    </div>
   </div>
  </div>
 </section>
 
-<section class="slide" data-title="Deriving Proposition II">
- <div class="inner">
-  <p class="eyebrow">Session 6 · Where the formula comes from</p>
-  <h2>Proposition I says WACC stays at R<sub>0</sub></h2>
-  <div class="formula">R<sub>WACC</sub> = (B / (B+S)) × R<sub>B</sub> + (S / (B+S)) × R<sub>S</sub> = R<sub>0</sub><small>With no taxes, firm value does not change, so the overall cost of capital stays at R<sub>0</sub>.</small></div>
-  <div class="formula f">Multiply both sides by (B+S)/S: (B/S) × R<sub>B</sub> + R<sub>S</sub> = (B+S)/S × R<sub>0</sub> = (B/S) × R<sub>0</sub> + R<sub>0</sub></div>
-  <div class="formula f" style="border-left-color:var(--face)">R<sub>S</sub> = R<sub>0</sub> + (B/S) × (R<sub>0</sub> − R<sub>B</sub>)</div>
-  <p class="note f">Cheap debt does not lower the cost of capital: every extra rupee of cheap debt makes the equity riskier, and shareholders demand exactly enough extra return to cancel the saving.</p>
- </div>
-</section>
-
 <section class="slide" data-title="Taxes split the pie">
  <div class="inner">
-  <p class="eyebrow">Session 6 · Adding corporate taxes</p>
+  <p class="eyebrow">Session 6 · 16.5 Adding corporate taxes</p>
   <h2>With taxes, the government takes a slice. Debt makes that slice smaller</h2>
   <div class="ctls">
    <div class="ctl"><label for="tx-d">Debt at 8% <output for="tx-d"></output></label><input type="range" id="tx-d" min="0" max="16000" step="1000" value="8000"></div>
@@ -471,19 +499,19 @@ table.t.lg .sub-note{font-size:12.5px}
 
 <section class="slide" data-title="Proposition I, with taxes">
  <div class="inner">
-  <p class="eyebrow">Session 6 · M&amp;M Proposition I (corporate taxes)</p>
-  <h2>Firm value rises with leverage: V<sub>L</sub> = V<sub>U</sub> + T<sub>C</sub>B</h2>
-  <div class="formula">Cash flow to all investors = EBIT × (1 − T<sub>C</sub>) + T<sub>C</sub> × R<sub>B</sub> × B</div>
-  <div class="two f">
-   <div class="card"><h3>First term</h3><p>Same as the unlevered firm's cash flow. Discounted at R<sub>0</sub>, its present value is V<sub>U</sub>.</p></div>
-   <div class="card"><h3>Second term: the interest tax shield</h3><p>As certain as the interest itself, so discount it at R<sub>B</sub>: T<sub>C</sub>R<sub>B</sub>B / R<sub>B</sub> = T<sub>C</sub>B.</p></div>
+  <p class="eyebrow">Session 6 · M&amp;M Proposition I (corporate taxes) · book's numbers, T<sub>C</sub> = 21%</p>
+  <h2>Where does V<sub>L</sub> = V<sub>U</sub> + T<sub>C</sub>B come from?</h2>
+  <div class="four">
+   <div class="card f"><h3>1 · All-equity firm</h3><p class="mono" style="color:var(--ink)">Investors get<br>EBIT × (1 − T<sub>C</sub>)<br>= 2,000 × 0.79<br>= <b class="cs">₹1,580</b></p></div>
+   <div class="card f"><h3>2 · Levered firm</h3><p class="mono" style="color:var(--ink)">Shareholders:<br>(2,000 − 640) × 0.79 = <b class="cs">1,074.4</b><br>Bondholders: <b class="cb">640</b><br>Together: <b>₹1,714.4</b></p></div>
+   <div class="card f"><h3>3 · The difference</h3><p class="mono" style="color:var(--ink)">1,714.4 − 1,580 = ₹134.4<br>= 0.21 × 640<br>= T<sub>C</sub> × R<sub>B</sub> × B<br>every year: the interest tax shield</p></div>
+   <div class="card soft f"><h3>4 · Value it</h3><p class="mono" style="color:var(--ink)">A perpetuity, as safe as the debt, so discount at R<sub>B</sub>:<br>134.4 / 0.08 = ₹1,680<br>= T<sub>C</sub> × B = 0.21 × 8,000<br><b>V<sub>L</sub> = V<sub>U</sub> + T<sub>C</sub>B</b></p></div>
   </div>
   <div class="ctls f">
-   <div class="ctl"><label for="vl-r0">R<sub>0</sub> (assumed) <output for="vl-r0"></output></label><input type="range" id="vl-r0" min="8" max="20" step="0.5" value="13"></div>
-   <div class="ctl"><label for="vl-b">Perpetual debt B <output for="vl-b"></output></label><input type="range" id="vl-b" min="0" max="10000" step="500" value="8000"></div>
-   <div class="ctl"><label for="vl-t">T<sub>C</sub> <output for="vl-t"></output></label><input type="range" id="vl-t" min="0" max="50" value="21"></div>
+   <div class="ctl"><label for="vl-r0">R<sub>0</sub> (assumed; the book gives none) <output for="vl-r0"></output></label><input type="range" id="vl-r0" min="8" max="20" step="0.5" value="10"></div>
+   <div class="ctl"><label for="vl-b">Perpetual debt B <output for="vl-b"></output></label><input type="range" id="vl-b" min="0" max="16000" step="1000" value="8000"></div>
   </div>
-  <div class="kpis f"><div class="kpi"><span>V<sub>U</sub> = 2,000 (1 − T<sub>C</sub>) / R<sub>0</sub></span><b id="vl-u"></b></div><div class="kpi"><span>Tax shield T<sub>C</sub>B</span><b id="vl-s"></b></div><div class="kpi hi"><span>V<sub>L</sub></span><b id="vl-l"></b></div><div class="kpi"><span>Levered equity S = V<sub>L</sub> − B</span><b id="vl-e"></b></div></div>
+  <div class="kpis f"><div class="kpi"><span>V<sub>U</sub> = 1,580 / R<sub>0</sub></span><b id="vl-u"></b></div><div class="kpi"><span>Tax shield T<sub>C</sub>B</span><b id="vl-s" class="cb"></b></div><div class="kpi hi"><span>V<sub>L</sub></span><b id="vl-l"></b></div><div class="kpi"><span>Levered equity S = V<sub>L</sub> − B</span><b id="vl-e" class="cs"></b></div></div>
  </div>
 </section>
 
@@ -495,9 +523,9 @@ table.t.lg .sub-note{font-size:12.5px}
    <thead><tr><th></th><th style="text-align:left">No taxes</th><th style="text-align:left">Corporate taxes</th></tr></thead>
    <tbody>
     <tr><td><b>Proposition I</b></td><td style="text-align:left;white-space:normal">V<sub>L</sub> = V<sub>U</sub>. Capital structure is irrelevant because investors can use homemade leverage.</td><td style="text-align:left;white-space:normal">V<sub>L</sub> = V<sub>U</sub> + T<sub>C</sub>B. The interest tax shield makes the pie bigger: the government's slice shrinks.</td></tr>
-    <tr><td><b>Proposition II</b></td><td style="text-align:left;white-space:normal">R<sub>S</sub> = R<sub>0</sub> + (B/S)(R<sub>0</sub> − R<sub>B</sub>). Leverage raises equity risk and return; WACC stays flat.</td><td style="text-align:left;white-space:normal">R<sub>S</sub> = R<sub>0</sub> + (B/S)(1 − T<sub>C</sub>)(R<sub>0</sub> − R<sub>B</sub>). Equity return rises more slowly; WACC falls.</td></tr>
+    <tr><td><b>Proposition II</b></td><td style="text-align:left;white-space:normal">R<sub>S</sub> = R<sub>0</sub> + (B/S)(R<sub>0</sub> − R<sub>B</sub>). Leverage raises equity risk and return; WACC stays at R<sub>0</sub>.</td><td style="text-align:left;white-space:normal">R<sub>S</sub> = R<sub>0</sub> + (B/S)(1 − T<sub>C</sub>)(R<sub>0</sub> − R<sub>B</sub>). The tax shield offsets part of the rise; WACC falls.</td></tr>
    </tbody></table></div>
-  <p class="note f">Taken literally, the tax version says a firm should be almost all debt. Real firms are not, because of the costs of financial distress, which come next in the elective courses.</p>
+  <p class="note f">Taken literally, the tax version says a firm should be almost all debt. Real firms are not, because of the costs of financial distress (Ch 17).</p>
  </div>
 </section>
 
@@ -506,10 +534,10 @@ table.t.lg .sub-note{font-size:12.5px}
   <p class="eyebrow">Quick check</p>
   <h2>Five questions</h2>
   <div class="two">
-   <div class="q" data-a="1"><p class="qt">Assets of ₹20,000, debt at 8%. Above what EBIT does borrowing raise EPS?</p><div class="opts"><button>₹640</button><button>₹1,600</button><button>₹2,000</button></div><p class="why">Break-even is where ROA equals the interest rate: 8% × 20,000 = ₹1,600, whatever the amount of debt.</p></div>
-   <div class="q" data-a="0"><p class="qt">Homemade leverage implies that, without taxes,</p><div class="opts"><button>investors will not pay extra for a levered firm</button><button>levered firms always have higher EPS</button><button>firms should hold no debt</button></div><p class="why">Investors can borrow on their own account, so the firm's leverage adds nothing they cannot do themselves.</p></div>
+   <div class="q" data-a="1"><p class="qt">Assets of ₹20,000, debt at 8%. Above what EBIT does borrowing raise EPS?</p><div class="opts"><button>₹640</button><button>₹1,600</button><button>₹2,000</button></div><p class="why">Break-even is where the assets earn the interest rate: 8% × 20,000 = ₹1,600, whatever the amount of debt.</p></div>
+   <div class="q" data-a="0"><p class="qt">Homemade leverage implies that, without taxes,</p><div class="opts"><button>investors will not pay extra for a levered firm</button><button>levered firms always have higher EPS</button><button>firms should hold no debt</button></div><p class="why">Investors can borrow on their own account, so the firm's borrowing adds nothing they cannot do themselves.</p></div>
    <div class="q" data-a="2"><p class="qt">R<sub>0</sub> = 12%, R<sub>B</sub> = 8%, B/S = 1, no taxes. R<sub>S</sub> is</p><div class="opts"><button>12%</button><button>14%</button><button>16%</button></div><p class="why">12% + 1 × (12% − 8%) = 16%.</p></div>
-   <div class="q" data-a="1"><p class="qt">V<sub>U</sub> = ₹10,000, T<sub>C</sub> = 30%, the firm issues ₹4,000 of perpetual debt. V<sub>L</sub> is</p><div class="opts"><button>₹10,000</button><button>₹11,200</button><button>₹14,000</button></div><p class="why">V<sub>L</sub> = 10,000 + 0.30 × 4,000 = ₹11,200.</p></div>
+   <div class="q" data-a="1"><p class="qt">V<sub>U</sub> = ₹10,000, T<sub>C</sub> = 21%, the firm issues ₹4,000 of perpetual debt. V<sub>L</sub> is</p><div class="opts"><button>₹10,000</button><button>₹10,840</button><button>₹14,000</button></div><p class="why">V<sub>L</sub> = 10,000 + 0.21 × 4,000 = ₹10,840.</p></div>
    <div class="q" data-a="2"><p class="qt">With corporate taxes, where does the gain from debt come from?</p><div class="opts"><button>Debt is cheaper than equity</button><button>Shareholders take less risk</button><button>The government's share of the cash flows falls</button></div><p class="why">Interest is paid before tax, so more of EBIT reaches investors.</p></div>
   </div>
   <p class="score"></p>
@@ -716,76 +744,83 @@ window.D = (() => {
 
 {
 const {inr,num,pct,slider,seg,plot,chart,css,$}=D;
+const states=[['Recession',1000],['Expected',2000],['Expansion',3000]];
 /* pie */
 let pieD;
 const drawPie=chart('pie-c',svg=>{const W=svg.clientWidth,H=svg.clientHeight;if(!W||!H)return;const r=Math.min(W,H)/2-26,cx=W/2,cy=H/2,d=pieD.v/100;
  const a=2*Math.PI*d,x=cx+r*Math.sin(a),y=cy-r*Math.cos(a),large=d>.5?1:0;
  let s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${css('--accent')}"/>`;
- if(d>0)s+=d>=1?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${css('--face')}"/>`:`<path d="M${cx},${cy} L${cx},${cy-r} A${r},${r} 0 ${large} 1 ${x},${y} Z" fill="${css('--face')}"/>`;
+ if(d>0)s+=`<path d="M${cx},${cy} L${cx},${cy-r} A${r},${r} 0 ${large} 1 ${x},${y} Z" fill="${css('--face')}"/>`;
  const lab=(ang,t)=>`<text x="${cx+r*.55*Math.sin(ang)}" y="${cy-r*.55*Math.cos(ang)+5}" text-anchor="middle" style="fill:${css('--surface')};font-weight:600;font-size:15px">${t}</text>`;
  if(d>.06)s+=lab(a/2,'B');if(d<.94)s+=lab(a+(2*Math.PI-a)/2,'S');svg.innerHTML=s;});
 pieD=slider('pie-d',v=>v+'%',v=>{$('#pie-b').textContent=inr(200*v);$('#pie-s').textContent=inr(20000-200*v);drawPie();});pieD.run();
 
-/* EPS and ROE table */
-const states=[['Recession',1000],['Expected',2000],['Expansion',3000]];
+/* EPS and ROE, with a step-by-step chain for one state */
+let st=1;
+const lv=slider('lv-d',v=>inr(v),draw5);
 function tab(D_,title){const sh=400-D_/50,i=.08*D_,eq=20000-D_;
  let h=`<thead><tr><th>${title}</th>${states.map(s=>`<th>${s[0]}</th>`).join('')}</tr></thead><tbody>`;
- const row=(n,f,cls='')=>h+=`<tr class="${cls}"><td>${n}</td>${states.map(s=>{const v=f(s[1]);return `<td class="${v<0?'neg':''}">${typeof v==='string'?v:inr(v)}</td>`}).join('')}</tr>`;
- row('EBIT',e=>e);row('Interest',e=>i);row('Net income',e=>e-i,'tot');row('EPS',e=>sh>0?inr((e-i)/sh,2):'n/a','hl');row('ROA',e=>pct(e/20000));row('ROE',e=>eq>0?pct((e-i)/eq):'n/a');
+ const row=(n,f,cls='')=>h+=`<tr class="${cls}"><td>${n}</td>${states.map((s,k)=>{const v=f(s[1]);return `<td class="${v<0?'neg':''} ${k===st?'colhl':''}">${typeof v==='string'?v:inr(v)}</td>`}).join('')}</tr>`;
+ row('EBIT',e=>e);row('Interest',e=>i,'r-b');row('Net income',e=>e-i,'tot r-s');row('EPS',e=>sh>0?inr((e-i)/sh,2):'n/a','r-s');row('ROA = NI / ₹20,000',e=>pct((e-i)/20000));row('ROE = NI / equity',e=>eq>0?pct((e-i)/eq):'n/a','r-s');
  return h+`</tbody>`;}
-const lv=slider('lv-d',v=>inr(v),v=>{$('#lv-u').innerHTML=tab(0,'All equity, 400 shares');$('#lv-l').innerHTML=tab(v,`Levered, ${400-v/50} shares`);
- $('#lv-sh').textContent=`Buys back ${v/50} shares at ₹50; ${400-v/50} remain. D/E = ${v?(v/(20000-v)).toFixed(2):'0'}.`;
- const e1=1000/400,e3=3000/400,l1=(1000-.08*v)/(400-v/50),l3=(3000-.08*v)/(400-v/50);
- $('#lv-n').textContent=v?`EPS range without debt: ₹${e1.toFixed(2)} to ₹${e3.toFixed(2)}. With ₹${num(v)} of debt: ₹${l1.toFixed(2)} to ₹${l3.toFixed(2)}. Higher expected EPS, but more risk.`:'Move the slider to add debt.';});
-lv.run();
+function draw5(){const v=lv.v,sh=400-v/50,i=.08*v,eq=20000-v,e=states[st][1];
+ $('#lv-u').innerHTML=tab(0,'No debt, 400 shares');$('#lv-l').innerHTML=tab(v,`Debt ₹${num(v)}, ${sh} shares`);
+ $('#lv-sh').textContent=`Buys back ${v/50} shares at ₹50; ${sh} remain. D/E = ${v?num(v)+' / '+num(eq)+' = '+(v/eq).toFixed(2):'0'}.`;
+ $('#lv-c').innerHTML=v?`<b>${states[st][0]}, with debt:</b> EBIT ${num(e)} − <span class="cb">interest 8% × ${num(v)} = ${num(i)}</span> = <span class="cs">net income ${num(e-i)}</span> → <span class="cs">EPS = ${num(e-i)} / ${sh} = ₹${((e-i)/sh).toFixed(2)}</span> → <span class="cs">ROE = ${num(e-i)} / ${num(eq)} = ${pct((e-i)/eq)}</span>. Without debt: EPS = ${num(e)} / 400 = ₹${(e/400).toFixed(2)}.`:'Move the slider to add debt.';}
+seg($('#lv-st'),v=>{st=+v;draw5();});lv.run();
 
-/* EBIT-EPS */
+/* break-even EBIT */
 let ee;
 const drawEE=chart('ee-c',svg=>{const e=ee.v,U=x=>x/400,L=x=>(x-640)/240;
  plot(svg,{xd:[0,3500],yd:[-3,12],xt:[0,500,1000,1500,2000,2500,3000,3500],yt:[-2,0,2,4,6,8,10,12],xf:v=>num(v),yf:v=>'₹'+v,xl:'EBIT (₹, no taxes)',yl:'EPS',
   areas:[{pts:[[1600,U(1600)],[3500,L(3500)],[3500,U(3500)]],c:'--good',o:.15},{pts:[[0,U(0)],[1600,U(1600)],[0,L(0)]],c:'--bad',o:.15}],
-  lines:[{pts:[[0,U(0)],[3500,U(3500)]],c:'--face'},{pts:[[0,L(0)],[3500,L(3500)]],c:'--accent'}],
-  vl:[{x:1600,label:'Break-even ₹1,600'}],dots:[{x:e,y:U(e),c:'--face'},{x:e,y:L(e),c:'--accent'}]});});
+  lines:[{pts:[[0,U(0)],[3500,U(3500)]],c:'--muted'},{pts:[[0,L(0)],[3500,L(3500)]],c:'--accent'}],
+  vl:[{x:1600,label:'Break-even ₹1,600'}],dots:[{x:e,y:U(e),c:'--muted'},{x:e,y:L(e),c:'--accent'}]});});
 ee=slider('ee-e',v=>inr(v),v=>{$('#ee-u').textContent=inr(v/400,2);$('#ee-l').textContent=inr((v-640)/240,2);drawEE();});ee.run();
 
-/* homemade leverage */
-const HM={lev:{d:'Our investor wants the levered firm\'s payoff but the firm has no debt. She borrows ₹800 at 8% and adds ₹1,200 of her own money to buy 40 shares of the unlevered firm at ₹50. Her personal debt-equity ratio is 800 / 1,200 = 2/3, the same as the proposed firm.',
- rows:[['EPS of unlevered firm',[2.5,5,7.5],2],['Earnings on 40 shares',[100,200,300]],['Less interest on ₹800 at 8%',[-64,-64,-64]],['Net profit',[36,136,236],0,'tot'],['ROE on her ₹1,200',['3.0%','11.3%','19.7%'],0,'hl']],
- n:'Same ROE as owning shares of the levered firm: 3.0%, 11.3%, 19.7%.'},
- unlev:{d:'Now the firm has borrowed, but our investor prefers the all-equity payoff. She puts ₹1,200 into 24 shares of the levered firm and ₹800 into the firm\'s debt: ₹2,000 in all.',
- rows:[['EPS of levered firm',[1.5,5.67,9.83],2],['Earnings on 24 shares',[36,136,236]],['Plus interest on ₹800 of debt',[64,64,64]],['Net profit',[100,200,300],0,'tot'],['ROE on her ₹2,000',['5%','10%','15%'],0,'hl']],
- n:'Same ROE as the unlevered firm: 5%, 10%, 15%. Whatever the firm chooses, the investor can reach the other payoff on her own.'}};
-seg($('#hm-m'),m=>{const x=HM[m];$('#hm-d').textContent=x.d;$('#hm-n').textContent=x.n;
- $('#hm-t').innerHTML=`<thead><tr><th></th>${states.map(s=>`<th>${s[0]}</th>`).join('')}</tr></thead><tbody>`+x.rows.map(r=>`<tr class="${r[3]||''}"><td>${r[0]}</td>${r[1].map(v=>`<td>${typeof v==='string'?v:inr(v,r[2]||0)}</td>`).join('')}</tr>`).join('')+'</tbody>';})('lev');
+/* homemade leverage activity */
+const tgt=[(1000-640)/12000,(2000-640)/12000,(3000-640)/12000];
+slider('hm-b',v=>inr(v),b=>{const sh=(1200+b)/50,eps=[2.5,5,7.5],int=.08*b;
+ const net=eps.map(x=>sh*x-int),ret=net.map(x=>x/1200);
+ $('#hm-x').textContent=`She buys (1,200 + ${num(b)}) / 50 = ${num(sh,0)} shares. Her own debt-equity ratio: ${num(b)} / 1,200 = ${(b/1200).toFixed(2)} (the firm's would be 2/3 = 0.67).`;
+ $('#hm-t').innerHTML=`<thead><tr><th></th>${states.map(s=>`<th>${s[0]}</th>`).join('')}</tr></thead><tbody>
+ <tr><td>EPS of the all-equity firm</td>${eps.map(x=>`<td>₹${x.toFixed(2)}</td>`).join('')}</tr>
+ <tr><td>Earnings on ${num(sh,0)} shares</td>${eps.map(x=>`<td>${num(sh*x)}</td>`).join('')}</tr>
+ <tr class="r-b"><td>Less interest on ₹${num(b)} at 8%</td>${eps.map(()=>`<td>${num(int)}</td>`).join('')}</tr>
+ <tr class="tot"><td>Net profit</td>${net.map(x=>`<td class="${x<0?'neg':''}">${num(x)}</td>`).join('')}</tr>
+ <tr class="hl"><td>Return on her ₹1,200</td>${ret.map(x=>`<td>${pct(x)}</td>`).join('')}</tr>
+ <tr class="r-s"><td>Target: levered firm's ROE</td>${tgt.map(x=>`<td>${pct(x)}</td>`).join('')}</tr></tbody>`;
+ const ok=Math.abs(ret[1]-tgt[1])<1e-6;
+ $('#hm-n').innerHTML=ok?'<b class="g">Matched.</b> Borrowing ₹800 against her own ₹1,200 copies the firm\'s 2/3 debt-equity ratio, and her returns equal the levered firm\'s in every state. She does not need the firm to borrow for her.':b<800?'<b>Not enough leverage yet.</b> Her returns swing less than the levered firm\'s. Borrow more.':'<b class="r">Too much leverage.</b> Her returns now swing more than the levered firm\'s. Borrow less.';}).run();
 
-/* Proposition II */
-let tax=0;const r0=slider('m2-r0',v=>v+'%',m2),rb=slider('m2-rb',v=>v+'%',m2),de=slider('m2-de',v=>v.toFixed(2),m2);
-const Rs=(x)=>{const R0=r0.v,RB=Math.min(rb.v,R0);return R0+x*(1-tax)*(R0-RB);};
+/* Proposition II chart */
+let tax=0;const r0=slider('m2-r0',v=>v+'%',m2),rb=slider('m2-rb',v=>v+'%',m2),bb=slider('m2-b',v=>inr(v),m2);
+const Rs=x=>{const R0=r0.v,RB=Math.min(rb.v,R0);return R0+x*(1-tax)*(R0-RB);};
 const Wacc=x=>{const RB=Math.min(rb.v,r0.v),s=1/(1+x),b=x/(1+x);return s*Rs(x)+b*RB*(1-tax);};
-const drawM2=chart('m2-c',svg=>{const pts=f=>{const a=[];for(let x=0;x<=3.0001;x+=.05)a.push([x,f(x)]);return a;};const x=de.v,RB=Math.min(rb.v,r0.v);
- plot(svg,{xd:[0,3],yd:[0,Math.ceil((r0.v+3*(r0.v-4))/5)*5],xt:[0,.5,1,1.5,2,2.5,3],yt:[0,5,10,15,20,25,30,35,40,45,50].filter(v=>v<=r0.v+3*(r0.v-4)+5),xf:v=>v,yf:v=>v+'%',xl:'Debt-equity ratio B/S',yl:'Cost of capital',
-  lines:[{pts:pts(Rs),c:'--accent',label:'Cost of equity'},{pts:pts(Wacc),c:'--face',label:'WACC'},{pts:[[0,RB],[3,RB]],c:'--muted',dash:'5 4',label:'Cost of debt'}],
-  dots:[{x,y:Rs(x),c:'--accent'},{x,y:Wacc(x),c:'--face'}]});});
-function m2(){const R0=r0.v,RB=Math.min(rb.v,R0),x=de.v;$('#m2-rs').textContent=Rs(x).toFixed(2)+'%';$('#m2-w').textContent=Wacc(x).toFixed(2)+'%';
- $('#m2-f').innerHTML=tax?`R<sub>S</sub> = R<sub>0</sub> + (B/S)(1 − T<sub>C</sub>)(R<sub>0</sub> − R<sub>B</sub>) = ${R0}% + ${x.toFixed(2)} × 0.79 × (${R0}% − ${RB}%) = <b class="c">${Rs(x).toFixed(2)}%</b><small>Equity return rises more slowly, and WACC (with after-tax R<sub>B</sub>) falls as debt rises.</small>`
- :`R<sub>S</sub> = R<sub>0</sub> + (B/S)(R<sub>0</sub> − R<sub>B</sub>) = ${R0}% + ${x.toFixed(2)} × (${R0}% − ${RB}%) = <b class="c">${Rs(x).toFixed(2)}%</b><small>R<sub>S</sub> rises in a straight line with B/S; WACC stays at R<sub>0</sub>.</small>`;drawM2();}
-seg($('#m2-t'),v=>{tax=+v?.21:0;m2();});r0.run();rb.run();de.run();
+const drawM2=chart('m2-c',svg=>{const pts=f=>{const a=[];for(let x=0;x<=3.0001;x+=.05)a.push([x,f(x)]);return a;};const x=bb.v/(20000-bb.v),RB=Math.min(rb.v,r0.v),top=Math.ceil((r0.v+3*(r0.v-4))/5)*5;
+ plot(svg,{xd:[0,3],yd:[0,top],xt:[0,.5,1,1.5,2,2.5,3],yt:[0,5,10,15,20,25,30,35,40,45,50].filter(v=>v<=top),xf:v=>v,yf:v=>v+'%',xl:'Debt-equity ratio B/S',yl:'Cost of capital',
+  lines:[{pts:pts(Rs),c:'--accent',label:'Cost of equity'},{pts:pts(Wacc),c:'--ink',label:'WACC'},{pts:[[0,RB],[3,RB]],c:'--face',dash:'5 4',label:'Cost of debt'}],
+  dots:[{x:Math.min(x,3),y:Rs(Math.min(x,3)),c:'--accent'},{x:Math.min(x,3),y:Wacc(Math.min(x,3)),c:'--ink'}]});});
+function m2(){const R0=r0.v,RB=Math.min(rb.v,R0),x=bb.v/(20000-bb.v),S=20000-bb.v;$('#m2-rs').textContent=Rs(x).toFixed(2)+'%';$('#m2-w').textContent=Wacc(x).toFixed(2)+'%';
+ const bs=`(${num(bb.v)} / ${num(S)})`;
+ $('#m2-f').innerHTML=tax?`R<sub>S</sub> = R<sub>0</sub> + (B/S)(1 − T<sub>C</sub>)(R<sub>0</sub> − R<sub>B</sub>) = ${R0}% + ${bs} × 0.79 × (${R0}% − ${RB}%) = <b class="c">${Rs(x).toFixed(2)}%</b><small>The tax shield offsets part of the rise in R<sub>S</sub>, and WACC (with after-tax R<sub>B</sub>) falls as debt rises.</small>`
+ :`R<sub>S</sub> = R<sub>0</sub> + (B/S)(R<sub>0</sub> − R<sub>B</sub>) = ${R0}% + ${bs} × (${R0}% − ${RB}%) = <b class="c">${Rs(x).toFixed(2)}%</b><small>At the book's ₹8,000 of debt this is the 11.33% we derived. WACC stays at R<sub>0</sub> whatever the debt.</small>`;drawM2();}
+seg($('#m2-t'),v=>{tax=+v?.21:0;m2();});r0.run();rb.run();bb.run();
 
 /* who gets EBIT */
 let ebit=2000;const td=slider('tx-d',v=>inr(v),tx),tt=slider('tx-t',v=>v+'%',tx);
-function bar(name,parts,max){const tot=parts.reduce((a,p)=>a+p[1],0);
- return `<div><div style="display:flex;justify-content:space-between;font-size:14.5px;margin-bottom:4px"><b>${name}</b><span class="mono">to investors ${inr(parts[0][1]+parts[1][1])}</span></div>
- <div style="display:flex;height:40px;border-radius:8px;overflow:hidden;border:1px solid var(--line);width:${tot/max*100}%">${parts.filter(p=>p[1]>0).map(p=>`<div style="flex:${p[1]} 0 0;background:var(${p[2]});color:var(--surface);display:flex;align-items:center;padding:0 8px;font-family:var(--mono);font-size:13px;white-space:nowrap;overflow:hidden">${inr(p[1])}</div>`).join('')}</div></div>`;}
+function bar(name,parts){return `<div><div style="display:flex;justify-content:space-between;font-size:14.5px;margin-bottom:4px"><b>${name}</b><span class="mono">to investors ${inr(parts[0][1]+parts[1][1],1)}</span></div>
+ <div style="display:flex;height:40px;border-radius:8px;overflow:hidden;border:1px solid var(--line);width:100%">${parts.filter(p=>p[1]>0).map(p=>`<div style="flex:${p[1]} 0 0;background:var(${p[2]});color:var(--surface);display:flex;align-items:center;padding:0 8px;font-family:var(--mono);font-size:13px;white-space:nowrap;overflow:hidden">${num(p[1],1)}</div>`).join('')}</div></div>`;}
 function tx(){const t=tt.v/100,I=Math.min(.08*td.v,ebit);
  const uG=ebit*t,uS=ebit-uG,lG=(ebit-I)*t,lS=ebit-I-lG;
- $('#tx-bars').innerHTML=bar('All-equity firm',[[ '',uS,'--accent'],['',0,'--face'],['',uG,'--bad']],ebit)+bar(`Levered firm, debt ${inr(td.v)}`,[['',lS,'--accent'],['',I,'--face'],['',lG,'--bad']],ebit);
- $('#tx-n').textContent=`Interest of ${inr(I)} is paid before tax, so the government's slice falls by tax rate × interest = ${inr(t*I)}. Investors as a group get that much more every year.`;}
+ $('#tx-bars').innerHTML=bar('All-equity firm',[['',uS,'--accent'],['',0,'--face'],['',uG,'--bad']])+bar(`Levered firm, debt ${inr(td.v)}`,[['',lS,'--accent'],['',I,'--face'],['',lG,'--bad']]);
+ $('#tx-n').textContent=`Interest of ${inr(I)} is paid before tax, so the government's slice falls by tax rate × interest = ${inr(t*I,1)}. Investors as a group get that much more every year. (Book, expected state: 1,580 against 1,714.4.)`;}
 seg($('#tx-s'),v=>{ebit=+v;tx();});td.run();tt.run();
 
 /* VL = VU + TcB */
-const v0=slider('vl-r0',v=>v+'%',vl),vb=slider('vl-b',v=>inr(v),vl),vt=slider('vl-t',v=>v+'%',vl);
-function vl(){const VU=2000*(1-vt.v/100)/(v0.v/100),sh=vt.v/100*vb.v;$('#vl-u').textContent=inr(VU);$('#vl-s').textContent=inr(sh);$('#vl-l').textContent=inr(VU+sh);$('#vl-e').textContent=inr(VU+sh-vb.v);}
-v0.run();vb.run();vt.run();
+const v0=slider('vl-r0',v=>v+'%',vl),vb=slider('vl-b',v=>inr(v),vl);
+function vl(){const VU=1580/(v0.v/100),sh=.21*vb.v;$('#vl-u').textContent=inr(VU);$('#vl-s').textContent=inr(sh);$('#vl-l').textContent=inr(VU+sh);$('#vl-e').textContent=inr(VU+sh-vb.v);}
+v0.run();vb.run();
 }
 
 D.start();
