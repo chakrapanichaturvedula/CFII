@@ -458,31 +458,17 @@ table.t tr.hl td.okc{background:var(--good-soft)}
  </div>
 </section>
 
-<section class="slide" data-title="Same payoff, same price">
+<section class="slide" data-title="What homemade leverage proves">
  <div class="inner">
-  <p class="eyebrow">Session 5 · From homemade leverage to M&amp;M Proposition I</p>
-  <h2>Same payoff for the same money means the same price</h2>
-  <p>An investor with ₹1,200 who wants the levered firm's payoff has two ways to get it.</p>
-  <div class="two">
-   <div class="card fcard" style="--fc:var(--accent)"><span class="tag fc">Strategy A · buy the levered firm</span><p style="color:var(--ink)">Buy 24 shares of the levered firm at <b id="sp-p1"></b> each.</p><p class="mono" style="color:var(--ink)">Cost: 24 × <span id="sp-p2"></span> = <b id="sp-ca"></b><br>Payoff: 24 × EPS of ₹1.50, ₹5.67, ₹9.83<br>= <b>36, 136, 236</b></p></div>
-   <div class="card fcard" style="--fc:var(--face)"><span class="tag fc">Strategy B · homemade leverage</span><p style="color:var(--ink)">Borrow ₹800 at 8%, add ₹1,200 of her own, buy 40 shares of the unlevered firm at ₹50.</p><p class="mono" style="color:var(--ink)">Cost to her: <b>₹1,200</b><br>Payoff: 100, 200, 300 less interest 64<br>= <b>36, 136, 236</b></p></div>
+  <p class="eyebrow">Session 5 · M&amp;M Proposition I (no taxes)</p>
+  <h2>What the activity shows: borrowing does not change the value of the firm</h2>
+  <div class="four">
+   <div class="card f"><h3>1 · She copied the levered firm</h3><p style="color:var(--ink)">With ₹1,200 of her own and ₹800 borrowed, she earned <b class="cs">3.0%, 11.3%, 19.7%</b>: the same as the levered firm's shareholders.</p></div>
+   <div class="card f"><h3>2 · So she won't pay extra for it</h3><p style="color:var(--ink)">The levered firm's shares give her nothing she cannot make herself. She will not pay more than <b>₹50</b> a share for them.</p></div>
+   <div class="card f"><h3>3 · Nor accept less</h3><p style="color:var(--ink)">Holders could undo the firm's debt themselves (homemade unleverage). So the share cannot sell for less than ₹50 either.</p></div>
+   <div class="card soft f"><h3>4 · Value of the firm</h3><p class="mono" style="color:var(--ink)">V<sub>L</sub> = <span class="cs">240 × ₹50</span> + <span class="cb">₹8,000</span><br>= 12,000 + 8,000<br>= ₹20,000 = V<sub>U</sub></p></div>
   </div>
-  <div class="ctl" style="max-width:560px"><label for="sp-p">Suppose the levered firm's share is priced at <output for="sp-p"></output></label><input type="range" id="sp-p" min="44" max="56" step="1" value="55"></div>
-  <p id="sp-msg" style="min-height:3.2em"></p>
-  <div class="kpis"><div class="kpi"><span>Unlevered firm V<sub>U</sub></span><b>400 × ₹50 = ₹20,000</b></div><div class="kpi hi"><span>Levered firm V<sub>L</sub> = 240 × price + 8,000</span><b id="sp-v"></b></div></div>
- </div>
-</section>
-
-<section class="slide" data-title="Proposition I, no taxes">
- <div class="inner">
-  <p class="eyebrow">Session 6 · M&amp;M Proposition I (no taxes)</p>
-  <h2>Capital structure does not change firm value</h2>
-  <div class="formula" style="font-size:clamp(24px,3vw,34px)">V<sub>L</sub> = V<sub>U</sub></div>
-  <ul class="pts">
-   <li class="f">Investors can create any amount of leverage on their own account, as the last two slides showed.</li>
-   <li class="f">So the levered firm's shares can only sell at the price that makes both routes cost the same: ₹50.</li>
-   <li class="f">At ₹50, the levered firm is worth 240 × 50 + 8,000 = ₹20,000, the same as the unlevered firm. The firm's choice of debt has not changed its value.</li>
-  </ul>
+  <div class="formula f" style="font-size:clamp(22px,2.6vw,30px)">M&amp;M Proposition I (no taxes): V<sub>L</sub> = V<sub>U</sub><small>Capital structure is irrelevant: whatever the firm chooses, investors can create the other payoff on their own account.</small></div>
  </div>
 </section>
 
@@ -828,14 +814,8 @@ slider('hm-b',v=>inr(v),b=>{const n=(1200+b)/50,int=.08*b,eps=EB.map(e=>e/400),e
  $('#hm-x').textContent=`(1,200 + ${num(b)}) / ₹50 = ${num(n)} shares. Her debt-equity: ${num(b)} / 1,200 = ${(b/1200).toFixed(2)}.`;
  $('#hm-r').innerHTML=th+'<tbody>'+tr('EBIT of the all-equity firm',EB)+tr('÷ 400 shares = EPS',eps,'',v=>'₹'+v.toFixed(2))+tr(`× her ${num(n)} shares`,earn)+tr(`− her interest 8% × ${num(b)}`,earn.map(()=>int),'r-b')+tr('= Her net profit',net,'tot')+
   tr('Return on her ₹1,200',ret,'r-s hl',v=>pct(v),k=>ok[k]?'okc':'')+'</tbody>';
- $('#hm-n').innerHTML=all?'<b class="g">Matched in every state.</b> Borrowing ₹800 against her own ₹1,200 copies the firm\'s 2/3 debt-equity ratio, so she gets the levered firm\'s ROE without the firm borrowing at all. Next: what this means for the price of the levered firm\'s shares.'
+ $('#hm-n').innerHTML=all?'<b class="g">Matched in every state.</b> Borrowing ₹800 against her own ₹1,200 copies the firm\'s 2/3 debt-equity ratio, so she gets the levered firm\'s ROE without the firm borrowing at all. Next: what this means for the value of the firm.'
  :b<800?'<b>Not there yet.</b> Her returns swing less than the levered firm\'s. Borrow more.':'<b class="r">Too far.</b> Her returns now swing more than the levered firm\'s. Borrow less.';}).run();
-
-/* same payoff, same price */
-slider('sp-p',v=>'₹'+v,P=>{const ca=24*P,vl=240*P+8000;$('#sp-p1').textContent='₹'+P;$('#sp-p2').textContent='₹'+P;$('#sp-ca').textContent=inr(ca);$('#sp-v').textContent=inr(vl);
- $('#sp-msg').innerHTML=P>50?`<b class="r">Strategy A costs ₹${num(ca)}</b> for exactly the payoff Strategy B gives for ₹1,200. Nobody buys the levered shares at ₹${P}; holders sell them and use Strategy B instead. The price falls until both routes cost the same, at ₹50.`
- :P<50?`<b class="r">Strategy A costs only ₹${num(ca)}</b> for the same payoff as Strategy B. Everyone wants the levered shares, so their price rises until both routes cost the same, at ₹50.`
- :`<b class="g">Both routes cost ₹1,200 and pay the same.</b> Nobody can do better by switching, so ₹50 is the only price that lasts. Then V<sub>L</sub> = 240 × 50 + 8,000 = ₹20,000 = V<sub>U</sub>: borrowing has not changed the value of the firm.`;}).run();
 
 /* Proposition II chart */
 let tax=0;const r0=slider('m2-r0',v=>v+'%',m2),rb=slider('m2-rb',v=>v+'%',m2),bb=slider('m2-b',v=>inr(v),m2);
