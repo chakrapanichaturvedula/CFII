@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Financial Statements and Planning · CF II</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<!-- To track students with the CF1 platform, add these three lines here (paths relative to the site root):
+<script src="assets/js/config.js"></script>
+<script src="assets/js/vendor/supabase-2.117.3.js"></script>
+<script src="assets/js/cf.js"></script>
+The deck then reports the slide reached as the step, and each quick check as an attempt. -->
+<style>
+/* CF II slide engine. Same palette, type and dark mode as the CF1 site.
+   One slide fills the screen; header names the deck and slide, footer moves between slides. */
+:root{
+  --bg:#F4F4F1; --surface:#FFFFFF; --ink:#16223A; --muted:#5B6578; --line:#DADDD8; --faint:#E7E8E3;
+  --accent:#6B3FA0; --accent-soft:#EEE6F7; --face:#0F6E8C; --face-soft:#DCEEF3;
+  --good:#2F6B3F; --good-soft:#E2F0E5; --bad:#B4530F; --bad-soft:#FAEBDD;
+  --display:'Source Serif 4', Georgia, serif; --body:'IBM Plex Sans','Segoe UI',Arial,sans-serif; --mono:'IBM Plex Mono',Consolas,monospace;
+  --c-liq:#1F6FB2; --c-lev:#C2410C; --c-tur:#2F7D4A; --c-pro:#6B3FA0; --c-mkt:#9A6A06;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12131A; --surface:#1C1E29; --ink:#ECEDF2; --muted:#A1A6B8; --line:#2F3242; --faint:#262938;
+  --accent:#B794E6; --accent-soft:#2E2340; --face:#5BB8D4; --face-soft:#16384A;
+  --good:#86C998; --good-soft:#1C3324; --bad:#F0A266; --bad-soft:#3A2617; color-scheme:dark; --c-liq:#6CB4F0; --c-lev:#F59E62; --c-tur:#7FCF97; --c-pro:#B794E6; --c-mkt:#E0B04A}}
+:root[data-theme="dark"]{
+  --bg:#12131A; --surface:#1C1E29; --ink:#ECEDF2; --muted:#A1A6B8; --line:#2F3242; --faint:#262938;
+  --accent:#B794E6; --accent-soft:#2E2340; --face:#5BB8D4; --face-soft:#16384A;
+  --good:#86C998; --good-soft:#1C3324; --bad:#F0A266; --bad-soft:#3A2617; color-scheme:dark; --c-liq:#6CB4F0; --c-lev:#F59E62; --c-tur:#7FCF97; --c-pro:#B794E6; --c-mkt:#E0B04A}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;overflow:hidden}
+button,input,select{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* frame */
+.deck{display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:100vh;height:100dvh;padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+.bar{display:flex;align-items:center;gap:14px;padding:10px max(3vw,14px);border-bottom:1px solid var(--line);background:var(--surface);font-size:14px}
+.bar a{color:var(--accent);text-decoration:none;font-weight:600;white-space:nowrap}
+.bar a:hover{text-decoration:underline}
+.bar .dt{flex:1;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .dt b{color:var(--ink);font-weight:600}
+.icon{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:13.5px;font-weight:600;white-space:nowrap}
+.icon:hover{border-color:var(--accent);color:var(--accent)}
+.stage{position:relative;overflow:hidden}
+.slide{position:absolute;inset:0;overflow-y:auto;padding:clamp(16px,3vw,40px) max(4vw,16px) 24px;display:none}
+.slide.active{display:block;animation:in .25s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.slide.active{animation:none}.f{transition:none!important}}
+.inner{max-width:1140px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.foot{display:flex;align-items:center;gap:12px;padding:10px max(3vw,14px) calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--surface)}
+.prog{flex:1;height:6px;border-radius:99px;background:var(--faint);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.count{font-family:var(--mono);font-size:13px;color:var(--muted);white-space:nowrap}
+.btn{font-weight:600;font-size:15px;padding:9px 18px;border-radius:999px;border:1px solid var(--line);background:var(--surface);cursor:pointer;min-height:42px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.btn[disabled]{opacity:.35;cursor:default}
+.hint{font-size:12.5px;color:var(--muted)}
+@media (max-width:640px){.hint,.bar .dt span,#fsbtn{display:none}.btn{padding:8px 14px}}
+
+/* overview */
+.ov{position:fixed;inset:0;z-index:50;background:var(--bg);overflow:auto;padding:24px max(4vw,16px);display:none}
+.ov.open{display:block}
+.ov h2{font-family:var(--display);margin:0 0 14px;font-size:28px}
+.ov .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;max-width:1140px}
+.ov button{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-height:64px}
+.ov button small{font-family:var(--mono);color:var(--muted);font-size:12px}
+.ov button.cur{border-color:var(--accent);background:var(--accent-soft)}
+.ov .x{position:sticky;top:0;float:right}
+
+/* type */
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,5.4vw,58px);line-height:1.04;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,38px);line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-size:21px;margin:0;line-height:1.2}
+p{margin:0}
+.lede{font-size:clamp(17px,1.8vw,20px);color:var(--muted);max-width:66ch}
+.muted{color:var(--muted)}
+ul.pts{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px;max-width:72ch}
+ul.pts li::marker{color:var(--accent)}
+.mono{font-family:var(--mono)}
+.c{color:var(--accent)} .fc{color:var(--face)} .g{color:var(--good)} .r{color:var(--bad)}
+b,strong{font-weight:600}
+
+/* layout pieces */
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.two.wide-l{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:860px){.two,.two.wide-l{grid-template-columns:1fr}.three,.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.three,.four{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.card.soft{background:var(--accent-soft);border-color:transparent}
+.card.face{background:var(--face-soft);border-color:transparent}
+.card h3{font-size:19px}
+.card p{font-size:15.5px;color:var(--muted)}
+.tag{align-self:flex-start;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.tag.f2{background:var(--face-soft);color:var(--face)}
+.formula{font-family:var(--mono);font-size:clamp(16px,1.9vw,21px);background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:12px 16px;overflow-x:auto;white-space:nowrap}
+.formula small{display:block;font-family:var(--body);font-size:13px;color:var(--muted);white-space:normal;margin-top:4px}
+.note{font-size:15.5px;color:var(--muted);border-left:3px solid var(--face);padding-left:12px;max-width:74ch}
+.big{font-family:var(--mono);font-size:clamp(30px,4.4vw,48px);line-height:1;color:var(--accent);white-space:nowrap}
+.kpis{display:flex;flex-wrap:wrap;gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;flex:1 1 130px}
+.kpi span{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.kpi b{font-family:var(--mono);font-weight:500;font-size:22px;white-space:nowrap}
+.kpi.hi{border-color:var(--accent);background:var(--accent-soft)}
+.kpi.hi b{color:var(--accent)}
+
+/* fragments: revealed one at a time with Next */
+.f{opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;pointer-events:none}
+.f.on{opacity:1;transform:none;pointer-events:auto}
+
+/* tables */
+.scroll{overflow-x:auto}
+table.t{border-collapse:collapse;width:100%;font-size:15.5px;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+table.t th,table.t td{padding:7px 12px;border-bottom:1px solid var(--faint);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+table.t th:first-child,table.t td:first-child{text-align:left;white-space:normal}
+table.t thead th{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--bg);font-weight:600}
+table.t tr.tot td{font-weight:600;border-top:1.5px solid var(--line)}
+table.t tr.hl td{background:var(--accent-soft)}
+table.t td.neg{color:var(--bad)}
+table.t td.pos{color:var(--good)}
+table.t .sub td:first-child{padding-left:26px;color:var(--muted)}
+
+/* controls */
+.ctls{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px 20px}
+.ctl{display:flex;flex-direction:column;gap:4px}
+.ctl label{display:flex;justify-content:space-between;gap:8px;font-weight:500;font-size:15px}
+.ctl output{font-family:var(--mono);color:var(--accent);white-space:nowrap}
+.ctl input[type=range]{width:100%;accent-color:var(--accent);height:28px}
+.ctl small{color:var(--muted);font-size:13.5px}
+.seg{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;padding:3px;background:var(--bg);gap:2px}
+.seg button{flex:1 1 120px;font-weight:500;font-size:14.5px;border:none;background:transparent;padding:8px 10px;border-radius:9px;cursor:pointer;min-height:38px}
+.seg button.on{background:var(--surface);color:var(--accent);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+input.num{width:100%;font-family:var(--mono);font-size:16px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);text-align:right}
+
+/* charts */
+.fig{position:relative;min-height:300px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.fig.sm{min-height:230px}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.fig svg text{font-family:var(--body);font-size:12.5px;fill:var(--muted)}
+.fig svg .ax{stroke:var(--line)}
+.fig svg .grd{stroke:var(--faint)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+/* quiz */
+.q{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.q p.qt{font-weight:600}
+.q .opts{display:grid;gap:8px}
+.q .opts button{text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 12px;cursor:pointer;min-height:42px}
+.q .opts button:hover:not([disabled]){border-color:var(--accent)}
+.q .opts button.right{border-color:var(--good);background:var(--good-soft)}
+.q .opts button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.q .opts button[disabled]{cursor:default}
+.q .why{font-size:15px;color:var(--muted);display:none}
+.q.done .why{display:block}
+.score{font-family:var(--mono);font-size:15px;color:var(--accent)}
+
+/* sorting / click-to-classify activity */
+.sorter{display:flex;flex-direction:column;gap:8px}
+.sorter .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.sorter .row > span{flex:1 1 180px}
+.sorter .row button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:5px 12px;font-size:14px;cursor:pointer;min-height:36px}
+.sorter .row button.pick{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.sorter .row.ok{border-color:var(--good)}
+.sorter .row.no{border-color:var(--bad)}
+.sorter .row em{font-style:normal;font-size:13.5px;color:var(--muted);flex-basis:100%;display:none}
+.sorter.checked .row em{display:block}
+
+/* title slide */
+.title-slide .inner{min-height:calc(100% - 20px);justify-content:center}
+.title-slide h1{font-size:clamp(38px,6.4vw,72px)}
+.title-slide .goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px}
+.title-slide .goals div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15.5px}
+.title-slide .goals b{display:block;font-family:var(--mono);color:var(--accent);font-size:12px;margin-bottom:2px}
+.keys{font-size:13.5px;color:var(--muted)}
+.keys kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--surface)}
+
+/* ---- design-option slides ---- */
+.opt-tag{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}
+.opt-tag .pill{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--face-soft);color:var(--face)}
+.opt-tag .pill.cur{background:var(--good-soft);color:var(--good)}
+.pc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;font-size:14px}
+.pc div{border-radius:10px;padding:8px 12px;border:1px dashed var(--line)}
+.pc b{display:block;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.pc .pro b{color:var(--good)} .pc .con b{color:var(--bad)}
+@media (max-width:640px){.pc{grid-template-columns:1fr}}
+
+/* ratio lab */
+.rx{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);gap:18px;align-items:start}
+.rx-stm{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:10px;align-items:start}
+.rx.map{grid-template-columns:minmax(0,1.75fr) minmax(0,1fr)}
+table.t.sm{font-size:13.5px}
+table.t.sm th,table.t.sm td{padding:4px 8px}
+table.t.sm thead th{font-size:11px}
+table.t td.src-n{background:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent);color:var(--accent);font-weight:600}
+table.t td.src-d{background:var(--face-soft);box-shadow:inset 0 0 0 2px var(--face);color:var(--face);font-weight:600}
+table.t td.dim,table.t th.dim{color:var(--muted);opacity:.55}
+table.t td.pickable{cursor:pointer}
+table.t td.pickable:hover{box-shadow:inset 0 0 0 1.5px var(--accent)}
+table.t tr.sec td{background:var(--bg);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding-top:3px;padding-bottom:3px}
+.rx-work{display:flex;flex-direction:column;gap:12px}
+.fams{display:flex;flex-wrap:wrap;gap:4px 16px}
+.fams button{border:0;background:none;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--muted);padding:6px 0;cursor:pointer;border-bottom:2px solid transparent}
+.fams button.on{color:var(--accent);border-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;font-size:14px;cursor:pointer;min-height:38px}
+.chips button:hover{border-color:var(--accent)}
+.chips button.on{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.eqn{display:flex;align-items:center;justify-content:center;gap:14px 18px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 14px;min-height:150px}
+.frac{display:inline-flex;flex-direction:column;align-items:center;gap:8px}
+.frac .row{display:flex;align-items:flex-start;gap:8px}
+.frac .fbar{align-self:stretch;height:2px;background:var(--ink);border-radius:2px}
+.slot{display:flex;flex-direction:column;align-items:center;min-width:80px}
+.slot b{font-family:var(--mono);font-weight:500;font-size:21px;min-width:74px;text-align:center;padding:4px 8px;border-radius:8px;border:1.5px dashed var(--line);color:var(--muted);transition:background .2s}
+.slot.n.filled b{border:1.5px solid var(--accent);color:var(--accent);background:var(--accent-soft)}
+.slot.d.filled b{border:1.5px solid var(--face);color:var(--face);background:var(--face-soft)}
+.slot.const b{border-style:solid;color:var(--ink)}
+.slot small{font-size:11.5px;color:var(--muted);margin-top:3px;text-align:center;max-width:120px;line-height:1.25}
+.op{font-family:var(--mono);font-size:21px;padding-top:5px}
+.eq{font-family:var(--mono);font-size:26px;color:var(--muted)}
+.res{font-family:var(--mono);font-size:clamp(28px,3.6vw,40px);color:var(--accent);min-width:3ch;white-space:nowrap}
+.flyer{position:fixed;z-index:60;pointer-events:none;font-family:var(--mono);font-size:18px;padding:3px 9px;border-radius:8px;background:var(--surface);border:1.5px solid var(--accent);color:var(--accent);box-shadow:0 8px 22px rgba(0,0,0,.2);white-space:nowrap}
+.flyer.d{border-color:var(--face);color:var(--face)}
+@media (max-width:860px){.rx{grid-template-columns:1fr}.rx-work{order:-1}}
+@media (max-width:520px){.rx-stm{grid-template-columns:1fr}}
+
+/* towers and strips */
+.towers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.tw h3{font-size:17px;margin-bottom:6px}
+.tw .pair{display:grid;grid-template-columns:1fr 1fr;gap:6px;height:340px}
+.tw .col{display:flex;flex-direction:column;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.tw .seg2{display:flex;flex-direction:column;justify-content:center;padding:2px 8px;font-size:12.5px;color:var(--surface);overflow:hidden;cursor:default;min-height:0;line-height:1.2}
+.tw .seg2 span{font-family:var(--mono);font-size:12px;opacity:.9}
+.tw .cap{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;color:var(--muted);text-align:center;margin-top:4px}
+.strip{display:grid;grid-template-columns:150px repeat(3,minmax(0,1fr)) 90px;gap:8px;align-items:center}
+.strip .cell{background:var(--bg);border-radius:8px;height:34px;position:relative;overflow:hidden}
+.strip .cell i{position:absolute;inset:0 auto 0 0;background:var(--accent);opacity:.85;border-radius:8px}
+.strip .cell span{position:relative;font-family:var(--mono);font-size:13.5px;padding:0 8px;line-height:34px;color:var(--ink)}
+.strip .hd{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+@media (max-width:700px){.strip{grid-template-columns:90px repeat(3,minmax(0,1fr)) 64px}.strip .cell span{font-size:12px;padding:0 4px}}
+.tree{display:flex;flex-direction:column;align-items:center;gap:10px}
+.tree .lvl{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;align-items:center}
+.node{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:8px 14px;text-align:center;min-width:140px}
+.node b{display:block;font-family:var(--mono);font-size:20px;font-weight:500;color:var(--accent)}
+.node small{color:var(--muted);font-size:12.5px}
+.node.top{border-color:var(--accent);background:var(--accent-soft)}
+.tree .x{font-family:var(--mono);font-size:20px;color:var(--muted)}
+.gapbars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:end;height:360px}
+.gapbars .gb{display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.gapbars .stack{display:flex;flex-direction:column-reverse;border-radius:8px;overflow:hidden}
+.gapbars .stack div{display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:13px;color:var(--surface);min-height:0;overflow:hidden;white-space:nowrap}
+.gapbars .stack div span{font-family:var(--mono)}
+.gapbars .gap{border:2px dashed var(--bad);background:var(--bad-soft)!important;color:var(--bad)!important;font-weight:600}
+.gapbars p{text-align:center;font-size:13.5px;color:var(--muted);margin-top:6px}
+
+/* ---- family colours ---- */
+.fams button{display:inline-flex;align-items:center;gap:6px}
+.fams button[style*="--fc"]{color:var(--fc)}
+.fams button.on{border-color:var(--fc,var(--accent))}
+.fdot{width:9px;height:9px;border-radius:50%;background:var(--fc);display:inline-block}
+.chips button.fam{border-color:color-mix(in srgb,var(--fc) 45%,var(--line))}
+.chips button.fam.on{background:var(--fc);border-color:var(--fc);color:var(--surface)}
+.tag.fc{background:color-mix(in srgb,var(--fc) 14%,transparent);color:var(--fc)}
+.card.fcard{border-top:4px solid var(--fc)}
+.fdots{display:inline-flex;gap:3px;margin-left:8px;vertical-align:middle}
+.fdots i{width:9px;height:9px;border-radius:50%;display:inline-block}
+table.t tr.lit td{background:color-mix(in srgb,var(--fc) 13%,var(--surface));color:var(--fc);font-weight:600}
+table.t tr.lit td:first-child{box-shadow:inset 4px 0 0 var(--fc)}
+table.t.lg{font-size:17px}
+table.t.lg th,table.t.lg td{padding:6px 12px}
+table.t.lg thead th{font-size:12px}
+.sub-note{display:block;font-size:11.5px;color:var(--muted);font-weight:400}
+table.t.lg .sub-note{font-size:12.5px}
+.famrow{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--fc);border-radius:10px;padding:8px 12px;font-size:15px}
+.famrow b{color:var(--fc)}
+.famrow span{color:var(--muted);font-size:14px}
+/* growth, step by step */
+.gsrow{display:grid;grid-template-columns:minmax(0,230px) minmax(0,1fr) 90px;gap:12px;align-items:center;font-size:15px}
+.gsbar{height:34px;background:var(--faint);border-radius:8px;display:flex;overflow:hidden}
+.gsbar i{height:100%;transition:width .2s}
+.gsrow b{text-align:right}
+@media (max-width:640px){.gsrow{grid-template-columns:1fr 70px}.gsrow .gsbar{grid-column:1/-1;grid-row:2}}
+
+.node .nlab{display:block;margin-top:6px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--face)}
+
+.eqs{display:block;font-family:var(--mono);font-size:13.5px;line-height:1.7;margin:2px 0 8px;padding:6px 8px;background:var(--surface);border-radius:8px}
+#gs-steps{grid-template-columns:minmax(0,.8fr) minmax(0,.9fr) minmax(0,.9fr) minmax(0,1.5fr)}
+@media (max-width:860px){#gs-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){#gs-steps{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div class="deck">
+ <header class="bar"><a href="index.html">← All CF II topics</a><div class="dt"><b>Financial Statements and Planning</b> <span></span></div><button class="icon" id="ovbtn" type="button">All slides</button><button class="icon" id="fsbtn" type="button">Full screen</button></header>
+ <main class="stage">
+
+
+<section class="slide title-slide" data-title="Overview">
+ <div class="inner">
+  <p class="eyebrow">Module 1 · Sessions 1 to 4 · RWJK Ch 2 and 3</p>
+  <h1>Financial Statement Analysis and Long-Term Planning</h1>
+  <p class="lede">Read a firm's statements, compare it with itself and with its peers, then turn this year's numbers into next year's plan and ask how much outside money that plan needs.</p>
+  <div class="goals">
+   <div><b>1</b>Standardise statements so firms of any size can be compared</div>
+   <div><b>2</b>Compute and interpret the main financial ratios</div>
+   <div><b>3</b>Split ROE into its three drivers with the Du Pont identity</div>
+   <div><b>4</b>Project next year with the percent of sales approach and find EFN</div>
+  </div>
+  <p class="keys">Move with <kbd>→</kbd> <kbd>←</kbd> or the buttons below. <kbd>O</kbd> shows all slides, <kbd>F</kbd> goes full screen.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="The statements">
+ <div class="inner">
+  <p class="eyebrow">Session 1 · Our firm</p>
+  <h2>Prufrock Ltd: two years of statements</h2>
+  <div class="seg" id="fs-mode" style="max-width:420px"><button class="on" data-v="rs">₹ crore</button><button data-v="cs">Common size</button></div>
+  <div class="two wide-l">
+   <div class="scroll"><table class="t" id="fs-bs"></table></div>
+   <div class="scroll"><table class="t" id="fs-is"></table></div>
+  </div>
+  <p class="hint" style="display:block">2020 is the book's Prufrock. The 2019 income statement is constructed for teaching; the book gives only 2020.</p>
+  <p class="note" id="fs-note">Switch to common size: every balance sheet line becomes a share of total assets and every income statement line a share of sales.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="Why common size">
+ <div class="inner">
+  <p class="eyebrow">Session 1 · Standardising</p>
+  <h2>Common-size statements remove the effect of size</h2>
+  <div class="two">
+   <div class="card"><span class="tag">Balance sheet</span><h3>Each line ÷ total assets</h3><p>Shows how the firm has invested its money and how it has financed it.</p></div>
+   <div class="card"><span class="tag f2">Income statement</span><h3>Each line ÷ sales</h3><p>Shows what happens to each rupee of sales on its way to net income.</p></div>
+  </div>
+  <ul class="pts">
+   <li class="f">Compare the same firm across years even as it grows.</li>
+   <li class="f">Compare firms of very different sizes in the same industry.</li>
+   <li class="f">For Prufrock: retained earnings went from <b>53% to 57%</b> of assets while long-term debt fell from <b>16% to 13%</b>. The firm is financing itself more from its own profits.</li>
+   <li class="f">On the income statement, net income kept about <b>15.4 paise</b> of each rupee of sales in 2019 and <b>15.7 paise</b> in 2020.</li>
+  </ul>
+ </div>
+</section>
+
+<section class="slide" data-title="Five families of ratios">
+ <div class="inner">
+  <p class="eyebrow">Session 1 · Ratio analysis</p>
+  <h2>Five families of ratios, five questions</h2>
+  <div class="three">
+   <div class="card fcard" style="--fc:var(--c-liq)"><span class="tag fc">Short-term solvency, or liquidity</span><h3>Can it pay its bills this year?</h3><p>Current, quick and cash ratios.</p></div>
+   <div class="card fcard" style="--fc:var(--c-lev)"><span class="tag fc">Long-term solvency, or financial leverage</span><h3>How much is borrowed, and can it pay the interest?</h3><p>Total debt ratio, debt-equity ratio, equity multiplier; times interest earned and cash coverage.</p></div>
+   <div class="card fcard" style="--fc:var(--c-tur)"><span class="tag fc">Asset management, or turnover</span><h3>How hard do the assets work?</h3><p>Inventory and receivables turnover, days' sales in inventory and in receivables, total asset turnover.</p></div>
+   <div class="card fcard" style="--fc:var(--c-pro)"><span class="tag fc">Profitability</span><h3>How much does it earn?</h3><p>Profit margin, EBITDA margin, ROA and ROE.</p></div>
+   <div class="card fcard" style="--fc:var(--c-mkt)"><span class="tag fc">Market value</span><h3>What does the market pay for it?</h3><p>P/E, market-to-book and the EV multiple.</p></div>
+   <div class="card face"><h3>For every ratio ask</h3><p>How is it computed? What does it measure? What unit is it in? What would make it better?</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Statement map">
+ <div class="inner">
+  <p class="eyebrow">Session 1 · Which statement does each family use? · Prufrock Ltd, ₹ crore</p>
+  <h2>Pick a family and see which lines it uses</h2>
+  <p class="muted" style="font-size:15px">Click a family. The lines its formulas use light up in its colour.</p>
+  <div class="chips" id="sm-f"></div>
+  <div class="rx map">
+   <div class="rx-stm" id="sm-stm"></div>
+   <div class="rx-work">
+    <div class="kpis"><div class="kpi hi" style="flex:1 1 100%"><span>Statements used</span><b id="sm-v" style="font-size:18px;white-space:normal"></b></div></div>
+    <div id="sm-list" style="display:flex;flex-direction:column;gap:6px"></div>
+    <p class="note" id="sm-n"></p>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Ratio lab">
+ <div class="inner">
+  <p class="eyebrow">Session 1 · Prufrock Ltd, ₹ crore · Ratios as in RWJJS Ch 3</p>
+  <h2>Click a ratio and watch the statements build it</h2>
+  <div class="rx">
+   <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="hint" style="display:inline">Year, both statements</span><div class="seg" id="lab-yr" style="flex:0 0 200px;flex-wrap:nowrap"><button data-v="0">2019</button><button class="on" data-v="1">2020</button></div></div>
+    <div class="rx-stm" id="lab-stm"></div>
+   </div>
+   <div class="rx-work">
+    <div class="fams" id="lab-fam"></div>
+    <div class="chips" id="lab-chips"></div>
+    <div><p class="eyebrow" id="lab-cat"></p><h3 id="lab-name"></h3><p class="mono muted" id="lab-ft" style="font-size:14px"></p></div>
+    <div class="eqn" id="lab-eqn"></div>
+    <p id="lab-why" style="min-height:3em"></p>
+    <p class="note" id="lab-tr" style="min-height:3em"></p>
+    <div><button class="btn" id="lab-replay" type="button">Replay</button></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Build the ratio">
+ <div class="inner">
+  <p class="eyebrow">Session 1 · Activity · Prufrock Ltd, ₹ crore</p>
+  <h2>Build the ratio: click the numerator, then the denominator</h2>
+  <div class="rx">
+   <div class="rx-stm" id="bd-stm"></div>
+   <div class="rx-work">
+    <div class="card face"><p class="muted" style="font-size:13px">Your task</p><h3 id="bd-q"></h3><p id="bd-step" style="color:var(--ink)"></p></div>
+    <div class="eqn" id="bd-eqn"></div>
+    <p id="bd-fb" style="min-height:3em"></p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="bd-reset" type="button">Start again</button><button class="btn primary" id="bd-next" type="button">Next ratio</button><span class="score" id="bd-sc" style="align-self:center"></span></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Du Pont identity">
+ <div class="inner">
+  <p class="eyebrow">Session 2 · Du Pont analysis</p>
+  <h2>Where does ROE come from?</h2>
+  <div class="formula">ROE = Net income / Total equity</div>
+  <div class="formula f">ROE = (NI / TA) × (TA / TE) = ROA × Equity multiplier<small>Multiply and divide by total assets.</small></div>
+  <div class="formula f">ROE = (NI / Sales) × (Sales / TA) × (TA / TE)<small>Multiply and divide by sales as well.</small></div>
+  <div class="formula f" style="border-left-color:var(--face)">ROE = Profit margin × Total asset turnover × Equity multiplier</div>
+  <div class="three f">
+   <div class="card"><h3>Profit margin</h3><p>Overall profitability: how much of each rupee of sales is left after all costs, including interest and taxes.</p></div>
+   <div class="card"><h3>Asset turnover</h3><p>Asset use efficiency: sales generated per rupee of assets.</p></div>
+   <div class="card"><h3>Equity multiplier</h3><p>Financial leverage: assets carried per rupee of equity, = 1 + D/E.</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Du Pont tree">
+ <div class="inner">
+  <p class="eyebrow">Session 2 · Du Pont analysis · Prufrock 2020</p>
+  <h2>Grow the Du Pont tree from Prufrock's statements</h2>
+  <div class="tree">
+   <div class="lvl"><div class="node top"><small>Return on equity</small><b>14.0%</b><small>NI / TE = 363 / 2,591</small></div></div>
+   <div class="lvl f"><div class="node"><small>Return on assets</small><b>10.1%</b><small>NI / TA = 363 / 3,588</small></div><span class="x">×</span><div class="node"><small>Equity multiplier</small><b>1.385</b><small>TA / TE = 3,588 / 2,591</small></div></div>
+   <div class="lvl f"><div class="node"><small>Profit margin</small><b>15.7%</b><small>NI / Sales = 363 / 2,311</small><span class="nlab">Overall profitability</span></div><span class="x">×</span><div class="node"><small>Asset turnover</small><b>0.644</b><small>Sales / TA = 2,311 / 3,588</small><span class="nlab">Asset use efficiency</span></div><span class="x">×</span><div class="node"><small>Equity multiplier</small><b>1.385</b><small>= 1 + D/E = 1 + 0.385</small><span class="nlab">Financial leverage</span></div></div>
+   <div class="lvl f"><div class="card soft" style="max-width:760px"><p style="color:var(--ink)">The profit margin measures overall profitability: how much of each rupee of sales is left after all costs, including interest and taxes. Ask: which branch would you push to raise ROE, and what does each cost?</p></div></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Using ratios well">
+ <div class="inner">
+  <p class="eyebrow">Session 2 · Benchmarks and limits</p>
+  <h2>A ratio means little on its own</h2>
+  <div class="two">
+   <div class="card"><span class="tag">Compare it with</span>
+    <ul class="pts"><li><b>Itself over time</b> (time-trend analysis): is performance improving?</li><li><b>Its peers</b> (peer-group analysis): firms in the same industry, of similar size and business mix.</li></ul></div>
+   <div class="card"><span class="tag f2">Watch out for</span>
+    <ul class="pts"><li>No theory says which ratios matter most.</li><li>Diversified firms have no clean peer group.</li><li>Different accounting choices and standards across firms and countries.</li><li>Different fiscal year ends; seasonal businesses.</li><li>One-time events that distort a single year.</li></ul></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Long-term planning">
+ <div class="inner">
+  <p class="eyebrow">Session 3 · Financial planning</p>
+  <h2>A long-term plan pulls four decisions together</h2>
+  <div class="four">
+   <div class="card"><h3>New assets</h3><p>Capital budgeting decisions</p></div>
+   <div class="card"><h3>Leverage</h3><p>Capital structure decisions</p></div>
+   <div class="card"><h3>Payout</h3><p>Dividend policy decisions</p></div>
+   <div class="card"><h3>Liquidity</h3><p>Net working capital decisions</p></div>
+  </div>
+  <h3 class="f" style="margin-top:6px">What goes into the plan</h3>
+  <div class="three f">
+   <div class="card soft"><h3>Sales forecast</h3><p>Most other lines depend on it, usually through a growth rate.</p></div>
+   <div class="card soft"><h3>Pro forma statements</h3><p>Next year's income statement and balance sheet as the plan.</p></div>
+   <div class="card soft"><h3>Plug variable</h3><p>The financing that makes the balance sheet balance: external financing needed.</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="What moves with sales">
+ <div class="inner">
+  <p class="eyebrow">Session 3 · Percent of sales approach · Activity</p>
+  <h2>Which lines grow with sales?</h2>
+  <p class="muted">Mark each item, then check.</p>
+  <div class="sorter" data-opts="Moves with sales|Management decision" data-key="fsa-percent-of-sales-sort">
+   <div class="row" data-a="Moves with sales"><span>Costs</span><em>If costs are a fixed share of sales, the profit margin stays constant.</em></div>
+   <div class="row" data-a="Moves with sales"><span>Cash, receivables, inventory</span><em>More sales need more working assets.</em></div>
+   <div class="row" data-a="Moves with sales"><span>Net fixed assets</span><em>We assume the firm is at full capacity, so fixed assets grow with sales.</em></div>
+   <div class="row" data-a="Moves with sales"><span>Accounts payable</span><em>More purchases bring more supplier credit, automatically.</em></div>
+   <div class="row" data-a="Management decision"><span>Notes payable and long-term debt</span><em>Borrowing is a capital structure choice.</em></div>
+   <div class="row" data-a="Management decision"><span>Paid-up capital</span><em>Issuing shares is a choice.</em></div>
+   <div class="row" data-a="Management decision"><span>Dividends</span><em>Set by dividend policy; we usually hold the payout ratio fixed.</em></div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center"><button class="btn primary check" type="button">Check</button><span class="score"></span></div>
+ </div>
+</section>
+
+<section class="slide" data-title="EFN in three steps">
+ <div class="inner">
+  <p class="eyebrow">Session 3 · Percentage of sales approach · Sales up 25%</p>
+  <h2>The method in three steps</h2>
+  <div class="seg" id="c4-s"><button class="on" data-v="1">1 · Express as % of sales</button><button data-v="2">2 · Project next year</button><button data-v="3">3 · Plug the gap</button></div>
+  <p id="c4-n" style="color:var(--ink)"></p>
+  <div class="two"><div class="scroll"><table class="t" id="c4-t"></table></div><div class="scroll"><table class="t" id="c4-u"></table></div></div>
+ </div>
+</section>
+
+<section class="slide" data-title="EFN and growth">
+ <div class="inner">
+  <p class="eyebrow">Session 3 · External financing and growth</p>
+  <h2>The faster the firm grows, the more it must raise outside</h2>
+  <div class="ctls">
+   <div class="ctl"><label for="ef-g">Sales growth <output for="ef-g"></output></label><input type="range" id="ef-g" min="0" max="50" step="1" value="25"></div>
+   <div class="ctl"><label for="ef-p">Dividend payout ratio <output for="ef-p"></output></label><input type="range" id="ef-p" min="0" max="100" step="1" value="33"></div>
+  </div>
+  <div class="two wide-l">
+   <div class="fig"><svg id="eg-c" role="img" aria-label="External financing needed against sales growth"></svg></div>
+   <div style="display:flex;flex-direction:column;gap:12px">
+    <p>The same firm as the last slide. Move growth and payout.</p>
+    <ul class="pts">
+     <li>At low growth, retained earnings cover the new assets and EFN is negative: the firm has spare cash.</li>
+     <li>Past the crossing point, growth needs outside money: new debt or new shares.</li>
+    </ul>
+    <div class="kpi hi" style="flex:0 0 auto"><span>EFN is zero at growth of</span><b id="eg-z"></b></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Growth rates step by step">
+ <div class="inner">
+  <p class="eyebrow">Session 3 · Internal and sustainable growth · Hoffman Co</p>
+  <h2>Where do the growth formulas come from?</h2>
+  <p class="muted" style="font-size:15px">Hoffman: total assets ₹500, equity ₹250, debt ₹250, net income ₹66, dividends ₹22, so it keeps b = 44/66 = 2/3.</p>
+  <div class="seg" id="gs-m" style="max-width:620px"><button class="on" data-v="i">Internal growth: no new borrowing</button><button data-v="s">Sustainable growth: borrow to keep D/E</button></div>
+  <div class="ctl" style="max-width:560px"><label for="gs-g">Try a growth rate g <output for="gs-g"></output></label><input type="range" id="gs-g" min="0" max="30" step="0.5" value="5"></div>
+  <div id="gs-c" style="display:flex;flex-direction:column;gap:10px"></div>
+  <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><p id="gs-s"></p><button class="btn" id="gs-find" type="button"></button></div>
+  <div class="four" id="gs-steps"><div class="card f"><h3></h3><p style="color:var(--ink)"></p></div><div class="card f"><h3></h3><p style="color:var(--ink)"></p></div><div class="card f"><h3></h3><p style="color:var(--ink)"></p></div><div class="card soft f"><h3></h3><p style="color:var(--ink)"></p></div></div>
+  <p class="hint" style="display:block">The book's slides show 9.64% and 21.34% because they round along the way.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="Determinants of growth">
+ <div class="inner">
+  <p class="eyebrow">Session 3 · Putting it together</p>
+  <h2>Four levers set how fast a firm can grow</h2>
+  <div class="formula">Sustainable growth = ROE × b / (1 − ROE × b), and ROE = PM × TAT × EM</div>
+  <div class="four">
+   <div class="card f"><h3>Profit margin</h3><p>Overall profitability. Higher margin, more retained earnings.</p></div>
+   <div class="card f"><h3>Asset turnover</h3><p>Asset use efficiency. Fewer new assets per rupee of new sales.</p></div>
+   <div class="card f"><h3>Financial leverage</h3><p>The debt ratio the firm chooses to hold.</p></div>
+   <div class="card f"><h3>Dividend policy</h3><p>How much of each rupee earned is kept in the firm.</p></div>
+  </div>
+  <p class="note f">If the firm wants to grow faster than its sustainable rate, one of these must change: sell new shares, borrow more, pay out less, or run the business more efficiently.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="Caveats">
+ <div class="inner">
+  <p class="eyebrow">Sessions 3 and 4</p>
+  <h2>Models do not choose the policy for you</h2>
+  <ul class="pts">
+   <li>Planning models show the consequences of policies; they do not say which policy is best.</li>
+   <li>They simplify: fixed assets rarely grow smoothly with sales, and margins move.</li>
+   <li>Without a plan, though, the firm drifts. The plan forces management to make its assumptions explicit.</li>
+  </ul>
+  <div class="card soft"><span class="tag">Session 4</span><h3>Tire City case in Excel</h3><p>Build the pro forma statements and EFN in a spreadsheet using the same percent of sales logic you saw here.</p></div>
+ </div>
+</section>
+
+<section class="slide" data-title="Quick check">
+ <div class="inner quiz" data-key="fsa-quick-check">
+  <p class="eyebrow">Quick check</p>
+  <h2>Five questions</h2>
+  <div class="two">
+   <div class="q" data-a="1"><p class="qt">Prufrock's current ratio is 1.31 but its quick ratio is only 0.53. Why the gap?</p><div class="opts"><button>Cash is very high</button><button>Inventory is a large part of current assets</button><button>Payables are very low</button></div><p class="why">Quick ratio drops inventory: (708 − 422) / 540. Inventory is ₹422 of ₹708 crore of current assets.</p></div>
+   <div class="q" data-a="2"><p class="qt">Days' sales in receivables of 30 means:</p><div class="opts"><button>Receivables turn over 30 times a year</button><button>Customers pay before delivery</button><button>On average the firm waits about 30 days to collect</button></div><p class="why">365 / 12.3 = 30 days of sales are still uncollected.</p></div>
+   <div class="q" data-a="0"><p class="qt">Two firms both earn ROE of 14%. Firm X: PM 15.7%, TAT 0.64, EM 1.385. Firm Y: PM 3%, TAT 2.5, EM 1.9. Which leans more on debt?</p><div class="opts"><button>Firm Y</button><button>Firm X</button><button>They are the same</button></div><p class="why">Y's equity multiplier of 1.9 means D/E of 0.9, against 0.385 for X.</p></div>
+   <div class="q" data-a="1"><p class="qt">Holding everything else fixed, which raises external financing needed?</p><div class="opts"><button>A lower payout ratio</button><button>Higher sales growth</button><button>A higher profit margin</button></div><p class="why">Faster growth needs more new assets; the other two raise retained earnings and lower EFN.</p></div>
+   <div class="q" data-a="2"><p class="qt">Why is the sustainable growth rate higher than the internal growth rate?</p><div class="opts"><button>It allows new share issues</button><button>It assumes no dividends</button><button>It allows new borrowing to keep the debt-equity ratio constant</button></div><p class="why">Each rupee of retained earnings supports extra debt, so assets can grow faster.</p></div>
+  </div>
+  <p class="score"></p>
+ </div>
+</section>
+
+
+ </main>
+ <footer class="foot"><button class="btn" id="prev" type="button">Back</button><div class="prog"><i></i></div><span class="count"></span><span class="hint">← → to move</span><button class="btn primary" id="next" type="button">Next</button></footer>
+</div>
+<div class="ov" role="dialog" aria-label="All slides"><button class="icon x" type="button">Close</button><h2>Financial Statement Analysis and Long-Term Planning</h2><div class="grid"></div></div>
+<script>
+/* CF II slide engine.
+   Slides are <section class="slide" data-title="..."> inside .stage.
+   Elements with class "f" are revealed one at a time by Next.
+   Keys: right/left arrows, space, PageUp/PageDown, Home/End, O for overview, F for full screen.
+   If the CF1 tracker (cf.js) is on the page, the slide reached is reported as the step. */
+window.D = (() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const inr = (v, d = 0) => (v < 0 ? '−' : '') + '₹' + Math.abs(v).toLocaleString('en-IN', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const num = (v, d = 0) => (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('en-IN', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const pct = (v, d = 1) => (v < 0 ? '−' : '') + Math.abs(v * 100).toFixed(d) + '%';
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+  /* bind a range input to an output and a callback */
+  function slider(id, fmt, cb) {
+    const el = document.getElementById(id), out = document.querySelector(`output[for="${id}"]`);
+    const run = () => { const v = +el.value; if (out) out.textContent = fmt ? fmt(v) : v; cb && cb(v); };
+    el.addEventListener('input', run);
+    return { el, run, get v() { return +el.value; }, set v(x) { el.value = x; run(); } };
+  }
+  /* a segmented control: buttons with data-v; calls cb(value) */
+  function seg(el, cb) {
+    const bs = $$('button', el);
+    bs.forEach(b => b.addEventListener('click', () => { bs.forEach(x => x.classList.toggle('on', x === b)); cb(b.dataset.v); }));
+    return v => { const b = bs.find(x => x.dataset.v == v); b && b.click(); };
+  }
+
+  /* small line-chart helper drawn at real pixel size.
+     o = {xd:[a,b], yd:[a,b], xt:[ticks], yt:[ticks], xf, yf, xl, yl,
+          lines:[{pts:[[x,y]..], c:'--accent', w, dash, label}],
+          dots:[{x,y,c,label,pos}], vl:[{x,label,c}], hl:[{y,label,c}], areas:[{pts, c, o}] } */
+  function plot(svg, o) {
+    const W = svg.clientWidth, H = svg.clientHeight;
+    if (!W || !H) return;
+    const sm = W < 520;
+    const m = { l: sm ? 44 : 60, r: 18, t: 16, b: o.xl ? 46 : 30 };
+    const [x0, x1] = o.xd, [y0, y1] = o.yd;
+    const X = x => m.l + (x - x0) / (x1 - x0) * (W - m.l - m.r);
+    const Y = y => H - m.b - (y - y0) / (y1 - y0) * (H - m.t - m.b);
+    const col = c => c && c.startsWith('--') ? css(c) : (c || css('--accent'));
+    const xf = o.xf || (v => v), yf = o.yf || (v => v);
+    let s = '';
+    const yt = o.yt || [], xt = o.xt || [];
+    yt.forEach(v => { s += `<line class="grd" x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${yf(v)}</text>`; });
+    xt.forEach((v, i) => { if (sm && xt.length > 6 && i % 2) return; s += `<text x="${X(v)}" y="${H - m.b + 18}" text-anchor="middle">${xf(v)}</text>`; });
+    s += `<line class="ax" x1="${m.l}" x2="${W - m.r}" y1="${Y(Math.max(y0, Math.min(0, y1)))}" y2="${Y(Math.max(y0, Math.min(0, y1)))}" />`;
+    s += `<line class="ax" x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H - m.b}"/>`;
+    if (o.xl) s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 8}" text-anchor="middle">${o.xl}</text>`;
+    if (o.yl && !sm) s += `<text x="${m.l + 6}" y="${m.t + 4}" style="font-weight:600">${o.yl}</text>`;
+    (o.areas || []).forEach(a => { s += `<polygon points="${a.pts.map(p => X(p[0]) + ',' + Y(p[1])).join(' ')}" fill="${col(a.c)}" opacity="${a.o || .15}"/>`; });
+    (o.vl || []).forEach(v => { s += `<line x1="${X(v.x)}" x2="${X(v.x)}" y1="${m.t}" y2="${H - m.b}" stroke="${col(v.c || '--muted')}" stroke-dasharray="4 4"/>` + (v.label ? `<text x="${X(v.x) + 6}" y="${m.t + 12}" style="fill:${col(v.c || '--muted')}">${v.label}</text>` : ''); });
+    (o.hl || []).forEach(v => { s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v.y)}" y2="${Y(v.y)}" stroke="${col(v.c || '--muted')}" stroke-dasharray="4 4"/>` + (v.label ? `<text x="${W - m.r - 4}" y="${Y(v.y) - 6}" text-anchor="end" style="fill:${col(v.c || '--muted')}">${v.label}</text>` : ''); });
+    (o.lines || []).forEach(l => {
+      const pts = l.pts.filter(p => isFinite(p[1]) && p[1] >= y0 - (y1 - y0) && p[1] <= y1 + (y1 - y0));
+      s += `<polyline fill="none" stroke="${col(l.c)}" stroke-width="${l.w || 2.5}" ${l.dash ? `stroke-dasharray="${l.dash}"` : ''} stroke-linejoin="round" points="${pts.map(p => X(p[0]).toFixed(1) + ',' + Y(Math.max(y0, Math.min(y1, p[1]))).toFixed(1)).join(' ')}"/>`;
+      if (l.label) { const p = l.at ? l.pts[l.at] : pts[pts.length - 1]; s += `<text x="${Math.min(X(p[0]), W - m.r - 4)}" y="${Y(Math.max(y0, Math.min(y1, p[1]))) - 8}" text-anchor="end" style="fill:${col(l.c)};font-weight:600">${l.label}</text>`; }
+    });
+    (o.dots || []).forEach(d => {
+      s += `<circle cx="${X(d.x)}" cy="${Y(d.y)}" r="6" fill="${col(d.c)}" stroke="${css('--surface')}" stroke-width="2"/>`;
+      if (d.label) { const left = X(d.x) > W * .7; s += `<text x="${X(d.x) + (left ? -10 : 10)}" y="${Y(d.y) + (d.pos === 'below' ? 20 : -10)}" text-anchor="${left ? 'end' : 'start'}" style="fill:${col(d.c)};font-weight:600">${d.label}</text>`; }
+    });
+    svg.innerHTML = s;
+  }
+  /* keep a chart redrawn when its box changes size (also when its slide is shown) */
+  function chart(id, draw) {
+    const svg = document.getElementById(id);
+    const ro = new ResizeObserver(() => draw(svg));
+    ro.observe(svg);
+    return () => draw(svg);
+  }
+
+  /* quizzes: .q with data-a="index of right option" and buttons inside .opts */
+  function quizzes() {
+    $$('.quiz').forEach(box => {
+      const qs = $$('.q', box), out = $('.score', box);
+      let right = 0, done = 0;
+      qs.forEach(q => {
+        const a = +q.dataset.a, bs = $$('.opts button', q);
+        bs.forEach((b, i) => b.addEventListener('click', () => {
+          bs.forEach((x, j) => { x.disabled = true; if (j === a) x.classList.add('right'); });
+          if (i !== a) b.classList.add('wrong'); else right++;
+          done++; q.classList.add('done');
+          if (out) out.textContent = `Score: ${right} of ${done} answered (${qs.length} questions)`;
+          if (done === qs.length && window.CF && CF.submitAttempt) { try { CF.submitAttempt(box.dataset.key || 'quiz', right, qs.length); } catch (e) {} }
+        }));
+      });
+    });
+  }
+  /* click-to-classify: .sorter[data-opts="A|B"] > .row[data-a="A"] ; button .check */
+  function sorters() {
+    $$('.sorter').forEach(s => {
+      const opts = s.dataset.opts.split('|');
+      $$('.row', s).forEach(r => {
+        const holder = document.createElement('div'); holder.style.display = 'flex'; holder.style.gap = '6px'; holder.style.flexWrap = 'wrap';
+        opts.forEach(o => { const b = document.createElement('button'); b.type = 'button'; b.textContent = o; b.addEventListener('click', () => { $$('button', holder).forEach(x => x.classList.toggle('pick', x === b)); r.dataset.pick = o; }); holder.appendChild(b); });
+        r.insertBefore(holder, $('em', r));
+      });
+      const chk = s.parentElement.querySelector('.check');
+      if (chk) chk.addEventListener('click', () => {
+        let ok = 0; const rows = $$('.row', s);
+        rows.forEach(r => { const good = r.dataset.pick === r.dataset.a; r.classList.toggle('ok', good); r.classList.toggle('no', !good); ok += good; });
+        s.classList.add('checked');
+        const o = s.parentElement.querySelector('.score'); if (o) o.textContent = `${ok} of ${rows.length} correct`;
+        if (window.CF && CF.submitAttempt) { try { CF.submitAttempt(s.dataset.key || 'sort', ok, rows.length); } catch (e) {} }
+      });
+    });
+  }
+
+  /* navigation */
+  function start() {
+    const slides = $$('.slide'), n = slides.length;
+    const prog = $('.prog i'), count = $('.count'), bPrev = $('#prev'), bNext = $('#next'), title = $('.bar .dt span');
+    let cur = 0;
+    const frags = s => $$('.f', s);
+    /* fit: on laptop and projector widths, scale a tall slide down so it fits without a scrollbar */
+    function fit(s) {
+      const inner = $('.inner', s); if (!inner || !s.classList.contains('active')) return;
+      inner.style.zoom = '';
+      if (innerWidth < 900) return;
+      const cs = getComputedStyle(s), avail = s.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      const need = inner.scrollHeight;
+      if (need > avail) inner.style.zoom = Math.max(0.5, avail / need * 0.975).toFixed(3);
+    }
+    function go(i, all) {
+      i = Math.max(0, Math.min(n - 1, i));
+      slides.forEach((s, k) => s.classList.toggle('active', k === i));
+      frags(slides[i]).forEach(f => f.classList.toggle('on', !!all));
+      cur = i; slides[i].scrollTop = 0;
+      prog.style.width = ((i + 1) / n * 100) + '%';
+      count.textContent = `${i + 1} / ${n}`;
+      if (title) title.textContent = slides[i].dataset.title || '';
+      bPrev.disabled = i === 0;
+      bNext.textContent = i === n - 1 ? 'End' : 'Next';
+      bNext.disabled = i === n - 1 && !frags(slides[i]).some(f => !f.classList.contains('on'));
+      try { history.replaceState(null, '', '#s' + (i + 1)); } catch (e) {}
+      requestAnimationFrame(() => fit(slides[i]));
+      slides[i].dispatchEvent(new Event('enter'));
+      if (window.CF && CF.setStep) { try { CF.setStep(i + 1); } catch (e) {} }
+    }
+    function next() {
+      const h = frags(slides[cur]).filter(f => !f.classList.contains('on'));
+      if (h.length) { h[0].classList.add('on'); if (cur === n - 1 && h.length === 1) bNext.disabled = true; h[0].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
+      if (cur < n - 1) go(cur + 1);
+    }
+    function prev() {
+      const s = frags(slides[cur]).filter(f => f.classList.contains('on'));
+      if (s.length) { s[s.length - 1].classList.remove('on'); bNext.disabled = false; return; }
+      if (cur > 0) go(cur - 1, true);
+    }
+    bNext.addEventListener('click', next); bPrev.addEventListener('click', prev);
+
+    /* overview */
+    const ov = $('.ov'), grid = $('.ov .grid');
+    grid.innerHTML = slides.map((s, i) => `<button type="button" data-i="${i}"><small>${i + 1}</small>${s.dataset.title || 'Slide'}</button>`).join('');
+    const openOv = () => { $$('button', grid).forEach((b, i) => b.classList.toggle('cur', i === cur)); ov.classList.add('open'); const c = $('.cur', grid); c && c.focus(); };
+    const closeOv = () => ov.classList.remove('open');
+    grid.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { closeOv(); go(+b.dataset.i, true); } });
+    $('#ovbtn').addEventListener('click', openOv); $('.ov .x').addEventListener('click', closeOv);
+    $('#fsbtn').addEventListener('click', () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {} });
+
+    document.addEventListener('keydown', e => {
+      const t = e.target, tag = t.tagName;
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      if (ov.classList.contains('open')) { if (e.key === 'Escape' || e.key === 'o' || e.key === 'O') closeOv(); return; }
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      if (['ArrowRight', 'PageDown'].includes(e.key) || (e.key === ' ' && tag !== 'BUTTON')) { e.preventDefault(); next(); }
+      else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+      else if (e.key === 'Home') go(0); else if (e.key === 'End') go(n - 1, true);
+      else if (e.key === 'o' || e.key === 'O') openOv();
+      else if (e.key === 'f' || e.key === 'F') $('#fsbtn').click();
+    });
+    /* swipe */
+    let sx = null, sy = 0;
+    const stage = $('.stage');
+    stage.addEventListener('touchstart', e => { if (e.target.closest('input,button,.fig,.scroll,select')) { sx = null; return; } sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    stage.addEventListener('touchend', e => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) dx < 0 ? next() : prev(); sx = null; });
+
+    $$('.ctl label').forEach(l => { const o = $('output', l), sp = document.createElement('span'); [...l.childNodes].forEach(n => { if (n !== o) sp.appendChild(n); }); l.insertBefore(sp, o); });
+    quizzes(); sorters();
+    let rt; const refit = () => { clearTimeout(rt); rt = setTimeout(() => fit(slides[cur]), 120); };
+    addEventListener('resize', refit); document.addEventListener('fullscreenchange', refit);
+    const ro = new ResizeObserver(() => { if (!fitting) refit(); }); let fitting = false; slides.forEach(sl => { const inn = $('.inner', sl); inn && ro.observe(inn); });
+    const h = /^#s(\d+)$/.exec(location.hash);
+    go(h ? +h[1] - 1 : 0, !!h);
+    addEventListener('hashchange', () => { const m = /^#s(\d+)$/.exec(location.hash); if (m && +m[1] - 1 !== cur) go(+m[1] - 1, true); });
+  }
+  return { $, $$, inr, num, pct, css, slider, seg, plot, chart, start };
+})();
+
+</script>
+<script>
+/* Shared by the FSA deck and the FSA design-options deck.
+   Prufrock data and ratio formulas follow Ross, Westerfield, Jaffe, Jordan and Shue, Corporate Finance, 14th ed. (2025), Ch 3. ₹ crore. */
+window.FSA=(()=>{
+const {num,pct,seg,$,$$}=D;
+const f2=v=>v.toFixed(2);
+/* ---------- Prufrock data (₹ crore); index 0 = 2019, 1 = 2020 ---------- */
+/* 2020 is the book's Prufrock. The 2019 income statement and 2019 share price are constructed for teaching; the book gives only 2020. */
+const V={sales:[2150,2311],cogs:[1320,1435],dep:[260,276],ebit:[570,600],int:[150,141],ebt:[420,459],tax:[88,96],ni:[332,363],div:[110,121],addre:[222,242],price:[80,88],shares:[33,33],
+ cash:[84,98],ar:[165,188],inv:[393,422],ca:[642,708],nfa:[2731,2880],ta:[3373,3588],ap:[312,344],np:[231,196],cl:[543,540],ltd:[531,457],puc:[500,550],re:[1799,2041],te:[2299,2591],tle:[3373,3588]};
+const FLOW=new Set(['sales','cogs','dep','ebit','int','ebt','tax','ni','div','price','shares']);
+const NM={sales:'Sales',cogs:'Cost of goods sold',dep:'Depreciation',ebit:'EBIT',int:'Interest',ebt:'Taxable income',tax:'Taxes (21%)',ni:'Net income',div:'Dividends',addre:'Addition to retained earnings',price:'Share price (₹)',shares:'Shares (crore)',
+ cash:'Cash',ar:'Receivables',inv:'Inventory',ca:'Current assets',nfa:'Net plant',ta:'Total assets',ap:'Payables',np:'Notes payable',cl:'Current liabilities',ltd:'Long-term debt',puc:'Paid-up capital',re:'Retained earnings',te:'Total equity',tle:'Total L & E'};
+const val=(k,y)=>V[k][y]??V[k][1];
+const ISR=[['sales'],['cogs'],['dep'],['ebit',1],['int'],['ebt',1],['tax'],['ni',1],['div']],
+ BSR=[['cash'],['ar'],['inv'],['ca',1],['nfa'],['ta',1],'L',['ap'],['np'],['cl',1],['ltd'],['puc'],['re'],['te',1],['tle',1]];
+/* family colours, used wherever ratios are named */
+const FCOL={'Liquidity':'--c-liq','Leverage':'--c-lev','Turnover':'--c-tur','Profitability':'--c-pro','Market value':'--c-mkt'};
+/* statements for the lab, the map and the activity: two years each, equity on one line */
+const BSG=[['cash'],['ar'],['inv'],['ca',1],['nfa'],['ta',1],'L',['ap'],['np'],['cl',1],['ltd'],['te',1,'Paid-up capital + retained earnings'],['tle',1]];
+function stm(el,big){
+ const cls='t sm'+(big?' lg':'');const cell=(k,y)=>`<td data-k="${k}" data-y="${y}">${num(V[k][y])}</td>`;
+ const yh='<th data-y="0">2019</th><th data-y="1">2020</th>';
+ let a=`<table class="${cls}"><thead><tr><th>Income statement</th>${yh}</tr></thead><tbody>`+ISR.map(r=>`<tr class="${r[1]?'tot':''}"><td data-row="${r[0]}">${NM[r[0]]}</td>${cell(r[0],0)}${cell(r[0],1)}</tr>`).join('')+
+  '<tr class="sec"><td colspan="3">Market data</td></tr>'+['price','shares'].map(k=>`<tr><td data-row="${k}">${NM[k]}</td>${cell(k,0)}${cell(k,1)}</tr>`).join('')+'</tbody></table>';
+ let b=`<table class="${cls}"><thead><tr><th>Balance sheet</th>${yh}</tr></thead><tbody><tr class="sec"><td colspan="3">Assets</td></tr>`+
+  BSG.map(r=>r==='L'?'<tr class="sec"><td colspan="3">Liabilities and equity</td></tr>':`<tr class="${r[1]?'tot':''}"><td data-row="${r[0]}">${NM[r[0]]}${r[2]?`<small class="sub-note">${r[2]}</small>`:''}</td>${cell(r[0],0)}${cell(r[0],1)}</tr>`).join('')+'</tbody></table>';
+ el.innerHTML=a+b;}
+/* ---------- ratios ---------- */
+const FAMS={'Liquidity':'Short-term solvency, or liquidity','Leverage':'Long-term solvency, or financial leverage','Turnover':'Asset management, or turnover','Profitability':'Profitability','Market value':'Market value'};
+const R=[
+ ['Liquidity','Current ratio','Current ratio = CA / CL',['ca'],['cl'],'x',v=>`₹${f2(v)} of current assets for every ₹1 owed within the year.`],
+ ['Liquidity','Quick ratio','Quick ratio = (CA − Inventory) / CL',['ca','−','inv'],['cl'],'x',v=>`Leaving out inventory, the hardest current asset to turn into cash, cover is ${f2(v)} times.`],
+ ['Liquidity','Cash ratio','Cash ratio = Cash / CL',['cash'],['cl'],'x',v=>`Cash alone covers ${f2(v)} times current liabilities.`],
+ ['Leverage','Total debt ratio','Total debt ratio = (TA − TE) / TA',['ta','−','te'],['ta'],'x',v=>`${f2(v)} of every rupee of assets is financed by creditors of all kinds.`],
+ ['Leverage','Debt-equity ratio','Debt-equity ratio = TD / TE, where TD = TA − TE',['ta','−','te'],['te'],'x',v=>`₹${f2(v)} owed to creditors for every rupee of equity.`],
+ ['Leverage','Equity multiplier','Equity multiplier = TA / TE = 1 + D/E',['ta'],['te'],'x',v=>`Each rupee of equity carries ₹${f2(v)} of assets (= 1 + D/E).`],
+ ['Leverage','Times interest earned','TIE = EBIT / Interest',['ebit'],['int'],'x',v=>`Operating profit covers interest ${f2(v)} times.`],
+ ['Leverage','Cash coverage','Cash coverage = (EBIT + Depreciation and amortization) / Interest',['ebit','+','dep'],['int'],'x',v=>`Adding back non-cash depreciation, cover is ${f2(v)} times.`],
+ ['Turnover','Inventory turnover','Inventory turnover = Cost of goods sold / Inventory',['cogs'],['inv'],'x',v=>`Inventory is sold and replaced ${f2(v)} times a year.`],
+ ['Turnover',"Days' sales in inventory","Days' sales in inventory = 365 / Inventory turnover",[365],['cogs','÷','inv'],'d',v=>`Goods sit about ${v.toFixed(1)} days before they are sold. (The book rounds turnover to 3.40 first and shows 107.37.)`],
+ ['Turnover','Receivables turnover','Receivables turnover = Sales / Accounts receivable',['sales'],['ar'],'x',v=>`Credit is collected and re-lent ${f2(v)} times a year.`],
+ ['Turnover',"Days' sales in receivables","Days' sales in receivables = 365 / Receivables turnover",[365],['sales','÷','ar'],'d',v=>`Customers take about ${v.toFixed(1)} days to pay.`],
+ ['Turnover','Total asset turnover','Total asset turnover = Sales / Total assets',['sales'],['ta'],'x',v=>`${f2(v)} rupees of sales per rupee of assets. Below 1 is common for firms with large fixed assets.`],
+ ['Profitability','Profit margin','Profit margin = Net income / Sales',['ni'],['sales'],'%',v=>`${(v*100).toFixed(2)} paise of profit from every rupee of sales.`],
+ ['Profitability','EBITDA margin','EBITDA margin = EBITDA / Sales',['ebit','+','dep'],['sales'],'%',v=>`Operating cash profit before depreciation is ${pct(v,2)} of sales.`],
+ ['Profitability','Return on assets','ROA = Net income / Total assets',['ni'],['ta'],'%',v=>`${pct(v,2)} earned on every rupee of assets.`],
+ ['Profitability','Return on equity','ROE = Net income / Total equity',['ni'],['te'],'%',v=>`${pct(v,2)} earned on shareholders' money.`],
+ ['Market value','P/E ratio','P/E = Price per share / Earnings per share',['price'],['ni','÷','shares'],'x',v=>`Investors pay ₹${f2(v)} for each rupee of earnings. (EPS = 363 / 33 = ₹11.00; the book shows 10.99 and 8.01.)`],
+ ['Market value','Market-to-book','Market-to-book = Market value per share / Book value per share',['price'],['te','÷','shares'],'x',v=>`The market values equity at ${f2(v)} times its book value.`],
+ ['Market value','EV multiple','EV multiple = EV / EBITDA, where EV = Market cap + Interest-bearing debt − Cash',['price','×','shares','+','np','+','ltd','−','cash'],['ebit','+','dep'],'x',v=>`The whole firm (₹3,459 crore) is valued at ${f2(v)} times its EBITDA.`]];
+const RI=n=>R.findIndex(r=>r[1]===n);
+
+const ev=(ts,y)=>{let a=null,op=null;ts.forEach(t=>{if(typeof t==='string'&&'−+×÷'.includes(t)){op=t;return;}const v=typeof t==='number'?t:val(t,y);a=a===null?v:op==='−'?a-v:op==='+'?a+v:op==='×'?a*v:a/v;});return a;};
+const rv=(r,y)=>ev(r[3],y)/ev(r[4],y);
+const fmt=(v,u)=>u==='%'?pct(v,2):u==='d'?v.toFixed(2)+' days':f2(v)+' times';
+const usesFlow=r=>[...r[3],...r[4]].some(t=>FLOW.has(t));
+const fams=[...new Set(R.map(r=>r[0]))];
+
+/* ---------- 2B flying-numbers lab ---------- */
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function fly(src,slot,text,cls){return new Promise(res=>{const b=slot.querySelector('b');const done=()=>{b.textContent=text;slot.classList.add('filled');res();};
+ const a=src&&src.getBoundingClientRect(),t=b.getBoundingClientRect();
+ if(RM||!a||!a.width||!t.width){done();return;}
+ const g=document.createElement('div');g.className='flyer '+cls;g.textContent=text;g.style.left=(a.left+a.width/2)+'px';g.style.top=(a.top+a.height/2)+'px';document.body.appendChild(g);
+ const dx=t.left+t.width/2-(a.left+a.width/2),dy=t.top+t.height/2-(a.top+a.height/2);
+ const an=g.animate([{transform:'translate(-50%,-50%) scale(1)'},{transform:`translate(calc(-50% + ${dx*.5}px),calc(-50% + ${dy*.5-46}px)) scale(1.3)`},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(1)`}],{duration:780,easing:'ease-in-out'});
+ an.onfinish=()=>{g.remove();done();};an.oncancel=()=>g.remove();});}
+function slotsHTML(ts,cls,y){return ts.map(t=>typeof t==='number'?`<span class="slot const"><b>${t}</b><small>days</small></span>`:'−+×÷'.includes(t)?`<span class="op">${t}</span>`:`<span class="slot ${cls}" data-k="${t}"><b>?</b><small>${NM[t]} ${2019+y}</small></span>`).join('');}
+function countUp(el,v,u){if(RM){el.textContent=fmt(v,u);return;}const t0=performance.now();const step=t=>{const k=Math.min(1,(t-t0)/500);el.textContent=fmt(v*(1-Math.pow(1-k,3)),u);if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);}
+if(document.getElementById('lab-stm')){let yr=1,cur=0,fam=fams[0],run=0;const stmEl=$('#lab-stm');stm(stmEl);
+ const src=k=>stmEl.querySelector(`td[data-k="${k}"][data-y="${yr}"]`);
+ const chips=()=>{$('#lab-fam').innerHTML=fams.map(f=>`<button type="button" class="${f===fam?'on':''}" data-f="${f}" style="--fc:var(${FCOL[f]})"><i class="fdot"></i>${f}</button>`).join('');
+  $('#lab-chips').innerHTML=R.map((r,i)=>r[0]===fam?`<button type="button" class="fam ${i===cur?'on':''}" data-i="${i}" style="--fc:var(${FCOL[fam]})">${r[1]}</button>`:'').join('');};
+ const dimYear=()=>{$$('[data-y]',stmEl).forEach(c=>c.classList.toggle('dim',+c.dataset.y!==yr));};
+ async function show(){const my=++run;document.querySelectorAll('.flyer').forEach(f=>f.remove());const r=R[cur],v=rv(r,yr);chips();dimYear();
+  $('#lab-name').textContent=r[1];$('#lab-ft').textContent=r[2];$('#lab-cat').textContent=FAMS[r[0]];$('#lab-cat').style.color=`var(${FCOL[r[0]]})`;$('#lab-why').textContent='';$('#lab-tr').textContent='';
+  $('#lab-eqn').innerHTML=`<div class="frac"><div class="row">${slotsHTML(r[3],'n',yr)}</div><div class="fbar"></div><div class="row">${slotsHTML(r[4],'d',yr)}</div></div><span class="eq">=</span><span class="res" id="lab-res">?</span>`;
+  $$('td',stmEl).forEach(c=>c.classList.remove('src-n','src-d'));
+  r[3].forEach(t=>{const s=src(t);s&&s.classList.add('src-n');});r[4].forEach(t=>{const s=src(t);s&&s.classList.add('src-d');});
+  if(!$('#lab-eqn').closest('.slide').classList.contains('active'))return;
+  await sleep(150);const slots=$$('.slot[data-k]',$('#lab-eqn'));
+  await Promise.all(slots.map((s,j)=>sleep(j*300).then(()=>my===run&&fly(src(s.dataset.k),s,num(val(s.dataset.k,yr)),s.classList.contains('n')?'':'d'))));
+  if(my!==run)return;await sleep(150);countUp($('#lab-res'),v,r[5]);await sleep(520);if(my!==run)return;
+  $('#lab-why').textContent=r[6](v);
+  $('#lab-tr').innerHTML=`Trend: 2019 <b class="mono">${fmt(rv(r,0),r[5])}</b> → 2020 <b class="mono">${fmt(rv(r,1),r[5])}</b>. Switch the year to watch it rebuild.`;}
+ $('#lab-fam').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;fam=b.dataset.f;cur=R.findIndex(r=>r[0]===fam);show();});
+ $('#lab-chips').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;cur=+b.dataset.i;show();});
+ $('#lab-replay').addEventListener('click',show);
+ seg($('#lab-yr'),v=>{yr=+v;show();});
+ $('#lab-eqn').closest('.slide').addEventListener('enter',()=>setTimeout(show,250));}
+
+/* ---------- statement map: which lines each family uses, colour coded ---------- */
+if(document.getElementById('sm-stm')){
+ const INFO={Liquidity:['Balance sheet only','All three liquidity ratios compare two numbers on the same date. Nothing in the income statement lights up.'],
+  Leverage:['Balance sheet for debt ratios; income statement for coverage ratios','Debt ratios compare balance sheet items. Coverage ratios (TIE, cash coverage) come entirely from the income statement, yet they still measure leverage.'],
+  Turnover:['Income statement and balance sheet','A year of sales or cost of goods sold over the assets on the balance sheet date.'],
+  Profitability:['Income statement only for margins; both for ROA and ROE','Margins compare two income statement lines; ROA and ROE put a year\'s profit over a balance sheet total.'],
+  'Market value':['Market price plus both statements','The only family that needs information from outside the accounts: the share price.']};
+ const el=$('#sm-stm');stm(el,true);let fam='Liquidity';
+ const keys=r=>[...r[3],...r[4]].filter(t=>typeof t==='string'&&!'−+×÷'.includes(t));
+ const draw=()=>{$('#sm-f').innerHTML=fams.map(f=>`<button type="button" class="fam ${f===fam?'on':''}" data-f="${f}" style="--fc:var(${FCOL[f]})">${f}</button>`).join('');
+  $$('tr',el).forEach(tr=>{tr.classList.remove('lit');tr.style.removeProperty('--fc');});
+
+  const rs=R.filter(r=>r[0]===fam),used=new Set(rs.flatMap(keys));
+  $$('td[data-row]',el).forEach(td=>{if(used.has(td.dataset.row)){const tr=td.parentElement;tr.classList.add('lit');tr.style.setProperty('--fc',`var(${FCOL[fam]})`);}});
+  const t=$$('table',el);t[0].style.opacity=[...used].some(k=>FLOW.has(k))?1:.35;t[1].style.opacity=[...used].some(k=>!FLOW.has(k))?1:.35;
+  $('#sm-v').textContent=INFO[fam][0];$('#sm-v').style.color=`var(${FCOL[fam]})`;$('#sm-n').textContent=INFO[fam][1];
+  $('#sm-list').innerHTML=rs.map(r=>`<div class="famrow" style="--fc:var(${FCOL[fam]})"><b>${r[1]}</b><span class="mono">${r[2].split(' = ').slice(1).join(' = ')}</span></div>`).join('');};
+ $('#sm-f').addEventListener('click',e=>{const b=e.target.closest('button');if(b){fam=b.dataset.f;draw();}});draw();}
+/* ---------- 2C build it yourself ---------- */
+if(document.getElementById('bd-stm')){const Q=['Current ratio','Cash ratio','Equity multiplier','Times interest earned','Inventory turnover','Receivables turnover','Total asset turnover','Profit margin','Return on assets','Return on equity'].map(RI);let qi=0,stage=0,picks=[],score=0,tried=0;const el=$('#bd-stm');stm(el);
+ $$('td[data-k]',el).forEach(c=>c.classList.add('pickable'));
+ const draw=()=>{const r=R[Q[qi]];$('#bd-q').textContent=r[1];$('#bd-q').style.color=`var(${FCOL[r[0]]})`;
+  const sl=(i,cls,lab)=>{const p=picks[i];return `<span class="slot ${cls} ${p?'filled':''}"><b>${p?num(val(p.k,p.y)):'?'}</b><small>${p?NM[p.k]+' '+(2019+p.y):lab}</small></span>`;};
+  $('#bd-eqn').innerHTML=`<div class="frac"><div class="row">${sl(0,'n','numerator')}</div><div class="fbar"></div><div class="row">${sl(1,'d','denominator')}</div></div><span class="eq">=</span><span class="res">${picks.length===2?fmt(val(picks[0].k,picks[0].y)/val(picks[1].k,picks[1].y),r[5]):'?'}</span>`;
+  $('#bd-step').textContent=stage===0?'Click the number that goes on top.':stage===1?'Now click the number that goes below.':'';
+  $$('td',el).forEach(c=>c.classList.remove('src-n','src-d'));picks.forEach((p,i)=>{const c=el.querySelector(`td[data-k="${p.k}"][data-y="${p.y}"]`);c&&c.classList.add(i?'src-d':'src-n');});};
+ el.addEventListener('click',e=>{const c=e.target.closest('td[data-k]');if(!c||stage>1)return;picks.push({k:c.dataset.k,y:+c.dataset.y});stage++;
+  if(stage===2){const r=R[Q[qi]],ok=picks[0].k===r[3][0]&&picks[1].k===r[4][0];tried++;if(ok)score++;
+   const yrNote=ok&&picks[0].y!==picks[1].y?' Right lines, but take both numbers from the same year.':'';
+   $('#bd-fb').innerHTML=ok?`<b class="g">Correct.</b> ${r[2]}. ${r[6](rv(r,1))}${yrNote}`:`<b class="r">Not quite.</b> ${r[1]} = ${r[2]}. Start again and try once more.`;
+   $('#bd-sc').textContent=`${score} of ${tried} right first time`;}
+  draw();});
+ $('#bd-reset').addEventListener('click',()=>{stage=0;picks=[];$('#bd-fb').textContent='';draw();});
+ $('#bd-next').addEventListener('click',()=>{qi=(qi+1)%Q.length;stage=0;picks=[];$('#bd-fb').textContent='';draw();});draw();}
+
+/* ---------- EFN model (shared by 4A, 4B, 4C) ---------- */
+function efn(g,p){if(p===.33)p=1/3;const S1=1000*(1+g),ni=.132*S1,div=p*ni,add=ni-div;const a={cash:.16*S1,ar:.44*S1,inv:.6*S1,nfa:1.8*S1};a.ta=a.cash+a.ar+a.inv+a.nfa;
+ const l={ap:.3*S1,np:100,ltd:800,puc:800,re:1000+add};l.tot=l.ap+l.np+l.ltd+l.puc+l.re;return {S1,ni,div,add,a,l,efn:a.ta-l.tot};}
+if(document.getElementById('c4-t')){const r=efn(.25,.33);const L=[['Sales','1,000','100%',1250],['Costs','800','80%',1000],['Net income','132','13.2%',r.ni],['Dividends (1/3)','44','policy',r.div],['Addition to RE','88','',r.add,'tot'],['Cash','160','16%',r.a.cash],['Receivables','440','44%',r.a.ar],['Inventory','600','60%',r.a.inv],['Net fixed assets','1,800','180%',r.a.nfa],['Total assets','3,000','300%',r.a.ta,'tot'],['Accounts payable','300','30%',r.l.ap],['Notes payable','100','n/a',100],['Long-term debt','800','n/a',800],['Paid-up capital','800','n/a',800],['Retained earnings','1,000','n/a',r.l.re],['Total liabilities and equity','3,000','',r.l.tot,'tot']];
+ const N=['Step 1. Divide every line that moves with sales by sales. Lines set by management decisions get n/a.','Step 2. Multiply each percentage by next year\'s sales of 1,250. Lines marked n/a stay where they are; retained earnings add this year\'s addition.','Step 3. Assets come to 3,750 but liabilities and equity only to 3,185. The plug that balances the sheet is EFN = ₹565.'];
+ const tb=(rows,s,head)=>`<thead><tr><th>${head}</th><th>Now</th><th>% of sales</th>${s>1?'<th>Next year</th>':''}</tr></thead><tbody>`+rows.map(x=>`<tr class="${x[4]||''}"><td>${x[0]}</td><td>${x[1]}</td><td style="${s===1?'color:var(--accent);font-weight:600':''}">${x[2]}</td>${s>1?`<td style="${s===2?'color:var(--accent);font-weight:600':''}">${num(x[3])}</td>`:''}</tr>`).join('');
+ const draw=s=>{$('#c4-n').textContent=N[s-1];$('#c4-t').innerHTML=tb(L.slice(0,5),s,'Income statement')+'</tbody>';
+  $('#c4-u').innerHTML=tb(L.slice(5),s,'Balance sheet')+(s===3?`<tr class="hl"><td><b>EFN (plug)</b></td><td></td><td></td><td><b>${num(r.efn)}</b></td></tr>`:'')+'</tbody>';};
+ seg($('#c4-s'),v=>draw(+v));draw(1);}
+
+/* ---------- growth rates, step by step (Hoffman Co) ---------- */
+if(document.getElementById('gs-c')){
+ const {slider}=D;let mode='i';
+ const g=slider('gs-g',v=>v.toFixed(1)+'%',draw);
+ function draw(){const x=g.v/100,need=500*x,re=44*(1+x),debt=mode==='s'?re:0,have=re+debt,max=Math.max(160,need,have);
+  const bar=(lab,parts)=>`<div class="gsrow"><span>${lab}</span><div class="gsbar">${parts.map(p=>`<i style="width:${p[0]/max*100}%;background:var(${p[1]})" title="${p[2]}"></i>`).join('')}</div><b class="mono">₹${num(parts.reduce((a,p)=>a+p[0],0),1)}</b></div>`;
+  $('#gs-c').innerHTML=bar('New assets needed = 500 × g',[[need,'--ink','assets']])+bar(mode==='s'?'Retained earnings + matching new debt':'Retained earnings next year',[[re,'--face','retained earnings'],...(debt?[[debt,'--accent','new debt']]:[])]);
+  const gap=have-need;$('#gs-s').innerHTML=Math.abs(gap)<.5?'<b class="g">Balanced: this is the growth limit.</b>':gap>0?`<b class="g">Money left over: ₹${num(gap,1)}.</b> The firm could grow faster.`:`<b class="r">Shortfall: ₹${num(-gap,1)}.</b> Growth this fast needs ${mode==='s'?'new shares or more borrowing':'outside money'}.`;}
+ const ST={i:[['1 · What growth needs','To grow assets by g, Hoffman needs new assets of ₹500 × g.'],
+   ['2 · What it has','Next year\'s profit is ₹66 × (1 + g), because sales and profit grow too. It keeps two thirds: ₹44 × (1 + g).'],
+   ['3 · Set them equal','500g = 44 + 44g, so 456g = 44 and g = 44 / 456 = <b>9.65%</b>.'],
+   ['4 · Spot the formula','<span class="eqs">g = 44 / 456<br>= 44 / (500 − 44)<br>= (44/500) / ((500 − 44)/500)<br>= (44/500) / (1 − 44/500)</span>Now 44/500 = (66/500) × (44/66) = ROA × b = 0.132 × 2/3<br>So <b>IGR = ROA × b / (1 − ROA × b)</b>']],
+  s:[['1 · What growth needs','Still ₹500 × g of new assets.'],
+   ['2 · What it has','Retained earnings ₹44 × (1 + g), plus the same amount of new debt, because D/E = 250/250 = 1 is kept constant: ₹88 × (1 + g) in all.'],
+   ['3 · Set them equal','500g = 88 + 88g, so 412g = 88 and g = 88 / 412 = <b>21.36%</b>.'],
+   ['4 · Spot the formula','<span class="eqs">g = 88 / 412<br>= 88 / (500 − 88)<br>= (88/500) / ((500 − 88)/500)<br>= (88/500) / (1 − 88/500)</span>Now 88/500 = 44/250 = (66/250) × (44/66) = ROE × b = 0.264 × 2/3<br>So <b>SGR = ROE × b / (1 − ROE × b)</b>']]};
+ const text=()=>{$$('#gs-steps .card').forEach((c,i)=>{c.querySelector('h3').textContent=ST[mode][i][0];c.querySelector('p').innerHTML=ST[mode][i][1];});
+  $('#gs-find').textContent=mode==='s'?'Jump to 21.36%':'Jump to 9.65%';};
+ seg($('#gs-m'),v=>{mode=v;text();draw();});
+ $('#gs-find').addEventListener('click',()=>{g.v=mode==='s'?21.36:9.65;});
+ text();g.run();}
+
+return {V,FLOW,NM,val,ISR,BSR,stm,R,RI,ev,rv,fmt,usesFlow,fams,FAMS,FCOL,efn,f2};
+})();
+
+
+{
+const {inr,num,pct,slider,seg,plot,chart,$}=D;
+/* statements: 2020 from the book; 2019 income statement constructed for teaching */
+const {V,NM,efn}=FSA;
+const IS=[['sales'],['cogs'],['dep'],['ebit',1],['int'],['ebt',1],['tax'],['ni',1],['div'],['addre']];
+const BS=[['cash'],['ar'],['inv'],['ca',1,'Total current assets'],['nfa',0,'Net plant and equipment'],['ta',1],'L',['ap',0,'Accounts payable'],['np'],['cl',1,'Total current liabilities'],['ltd'],['puc'],['re'],['te',1],['tle',1,'Total liabilities and equity']];
+let mode='rs';
+function drawFS(){
+ const cs=mode==='cs',yrs=[0,1];
+ $('#fs-bs').innerHTML='<thead><tr><th>Balance sheet</th><th>2019</th><th>2020</th></tr></thead><tbody>'+BS.map(r=>r==='L'?'<tr class="sec"><td colspan="3">Liabilities and equity</td></tr>':`<tr class="${r[1]?'tot':''}"><td>${r[2]||NM[r[0]]}</td>${yrs.map(y=>`<td>${cs?Math.round(V[r[0]][y]/V.ta[y]*100)+'%':num(V[r[0]][y])}</td>`).join('')}</tr>`).join('')+'</tbody>';
+ $('#fs-is').innerHTML=`<thead><tr><th>Income statement${cs?' (% of sales)':''}</th><th>2019</th><th>2020</th></tr></thead><tbody>`+IS.map(r=>`<tr class="${r[1]?'tot':''}"><td>${NM[r[0]]}</td>${yrs.map(y=>`<td>${cs?(V[r[0]][y]/V.sales[y]*100).toFixed(1)+'%':num(V[r[0]][y])}</td>`).join('')}</tr>`).join('')+'</tbody>';
+ $('#fs-note').textContent=cs?'Cost of goods sold rose from 61.4% to 62.1% of sales, yet net income kept 15.7 paise per rupee in 2020 against 15.4 in 2019, helped by lower interest. Inventory alone is 12% of assets.':'Switch to common size: every balance sheet line becomes a share of total assets and every income statement line a share of sales, for each year.';
+}
+seg($('#fs-mode'),m=>{mode=m;drawFS();}); drawFS();
+
+/* EFN and growth (efn() comes from the shared FSA file) */
+const eg=slider('ef-g',v=>v+'%',()=>drawEG&&drawEG()), ep=slider('ef-p',v=>Math.round(v)+'%',()=>drawEG&&drawEG());
+let drawEG=null;
+drawEG=chart('eg-c',svg=>{const p=ep.v/100,pts=[];for(let g=0;g<=0.5001;g+=0.01)pts.push([g,efn(g,p).efn]);
+ const pp=Math.abs(p-.33)<1e-9?1/3:p;const ret=.132*(1-pp),z=ret*1000/(2700-ret*1000);$('#eg-z').textContent=pct(z);
+ const cg=eg.v/100;
+ plot(svg,{xd:[0,.5],yd:[-200,1400],xt:[0,.1,.2,.3,.4,.5],yt:[-200,0,400,800,1200],xf:v=>Math.round(v*100)+'%',yf:v=>num(v),xl:'Sales growth',yl:'EFN (₹)',
+  areas:[{pts:[[0,-200],[Math.min(z,.5),-200],[Math.min(z,.5),0],[0,0]],c:'--good',o:.12}],
+  lines:[{pts,c:'--accent',label:'EFN'}],hl:[{y:0,c:'--muted'}],
+  dots:[{x:cg,y:efn(cg,p).efn,c:'--accent',label:'Your growth: ₹'+num(efn(cg,p).efn)},{x:z,y:0,c:'--good',label:'EFN = 0',pos:'below'}]});});
+eg.run();ep.run();
+
+}
+
+D.start();
+</script>
+</body>
+</html>

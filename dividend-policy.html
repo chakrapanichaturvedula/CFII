@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dividend Policy · CF II</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<!-- To track students with the CF1 platform, add these three lines here (paths relative to the site root):
+<script src="assets/js/config.js"></script>
+<script src="assets/js/vendor/supabase-2.117.3.js"></script>
+<script src="assets/js/cf.js"></script>
+The deck then reports the slide reached as the step, and each quick check as an attempt. -->
+<style>
+/* CF II slide engine. Same palette, type and dark mode as the CF1 site.
+   One slide fills the screen; header names the deck and slide, footer moves between slides. */
+:root{
+  --bg:#F4F4F1; --surface:#FFFFFF; --ink:#16223A; --muted:#5B6578; --line:#DADDD8; --faint:#E7E8E3;
+  --accent:#6B3FA0; --accent-soft:#EEE6F7; --face:#0F6E8C; --face-soft:#DCEEF3;
+  --good:#2F6B3F; --good-soft:#E2F0E5; --bad:#B4530F; --bad-soft:#FAEBDD;
+  --display:'Source Serif 4', Georgia, serif; --body:'IBM Plex Sans','Segoe UI',Arial,sans-serif; --mono:'IBM Plex Mono',Consolas,monospace;
+  --c-liq:#1F6FB2; --c-lev:#C2410C; --c-tur:#2F7D4A; --c-pro:#6B3FA0; --c-mkt:#9A6A06;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12131A; --surface:#1C1E29; --ink:#ECEDF2; --muted:#A1A6B8; --line:#2F3242; --faint:#262938;
+  --accent:#B794E6; --accent-soft:#2E2340; --face:#5BB8D4; --face-soft:#16384A;
+  --good:#86C998; --good-soft:#1C3324; --bad:#F0A266; --bad-soft:#3A2617; color-scheme:dark; --c-liq:#6CB4F0; --c-lev:#F59E62; --c-tur:#7FCF97; --c-pro:#B794E6; --c-mkt:#E0B04A}}
+:root[data-theme="dark"]{
+  --bg:#12131A; --surface:#1C1E29; --ink:#ECEDF2; --muted:#A1A6B8; --line:#2F3242; --faint:#262938;
+  --accent:#B794E6; --accent-soft:#2E2340; --face:#5BB8D4; --face-soft:#16384A;
+  --good:#86C998; --good-soft:#1C3324; --bad:#F0A266; --bad-soft:#3A2617; color-scheme:dark; --c-liq:#6CB4F0; --c-lev:#F59E62; --c-tur:#7FCF97; --c-pro:#B794E6; --c-mkt:#E0B04A}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;overflow:hidden}
+button,input,select{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* frame */
+.deck{display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:100vh;height:100dvh;padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+.bar{display:flex;align-items:center;gap:14px;padding:10px max(3vw,14px);border-bottom:1px solid var(--line);background:var(--surface);font-size:14px}
+.bar a{color:var(--accent);text-decoration:none;font-weight:600;white-space:nowrap}
+.bar a:hover{text-decoration:underline}
+.bar .dt{flex:1;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .dt b{color:var(--ink);font-weight:600}
+.icon{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:13.5px;font-weight:600;white-space:nowrap}
+.icon:hover{border-color:var(--accent);color:var(--accent)}
+.stage{position:relative;overflow:hidden}
+.slide{position:absolute;inset:0;overflow-y:auto;padding:clamp(16px,3vw,40px) max(4vw,16px) 24px;display:none}
+.slide.active{display:block;animation:in .25s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.slide.active{animation:none}.f{transition:none!important}}
+.inner{max-width:1140px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.foot{display:flex;align-items:center;gap:12px;padding:10px max(3vw,14px) calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--surface)}
+.prog{flex:1;height:6px;border-radius:99px;background:var(--faint);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.count{font-family:var(--mono);font-size:13px;color:var(--muted);white-space:nowrap}
+.btn{font-weight:600;font-size:15px;padding:9px 18px;border-radius:999px;border:1px solid var(--line);background:var(--surface);cursor:pointer;min-height:42px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.btn[disabled]{opacity:.35;cursor:default}
+.hint{font-size:12.5px;color:var(--muted)}
+@media (max-width:640px){.hint,.bar .dt span,#fsbtn{display:none}.btn{padding:8px 14px}}
+
+/* overview */
+.ov{position:fixed;inset:0;z-index:50;background:var(--bg);overflow:auto;padding:24px max(4vw,16px);display:none}
+.ov.open{display:block}
+.ov h2{font-family:var(--display);margin:0 0 14px;font-size:28px}
+.ov .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;max-width:1140px}
+.ov button{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-height:64px}
+.ov button small{font-family:var(--mono);color:var(--muted);font-size:12px}
+.ov button.cur{border-color:var(--accent);background:var(--accent-soft)}
+.ov .x{position:sticky;top:0;float:right}
+
+/* type */
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,5.4vw,58px);line-height:1.04;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,38px);line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-size:21px;margin:0;line-height:1.2}
+p{margin:0}
+.lede{font-size:clamp(17px,1.8vw,20px);color:var(--muted);max-width:66ch}
+.muted{color:var(--muted)}
+ul.pts{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px;max-width:72ch}
+ul.pts li::marker{color:var(--accent)}
+.mono{font-family:var(--mono)}
+.c{color:var(--accent)} .fc{color:var(--face)} .g{color:var(--good)} .r{color:var(--bad)}
+b,strong{font-weight:600}
+
+/* layout pieces */
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.two.wide-l{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:860px){.two,.two.wide-l{grid-template-columns:1fr}.three,.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.three,.four{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.card.soft{background:var(--accent-soft);border-color:transparent}
+.card.face{background:var(--face-soft);border-color:transparent}
+.card h3{font-size:19px}
+.card p{font-size:15.5px;color:var(--muted)}
+.tag{align-self:flex-start;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.tag.f2{background:var(--face-soft);color:var(--face)}
+.formula{font-family:var(--mono);font-size:clamp(16px,1.9vw,21px);background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:12px 16px;overflow-x:auto;white-space:nowrap}
+.formula small{display:block;font-family:var(--body);font-size:13px;color:var(--muted);white-space:normal;margin-top:4px}
+.note{font-size:15.5px;color:var(--muted);border-left:3px solid var(--face);padding-left:12px;max-width:74ch}
+.big{font-family:var(--mono);font-size:clamp(30px,4.4vw,48px);line-height:1;color:var(--accent);white-space:nowrap}
+.kpis{display:flex;flex-wrap:wrap;gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;flex:1 1 130px}
+.kpi span{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.kpi b{font-family:var(--mono);font-weight:500;font-size:22px;white-space:nowrap}
+.kpi.hi{border-color:var(--accent);background:var(--accent-soft)}
+.kpi.hi b{color:var(--accent)}
+
+/* fragments: revealed one at a time with Next */
+.f{opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;pointer-events:none}
+.f.on{opacity:1;transform:none;pointer-events:auto}
+
+/* tables */
+.scroll{overflow-x:auto}
+table.t{border-collapse:collapse;width:100%;font-size:15.5px;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+table.t th,table.t td{padding:7px 12px;border-bottom:1px solid var(--faint);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+table.t th:first-child,table.t td:first-child{text-align:left;white-space:normal}
+table.t thead th{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--bg);font-weight:600}
+table.t tr.tot td{font-weight:600;border-top:1.5px solid var(--line)}
+table.t tr.hl td{background:var(--accent-soft)}
+table.t td.neg{color:var(--bad)}
+table.t td.pos{color:var(--good)}
+table.t .sub td:first-child{padding-left:26px;color:var(--muted)}
+
+/* controls */
+.ctls{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px 20px}
+.ctl{display:flex;flex-direction:column;gap:4px}
+.ctl label{display:flex;justify-content:space-between;gap:8px;font-weight:500;font-size:15px}
+.ctl output{font-family:var(--mono);color:var(--accent);white-space:nowrap}
+.ctl input[type=range]{width:100%;accent-color:var(--accent);height:28px}
+.ctl small{color:var(--muted);font-size:13.5px}
+.seg{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;padding:3px;background:var(--bg);gap:2px}
+.seg button{flex:1 1 120px;font-weight:500;font-size:14.5px;border:none;background:transparent;padding:8px 10px;border-radius:9px;cursor:pointer;min-height:38px}
+.seg button.on{background:var(--surface);color:var(--accent);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+input.num{width:100%;font-family:var(--mono);font-size:16px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);text-align:right}
+
+/* charts */
+.fig{position:relative;min-height:300px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.fig.sm{min-height:230px}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.fig svg text{font-family:var(--body);font-size:12.5px;fill:var(--muted)}
+.fig svg .ax{stroke:var(--line)}
+.fig svg .grd{stroke:var(--faint)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+/* quiz */
+.q{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.q p.qt{font-weight:600}
+.q .opts{display:grid;gap:8px}
+.q .opts button{text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 12px;cursor:pointer;min-height:42px}
+.q .opts button:hover:not([disabled]){border-color:var(--accent)}
+.q .opts button.right{border-color:var(--good);background:var(--good-soft)}
+.q .opts button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.q .opts button[disabled]{cursor:default}
+.q .why{font-size:15px;color:var(--muted);display:none}
+.q.done .why{display:block}
+.score{font-family:var(--mono);font-size:15px;color:var(--accent)}
+
+/* sorting / click-to-classify activity */
+.sorter{display:flex;flex-direction:column;gap:8px}
+.sorter .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.sorter .row > span{flex:1 1 180px}
+.sorter .row button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:5px 12px;font-size:14px;cursor:pointer;min-height:36px}
+.sorter .row button.pick{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.sorter .row.ok{border-color:var(--good)}
+.sorter .row.no{border-color:var(--bad)}
+.sorter .row em{font-style:normal;font-size:13.5px;color:var(--muted);flex-basis:100%;display:none}
+.sorter.checked .row em{display:block}
+
+/* title slide */
+.title-slide .inner{min-height:calc(100% - 20px);justify-content:center}
+.title-slide h1{font-size:clamp(38px,6.4vw,72px)}
+.title-slide .goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px}
+.title-slide .goals div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15.5px}
+.title-slide .goals b{display:block;font-family:var(--mono);color:var(--accent);font-size:12px;margin-bottom:2px}
+.keys{font-size:13.5px;color:var(--muted)}
+.keys kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--surface)}
+
+/* ---- design-option slides ---- */
+.opt-tag{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}
+.opt-tag .pill{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--face-soft);color:var(--face)}
+.opt-tag .pill.cur{background:var(--good-soft);color:var(--good)}
+.pc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;font-size:14px}
+.pc div{border-radius:10px;padding:8px 12px;border:1px dashed var(--line)}
+.pc b{display:block;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.pc .pro b{color:var(--good)} .pc .con b{color:var(--bad)}
+@media (max-width:640px){.pc{grid-template-columns:1fr}}
+
+/* ratio lab */
+.rx{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);gap:18px;align-items:start}
+.rx-stm{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:10px;align-items:start}
+.rx.map{grid-template-columns:minmax(0,1.75fr) minmax(0,1fr)}
+table.t.sm{font-size:13.5px}
+table.t.sm th,table.t.sm td{padding:4px 8px}
+table.t.sm thead th{font-size:11px}
+table.t td.src-n{background:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent);color:var(--accent);font-weight:600}
+table.t td.src-d{background:var(--face-soft);box-shadow:inset 0 0 0 2px var(--face);color:var(--face);font-weight:600}
+table.t td.dim,table.t th.dim{color:var(--muted);opacity:.55}
+table.t td.pickable{cursor:pointer}
+table.t td.pickable:hover{box-shadow:inset 0 0 0 1.5px var(--accent)}
+table.t tr.sec td{background:var(--bg);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding-top:3px;padding-bottom:3px}
+.rx-work{display:flex;flex-direction:column;gap:12px}
+.fams{display:flex;flex-wrap:wrap;gap:4px 16px}
+.fams button{border:0;background:none;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--muted);padding:6px 0;cursor:pointer;border-bottom:2px solid transparent}
+.fams button.on{color:var(--accent);border-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;font-size:14px;cursor:pointer;min-height:38px}
+.chips button:hover{border-color:var(--accent)}
+.chips button.on{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.eqn{display:flex;align-items:center;justify-content:center;gap:14px 18px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 14px;min-height:150px}
+.frac{display:inline-flex;flex-direction:column;align-items:center;gap:8px}
+.frac .row{display:flex;align-items:flex-start;gap:8px}
+.frac .fbar{align-self:stretch;height:2px;background:var(--ink);border-radius:2px}
+.slot{display:flex;flex-direction:column;align-items:center;min-width:80px}
+.slot b{font-family:var(--mono);font-weight:500;font-size:21px;min-width:74px;text-align:center;padding:4px 8px;border-radius:8px;border:1.5px dashed var(--line);color:var(--muted);transition:background .2s}
+.slot.n.filled b{border:1.5px solid var(--accent);color:var(--accent);background:var(--accent-soft)}
+.slot.d.filled b{border:1.5px solid var(--face);color:var(--face);background:var(--face-soft)}
+.slot.const b{border-style:solid;color:var(--ink)}
+.slot small{font-size:11.5px;color:var(--muted);margin-top:3px;text-align:center;max-width:120px;line-height:1.25}
+.op{font-family:var(--mono);font-size:21px;padding-top:5px}
+.eq{font-family:var(--mono);font-size:26px;color:var(--muted)}
+.res{font-family:var(--mono);font-size:clamp(28px,3.6vw,40px);color:var(--accent);min-width:3ch;white-space:nowrap}
+.flyer{position:fixed;z-index:60;pointer-events:none;font-family:var(--mono);font-size:18px;padding:3px 9px;border-radius:8px;background:var(--surface);border:1.5px solid var(--accent);color:var(--accent);box-shadow:0 8px 22px rgba(0,0,0,.2);white-space:nowrap}
+.flyer.d{border-color:var(--face);color:var(--face)}
+@media (max-width:860px){.rx{grid-template-columns:1fr}.rx-work{order:-1}}
+@media (max-width:520px){.rx-stm{grid-template-columns:1fr}}
+
+/* towers and strips */
+.towers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.tw h3{font-size:17px;margin-bottom:6px}
+.tw .pair{display:grid;grid-template-columns:1fr 1fr;gap:6px;height:340px}
+.tw .col{display:flex;flex-direction:column;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.tw .seg2{display:flex;flex-direction:column;justify-content:center;padding:2px 8px;font-size:12.5px;color:var(--surface);overflow:hidden;cursor:default;min-height:0;line-height:1.2}
+.tw .seg2 span{font-family:var(--mono);font-size:12px;opacity:.9}
+.tw .cap{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;color:var(--muted);text-align:center;margin-top:4px}
+.strip{display:grid;grid-template-columns:150px repeat(3,minmax(0,1fr)) 90px;gap:8px;align-items:center}
+.strip .cell{background:var(--bg);border-radius:8px;height:34px;position:relative;overflow:hidden}
+.strip .cell i{position:absolute;inset:0 auto 0 0;background:var(--accent);opacity:.85;border-radius:8px}
+.strip .cell span{position:relative;font-family:var(--mono);font-size:13.5px;padding:0 8px;line-height:34px;color:var(--ink)}
+.strip .hd{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+@media (max-width:700px){.strip{grid-template-columns:90px repeat(3,minmax(0,1fr)) 64px}.strip .cell span{font-size:12px;padding:0 4px}}
+.tree{display:flex;flex-direction:column;align-items:center;gap:10px}
+.tree .lvl{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;align-items:center}
+.node{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:8px 14px;text-align:center;min-width:140px}
+.node b{display:block;font-family:var(--mono);font-size:20px;font-weight:500;color:var(--accent)}
+.node small{color:var(--muted);font-size:12.5px}
+.node.top{border-color:var(--accent);background:var(--accent-soft)}
+.tree .x{font-family:var(--mono);font-size:20px;color:var(--muted)}
+.gapbars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:end;height:360px}
+.gapbars .gb{display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.gapbars .stack{display:flex;flex-direction:column-reverse;border-radius:8px;overflow:hidden}
+.gapbars .stack div{display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:13px;color:var(--surface);min-height:0;overflow:hidden;white-space:nowrap}
+.gapbars .stack div span{font-family:var(--mono)}
+.gapbars .gap{border:2px dashed var(--bad);background:var(--bad-soft)!important;color:var(--bad)!important;font-weight:600}
+.gapbars p{text-align:center;font-size:13.5px;color:var(--muted);margin-top:6px}
+
+/* ---- family colours ---- */
+.fams button{display:inline-flex;align-items:center;gap:6px}
+.fams button[style*="--fc"]{color:var(--fc)}
+.fams button.on{border-color:var(--fc,var(--accent))}
+.fdot{width:9px;height:9px;border-radius:50%;background:var(--fc);display:inline-block}
+.chips button.fam{border-color:color-mix(in srgb,var(--fc) 45%,var(--line))}
+.chips button.fam.on{background:var(--fc);border-color:var(--fc);color:var(--surface)}
+.tag.fc{background:color-mix(in srgb,var(--fc) 14%,transparent);color:var(--fc)}
+.card.fcard{border-top:4px solid var(--fc)}
+.fdots{display:inline-flex;gap:3px;margin-left:8px;vertical-align:middle}
+.fdots i{width:9px;height:9px;border-radius:50%;display:inline-block}
+table.t tr.lit td{background:color-mix(in srgb,var(--fc) 13%,var(--surface));color:var(--fc);font-weight:600}
+table.t tr.lit td:first-child{box-shadow:inset 4px 0 0 var(--fc)}
+table.t.lg{font-size:17px}
+table.t.lg th,table.t.lg td{padding:6px 12px}
+table.t.lg thead th{font-size:12px}
+.sub-note{display:block;font-size:11.5px;color:var(--muted);font-weight:400}
+table.t.lg .sub-note{font-size:12.5px}
+.famrow{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--fc);border-radius:10px;padding:8px 12px;font-size:15px}
+.famrow b{color:var(--fc)}
+.famrow span{color:var(--muted);font-size:14px}
+/* growth, step by step */
+.gsrow{display:grid;grid-template-columns:minmax(0,230px) minmax(0,1fr) 90px;gap:12px;align-items:center;font-size:15px}
+.gsbar{height:34px;background:var(--faint);border-radius:8px;display:flex;overflow:hidden}
+.gsbar i{height:100%;transition:width .2s}
+.gsrow b{text-align:right}
+@media (max-width:640px){.gsrow{grid-template-columns:1fr 70px}.gsrow .gsbar{grid-column:1/-1;grid-row:2}}
+
+.node .nlab{display:block;margin-top:6px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--face)}
+
+.eqs{display:block;font-family:var(--mono);font-size:13.5px;line-height:1.7;margin:2px 0 8px;padding:6px 8px;background:var(--surface);border-radius:8px}
+#gs-steps{grid-template-columns:minmax(0,.8fr) minmax(0,.9fr) minmax(0,.9fr) minmax(0,1.5fr)}
+@media (max-width:860px){#gs-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){#gs-steps{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div class="deck">
+ <header class="bar"><a href="index.html">← All CF II topics</a><div class="dt"><b>Dividend Policy</b> <span></span></div><button class="icon" id="ovbtn" type="button">All slides</button><button class="icon" id="fsbtn" type="button">Full screen</button></header>
+ <main class="stage">
+
+
+<section class="slide title-slide" data-title="Overview">
+ <div class="inner">
+  <p class="eyebrow">Module 4 · Sessions 8 and 9 · RWJK Ch 19</p>
+  <h1>Dividends and Other Payouts</h1>
+  <p class="lede">How firms pay cash to shareholders, why in a perfect market it would not matter how they do it, and why in the real world taxes, signals and clienteles make it matter.</p>
+  <div class="goals">
+   <div><b>1</b>Know the kinds of dividends and the dates that decide who gets paid</div>
+   <div><b>2</b>Show why dividend policy is irrelevant in a perfect market</div>
+   <div><b>3</b>Compare a buyback with a cash dividend</div>
+   <div><b>4</b>Tell a cash dividend from a bonus issue and a stock split</div>
+  </div>
+  <p class="keys">Move with <kbd>→</kbd> <kbd>←</kbd>. <kbd>O</kbd> shows all slides.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="Kinds of dividends">
+ <div class="inner">
+  <p class="eyebrow">Session 8 · Types</p>
+  <h2>Ways a firm can pay its shareholders</h2>
+  <div class="three">
+   <div class="card"><span class="tag">Cash</span><h3>Regular dividend</h3><p>Paid every year or quarter. In India, the board declares interim dividends; the final dividend is approved at the AGM.</p></div>
+   <div class="card"><span class="tag">Cash</span><h3>Extra or special dividend</h3><p>A one-off payment, labelled so investors do not expect it again.</p></div>
+   <div class="card"><span class="tag">Cash</span><h3>Liquidating dividend</h3><p>Part or all of the business is wound up and the capital returned.</p></div>
+   <div class="card"><span class="tag f2">Shares</span><h3>Stock dividend (bonus issue)</h3><p>No cash leaves the firm. Shares outstanding go up.</p></div>
+   <div class="card"><span class="tag f2">Kind</span><h3>Dividend in kind</h3><p>Products or discounts instead of cash. Rare.</p></div>
+   <div class="card soft"><span class="tag">Alternative</span><h3>Share buyback</h3><p>Cash out to the shareholders who choose to sell. More on this soon.</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Dividend dates">
+ <div class="inner">
+  <p class="eyebrow">Session 8 · Who gets the dividend?</p>
+  <h2>Four dates. The one that matters to a buyer is the ex-date</h2>
+  <div class="four" id="dd-cards"></div>
+  <div class="card face">
+   <p style="color:var(--ink)"><b>You buy the share on…</b></p>
+   <div class="seg" id="dd-buy"><button data-v="a">4 Nov (last cum-dividend day)</button><button data-v="b">5 Nov (ex-date)</button></div>
+   <p id="dd-ans" style="color:var(--ink)">Pick a day.</p>
+  </div>
+  <p class="note">India moved to T+1 settlement in 2023: a trade settles the next working day, so the exchange sets the ex-date on the record date. Older textbook timelines show the ex-date a day or two before the record date because settlement used to take longer.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="Price on the ex-date">
+ <div class="inner">
+  <p class="eyebrow">Session 8 · Price behaviour</p>
+  <h2>On the ex-date the price drops by about the dividend</h2>
+  <div class="two wide-l">
+   <div class="fig"><svg id="px-c" role="img" aria-label="Share price around the ex-dividend date"></svg></div>
+   <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="ctl"><label for="px-d">Dividend per share <output for="px-d"></output></label><input type="range" id="px-d" min="0" max="20" step="1" value="8"></div>
+    <p>A buyer on the ex-date no longer gets the dividend, so the share is worth that much less. In a perfect world the drop equals the dividend.</p>
+    <p class="note">In practice the drop is a little smaller than the dividend, because of taxes, and happens within minutes of the market opening.</p>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="The irrelevance argument">
+ <div class="inner">
+  <p class="eyebrow">Session 8 · The benchmark case</p>
+  <h2>In a perfect market, dividend policy does not change firm value</h2>
+  <ul class="pts">
+   <li class="f">Investors do not need dividends to turn shares into cash. They can sell shares.</li>
+   <li class="f">So they will not pay more for a firm that pays more dividends.</li>
+   <li class="f">Anyone who wants a different income stream can create it: a <b>homemade dividend</b>.</li>
+  </ul>
+  <div class="card soft f"><h3>The assumptions</h3><p style="color:var(--ink)">No taxes, no transaction costs, no uncertainty, and the firm's investment policy is set in advance and does not change with its dividend policy.</p></div>
+ </div>
+</section>
+
+<section class="slide" data-title="Homemade dividends">
+ <div class="inner">
+  <p class="eyebrow">Session 8 · Bianchi Ltd</p>
+  <h2>Bob makes the dividend he wants</h2>
+  <p>Bianchi's share is ₹42 and it is about to pay ₹2, so the ex-dividend price will be ₹40. Bob owns 80 shares: ₹3,360 in all.</p>
+  <div class="ctl" style="max-width:520px"><label for="hd-d">Dividend per share Bob would like <output for="hd-d"></output></label><input type="range" id="hd-d" min="0" max="6" step="0.5" value="3"></div>
+  <div class="two">
+   <div class="card"><span class="tag">If Bianchi paid it</span><table class="t" id="hd-a"></table></div>
+   <div class="card"><span class="tag f2">Bianchi pays ₹2; Bob adjusts</span><table class="t" id="hd-b"></table></div>
+  </div>
+  <p class="note" id="hd-n"></p>
+ </div>
+</section>
+
+<section class="slide" data-title="Dividends and investment">
+ <div class="inner">
+  <p class="eyebrow">Session 8 · Investment policy comes first</p>
+  <h2>Never give up a positive NPV project to pay a dividend</h2>
+  <p class="lede">The irrelevance result assumes the investment policy is fixed. A firm that cuts good projects to raise its dividend destroys value; the dividend itself was never the source of value.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="Buyback or dividend?">
+ <div class="inner">
+  <p class="eyebrow">Session 9 · Repurchase of stock</p>
+  <h2>Paying out ₹1,00,000: as a dividend or a buyback</h2>
+  <p>Market value balance sheet: cash ₹1,50,000, other assets ₹8,50,000, equity ₹10,00,000, 1,00,000 shares at ₹10. Net income ₹49,000.</p>
+  <div class="seg" id="bb-m" style="max-width:620px"><button class="on" data-v="0">Before</button><button data-v="1">Cash dividend of ₹1</button><button data-v="2">Buy back 10,000 shares</button></div>
+  <div class="kpis" id="bb-k"></div>
+  <p class="note" id="bb-n"></p>
+ </div>
+</section>
+
+<section class="slide" data-title="Why buy back?">
+ <div class="inner">
+  <p class="eyebrow">Session 9 · Share repurchases</p>
+  <h2>Why firms choose buybacks</h2>
+  <div class="three">
+   <div class="card"><h3>Flexibility</h3><p>A buyback does not set an expectation the way a dividend increase does. Shareholders also choose whether to sell.</p></div>
+   <div class="card"><h3>Undervaluation</h3><p>Management may think the share is cheap, and the buyback signals it.</p></div>
+   <div class="card"><h3>Offset dilution</h3><p>Shares bought back offset shares issued on employee stock options.</p></div>
+   <div class="card"><h3>Executive compensation</h3><p>Existing stock options are worth more when the firm repurchases instead of paying dividends.</p></div>
+   <div class="card"><h3>Price support</h3><p>Demand from the firm can hold up a falling share price.</p></div>
+   <div class="card"><h3>Taxes</h3><p>Depends on the country and year. In India the rules changed three times in a decade: next slide.</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Taxes in India">
+ <div class="inner">
+  <p class="eyebrow">Session 9 · Personal taxes</p>
+  <h2>How India has taxed payouts</h2>
+  <div class="two">
+   <div class="card"><span class="tag">Dividends</span>
+    <ul class="pts"><li><b>Up to March 2020:</b> the company paid dividend distribution tax (DDT) of 15% plus surcharge and cess, about 20.6% effective. Most shareholders received dividends tax-free.</li>
+    <li><b>From April 2020:</b> DDT abolished. Dividends are taxed in the shareholder's hands at their own income tax slab rate.</li></ul></div>
+   <div class="card"><span class="tag f2">Buybacks of listed shares</span>
+    <ul class="pts"><li><b>2013 to September 2024:</b> the company paid a buyback tax, about 23.3% effective; the shareholder paid nothing.</li>
+    <li><b>October 2024 to March 2026:</b> the whole buyback amount was treated as a dividend in the shareholder's hands.</li>
+    <li><b>From April 2026:</b> taxed as capital gains for the shareholder (12.5% long term, 20% short term for listed shares), with an additional tax for promoters.</li></ul></div>
+  </div>
+  <p class="note f">The general lesson from the textbook still holds: when dividends are taxed more heavily than capital gains, or capital gains can be deferred, investors prefer the firm to pay out less in dividends. Check the rules in force before you apply them to a real decision.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="Do not issue to pay">
+ <div class="inner">
+  <p class="eyebrow">Session 9 · Firms with and without cash</p>
+  <h2>With personal taxes, never issue shares just to pay a dividend</h2>
+  <div class="two">
+   <div class="card"><span class="tag">Without enough cash</span><p>Raise money from shareholders, pay the investment bankers, hand the money back as a dividend, and the government taxes it. Shareholders end up poorer.</p></div>
+   <div class="card"><span class="tag f2">With surplus cash</span><p>After taking every positive NPV project, the firm can take negative NPV projects, buy other companies, buy financial assets, or <b>repurchase shares</b>.</p></div>
+  </div>
+  <ul class="pts f">
+   <li>Taxes give managers a reason to look for other uses of cash before paying dividends.</li>
+   <li>But taxes are not strong enough to make firms stop paying dividends altogether.</li>
+  </ul>
+ </div>
+</section>
+
+<section class="slide" data-title="Reasons for high dividends">
+ <div class="inner">
+  <p class="eyebrow">Session 9 · Real-world factors</p>
+  <h2>Why many firms still pay generous dividends</h2>
+  <div class="four">
+   <div class="card"><h3>Desire for current income</h3><p>Retirees and some funds want steady cash and prefer not to sell shares.</p></div>
+   <div class="card"><h3>Behavioural finance</h3><p>Dividends impose self-control: spend the dividend, never touch the capital.</p></div>
+   <div class="card"><h3>Agency costs</h3><p>Paying out free cash flow keeps it away from managers' pet projects.</p></div>
+   <div class="card"><h3>Information</h3><p>A dividend increase signals management's confidence in future earnings.</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Clienteles">
+ <div class="inner">
+  <p class="eyebrow">Session 9 · The clientele effect · Activity</p>
+  <h2>Match each investor group to the payout it prefers</h2>
+  <div class="sorter" data-opts="Zero to low|Low to medium|Medium|High" data-key="dividend-clientele-sort">
+   <div class="row" data-a="Zero to low"><span>High tax bracket individuals</span><em>Dividends are taxed at their high slab rate; they prefer capital gains.</em></div>
+   <div class="row" data-a="Low to medium"><span>Low tax bracket individuals</span><em>Taxes bite less, so some dividends are fine.</em></div>
+   <div class="row" data-a="Medium"><span>Tax-free institutions</span><em>Pension and similar funds pay no tax on either, so they are indifferent and want steady income.</em></div>
+   <div class="row" data-a="High"><span>Corporations</span><em>Companies receiving dividends often get tax relief on them, so they prefer high payouts.</em></div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center"><button class="btn primary check" type="button">Check</button><span class="score"></span></div>
+  <p class="note">Once every clientele is served, a firm cannot create value by switching its policy. It would only swap one set of shareholders for another.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="What we know">
+ <div class="inner">
+  <p class="eyebrow">Session 9 · What we know and do not know</p>
+  <h2>Facts and a sensible policy</h2>
+  <div class="two">
+   <div class="card"><span class="tag">What we observe</span><ul class="pts"><li>Firms smooth dividends: they move slowly towards a target payout (Lintner).</li><li>Fewer firms pay dividends than before; buybacks have grown.</li><li>Dividend changes carry information to the market.</li></ul></div>
+   <div class="card"><span class="tag f2">A sensible policy</span><ul class="pts"><li>Do not give up positive NPV projects to pay a dividend.</li><li>Avoid issuing shares to pay dividends.</li><li>Consider a buyback when there are few better uses for the cash.</li></ul></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Putting it all together">
+ <div class="inner">
+  <p class="eyebrow">Session 9 · RWJJS 19.9</p>
+  <h2>Putting it all together</h2>
+  <div class="two">
+   <div class="card"><span class="tag">What we observe</span><ul class="pts"><li>Aggregate payouts are massive and have grown over time.</li><li>Dividends and buybacks are concentrated in a small number of large, mature firms.</li><li>Managers are reluctant to cut dividends, and they smooth them.</li><li>Prices react to unexpected changes in dividends.</li><li>Buybacks vary with temporary earnings.</li></ul></div>
+   <div class="card"><span class="tag f2">General dividend guidelines</span><ul class="pts"><li>Over time, pay out all free cash flows.</li><li>Do not cut positive NPV projects to pay dividends or buy back shares.</li><li>Do not start dividends until free cash flows are substantial.</li><li>Set the regular dividend in line with a long-run target payout ratio.</li><li>Keep dividends low enough to avoid expensive future external financing.</li><li>Use buybacks to distribute temporary increases in cash.</li></ul></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Bonus issues and splits">
+ <div class="inner">
+  <p class="eyebrow">Session 9 · Stock dividends and splits</p>
+  <h2>More shares, same pie</h2>
+  <p>You hold 100 shares at ₹600. Pick an action.</p>
+  <div class="seg" id="sp-m"><button class="on" data-v="0">10% bonus (1 for 10)</button><button data-v="1">1:1 bonus</button><button data-v="2">2-for-1 split</button><button data-v="3">5-for-1 split</button></div>
+  <div class="kpis" id="sp-k"></div>
+  <p class="note" id="sp-n"></p>
+  <ul class="pts f">
+   <li>A small stock dividend is under about 20 to 25% of shares; a large one is above that.</li>
+   <li>A 2-for-1 split is economically the same as a 100% stock dividend.</li>
+   <li>The usual reason given: bring the price back to a more popular trading range.</li>
+  </ul>
+ </div>
+</section>
+
+<section class="slide" data-title="Quick check">
+ <div class="inner quiz" data-key="dividend-quick-check">
+  <p class="eyebrow">Quick check</p>
+  <h2>Five questions</h2>
+  <div class="two">
+   <div class="q" data-a="1"><p class="qt">Under T+1 settlement in India, to receive a dividend you must buy the share</p><div class="opts"><button>on the record date</button><button>before the ex-date</button><button>before the payment date</button></div><p class="why">The ex-date is the record date; a trade on that day settles too late.</p></div>
+   <div class="q" data-a="2"><p class="qt">Share ₹42 cum-dividend, ₹2 dividend. In a perfect market the ex-dividend price is</p><div class="opts"><button>₹42</button><button>₹44</button><button>₹40</button></div><p class="why">The price falls by the dividend.</p></div>
+   <div class="q" data-a="0"><p class="qt">A firm pays out the same cash as a dividend or as a buyback at market price. Shareholders' total wealth is</p><div class="opts"><button>the same either way, before taxes</button><button>higher with the dividend</button><button>higher with the buyback</button></div><p class="why">EPS is higher after a buyback, but wealth is ₹1,000 per 100 shares either way.</p></div>
+   <div class="q" data-a="1"><p class="qt">A 2-for-1 split on a ₹600 share leaves a holder of 100 shares with</p><div class="opts"><button>100 shares at ₹300</button><button>200 shares at about ₹300</button><button>200 shares at ₹600</button></div><p class="why">Twice the shares at half the price; wealth unchanged.</p></div>
+   <div class="q" data-a="2"><p class="qt">Which is a sound reason for a high payout?</p><div class="opts"><button>To avoid a positive NPV project</button><button>To fund it with a new share issue</button><button>To reduce the free cash flow managers control</button></div><p class="why">The agency argument: high payouts limit wasteful spending.</p></div>
+  </div>
+  <p class="score"></p>
+ </div>
+</section>
+
+
+ </main>
+ <footer class="foot"><button class="btn" id="prev" type="button">Back</button><div class="prog"><i></i></div><span class="count"></span><span class="hint">← → to move</span><button class="btn primary" id="next" type="button">Next</button></footer>
+</div>
+<div class="ov" role="dialog" aria-label="All slides"><button class="icon x" type="button">Close</button><h2>Dividends and Other Payouts</h2><div class="grid"></div></div>
+<script>
+/* CF II slide engine.
+   Slides are <section class="slide" data-title="..."> inside .stage.
+   Elements with class "f" are revealed one at a time by Next.
+   Keys: right/left arrows, space, PageUp/PageDown, Home/End, O for overview, F for full screen.
+   If the CF1 tracker (cf.js) is on the page, the slide reached is reported as the step. */
+window.D = (() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const inr = (v, d = 0) => (v < 0 ? '−' : '') + '₹' + Math.abs(v).toLocaleString('en-IN', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const num = (v, d = 0) => (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('en-IN', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const pct = (v, d = 1) => (v < 0 ? '−' : '') + Math.abs(v * 100).toFixed(d) + '%';
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+  /* bind a range input to an output and a callback */
+  function slider(id, fmt, cb) {
+    const el = document.getElementById(id), out = document.querySelector(`output[for="${id}"]`);
+    const run = () => { const v = +el.value; if (out) out.textContent = fmt ? fmt(v) : v; cb && cb(v); };
+    el.addEventListener('input', run);
+    return { el, run, get v() { return +el.value; }, set v(x) { el.value = x; run(); } };
+  }
+  /* a segmented control: buttons with data-v; calls cb(value) */
+  function seg(el, cb) {
+    const bs = $$('button', el);
+    bs.forEach(b => b.addEventListener('click', () => { bs.forEach(x => x.classList.toggle('on', x === b)); cb(b.dataset.v); }));
+    return v => { const b = bs.find(x => x.dataset.v == v); b && b.click(); };
+  }
+
+  /* small line-chart helper drawn at real pixel size.
+     o = {xd:[a,b], yd:[a,b], xt:[ticks], yt:[ticks], xf, yf, xl, yl,
+          lines:[{pts:[[x,y]..], c:'--accent', w, dash, label}],
+          dots:[{x,y,c,label,pos}], vl:[{x,label,c}], hl:[{y,label,c}], areas:[{pts, c, o}] } */
+  function plot(svg, o) {
+    const W = svg.clientWidth, H = svg.clientHeight;
+    if (!W || !H) return;
+    const sm = W < 520;
+    const m = { l: sm ? 44 : 60, r: 18, t: 16, b: o.xl ? 46 : 30 };
+    const [x0, x1] = o.xd, [y0, y1] = o.yd;
+    const X = x => m.l + (x - x0) / (x1 - x0) * (W - m.l - m.r);
+    const Y = y => H - m.b - (y - y0) / (y1 - y0) * (H - m.t - m.b);
+    const col = c => c && c.startsWith('--') ? css(c) : (c || css('--accent'));
+    const xf = o.xf || (v => v), yf = o.yf || (v => v);
+    let s = '';
+    const yt = o.yt || [], xt = o.xt || [];
+    yt.forEach(v => { s += `<line class="grd" x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${yf(v)}</text>`; });
+    xt.forEach((v, i) => { if (sm && xt.length > 6 && i % 2) return; s += `<text x="${X(v)}" y="${H - m.b + 18}" text-anchor="middle">${xf(v)}</text>`; });
+    s += `<line class="ax" x1="${m.l}" x2="${W - m.r}" y1="${Y(Math.max(y0, Math.min(0, y1)))}" y2="${Y(Math.max(y0, Math.min(0, y1)))}" />`;
+    s += `<line class="ax" x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H - m.b}"/>`;
+    if (o.xl) s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 8}" text-anchor="middle">${o.xl}</text>`;
+    if (o.yl && !sm) s += `<text x="${m.l + 6}" y="${m.t + 4}" style="font-weight:600">${o.yl}</text>`;
+    (o.areas || []).forEach(a => { s += `<polygon points="${a.pts.map(p => X(p[0]) + ',' + Y(p[1])).join(' ')}" fill="${col(a.c)}" opacity="${a.o || .15}"/>`; });
+    (o.vl || []).forEach(v => { s += `<line x1="${X(v.x)}" x2="${X(v.x)}" y1="${m.t}" y2="${H - m.b}" stroke="${col(v.c || '--muted')}" stroke-dasharray="4 4"/>` + (v.label ? `<text x="${X(v.x) + 6}" y="${m.t + 12}" style="fill:${col(v.c || '--muted')}">${v.label}</text>` : ''); });
+    (o.hl || []).forEach(v => { s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v.y)}" y2="${Y(v.y)}" stroke="${col(v.c || '--muted')}" stroke-dasharray="4 4"/>` + (v.label ? `<text x="${W - m.r - 4}" y="${Y(v.y) - 6}" text-anchor="end" style="fill:${col(v.c || '--muted')}">${v.label}</text>` : ''); });
+    (o.lines || []).forEach(l => {
+      const pts = l.pts.filter(p => isFinite(p[1]) && p[1] >= y0 - (y1 - y0) && p[1] <= y1 + (y1 - y0));
+      s += `<polyline fill="none" stroke="${col(l.c)}" stroke-width="${l.w || 2.5}" ${l.dash ? `stroke-dasharray="${l.dash}"` : ''} stroke-linejoin="round" points="${pts.map(p => X(p[0]).toFixed(1) + ',' + Y(Math.max(y0, Math.min(y1, p[1]))).toFixed(1)).join(' ')}"/>`;
+      if (l.label) { const p = l.at ? l.pts[l.at] : pts[pts.length - 1]; s += `<text x="${Math.min(X(p[0]), W - m.r - 4)}" y="${Y(Math.max(y0, Math.min(y1, p[1]))) - 8}" text-anchor="end" style="fill:${col(l.c)};font-weight:600">${l.label}</text>`; }
+    });
+    (o.dots || []).forEach(d => {
+      s += `<circle cx="${X(d.x)}" cy="${Y(d.y)}" r="6" fill="${col(d.c)}" stroke="${css('--surface')}" stroke-width="2"/>`;
+      if (d.label) { const left = X(d.x) > W * .7; s += `<text x="${X(d.x) + (left ? -10 : 10)}" y="${Y(d.y) + (d.pos === 'below' ? 20 : -10)}" text-anchor="${left ? 'end' : 'start'}" style="fill:${col(d.c)};font-weight:600">${d.label}</text>`; }
+    });
+    svg.innerHTML = s;
+  }
+  /* keep a chart redrawn when its box changes size (also when its slide is shown) */
+  function chart(id, draw) {
+    const svg = document.getElementById(id);
+    const ro = new ResizeObserver(() => draw(svg));
+    ro.observe(svg);
+    return () => draw(svg);
+  }
+
+  /* quizzes: .q with data-a="index of right option" and buttons inside .opts */
+  function quizzes() {
+    $$('.quiz').forEach(box => {
+      const qs = $$('.q', box), out = $('.score', box);
+      let right = 0, done = 0;
+      qs.forEach(q => {
+        const a = +q.dataset.a, bs = $$('.opts button', q);
+        bs.forEach((b, i) => b.addEventListener('click', () => {
+          bs.forEach((x, j) => { x.disabled = true; if (j === a) x.classList.add('right'); });
+          if (i !== a) b.classList.add('wrong'); else right++;
+          done++; q.classList.add('done');
+          if (out) out.textContent = `Score: ${right} of ${done} answered (${qs.length} questions)`;
+          if (done === qs.length && window.CF && CF.submitAttempt) { try { CF.submitAttempt(box.dataset.key || 'quiz', right, qs.length); } catch (e) {} }
+        }));
+      });
+    });
+  }
+  /* click-to-classify: .sorter[data-opts="A|B"] > .row[data-a="A"] ; button .check */
+  function sorters() {
+    $$('.sorter').forEach(s => {
+      const opts = s.dataset.opts.split('|');
+      $$('.row', s).forEach(r => {
+        const holder = document.createElement('div'); holder.style.display = 'flex'; holder.style.gap = '6px'; holder.style.flexWrap = 'wrap';
+        opts.forEach(o => { const b = document.createElement('button'); b.type = 'button'; b.textContent = o; b.addEventListener('click', () => { $$('button', holder).forEach(x => x.classList.toggle('pick', x === b)); r.dataset.pick = o; }); holder.appendChild(b); });
+        r.insertBefore(holder, $('em', r));
+      });
+      const chk = s.parentElement.querySelector('.check');
+      if (chk) chk.addEventListener('click', () => {
+        let ok = 0; const rows = $$('.row', s);
+        rows.forEach(r => { const good = r.dataset.pick === r.dataset.a; r.classList.toggle('ok', good); r.classList.toggle('no', !good); ok += good; });
+        s.classList.add('checked');
+        const o = s.parentElement.querySelector('.score'); if (o) o.textContent = `${ok} of ${rows.length} correct`;
+        if (window.CF && CF.submitAttempt) { try { CF.submitAttempt(s.dataset.key || 'sort', ok, rows.length); } catch (e) {} }
+      });
+    });
+  }
+
+  /* navigation */
+  function start() {
+    const slides = $$('.slide'), n = slides.length;
+    const prog = $('.prog i'), count = $('.count'), bPrev = $('#prev'), bNext = $('#next'), title = $('.bar .dt span');
+    let cur = 0;
+    const frags = s => $$('.f', s);
+    /* fit: on laptop and projector widths, scale a tall slide down so it fits without a scrollbar */
+    function fit(s) {
+      const inner = $('.inner', s); if (!inner || !s.classList.contains('active')) return;
+      inner.style.zoom = '';
+      if (innerWidth < 900) return;
+      const cs = getComputedStyle(s), avail = s.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      const need = inner.scrollHeight;
+      if (need > avail) inner.style.zoom = Math.max(0.5, avail / need * 0.975).toFixed(3);
+    }
+    function go(i, all) {
+      i = Math.max(0, Math.min(n - 1, i));
+      slides.forEach((s, k) => s.classList.toggle('active', k === i));
+      frags(slides[i]).forEach(f => f.classList.toggle('on', !!all));
+      cur = i; slides[i].scrollTop = 0;
+      prog.style.width = ((i + 1) / n * 100) + '%';
+      count.textContent = `${i + 1} / ${n}`;
+      if (title) title.textContent = slides[i].dataset.title || '';
+      bPrev.disabled = i === 0;
+      bNext.textContent = i === n - 1 ? 'End' : 'Next';
+      bNext.disabled = i === n - 1 && !frags(slides[i]).some(f => !f.classList.contains('on'));
+      try { history.replaceState(null, '', '#s' + (i + 1)); } catch (e) {}
+      requestAnimationFrame(() => fit(slides[i]));
+      slides[i].dispatchEvent(new Event('enter'));
+      if (window.CF && CF.setStep) { try { CF.setStep(i + 1); } catch (e) {} }
+    }
+    function next() {
+      const h = frags(slides[cur]).filter(f => !f.classList.contains('on'));
+      if (h.length) { h[0].classList.add('on'); if (cur === n - 1 && h.length === 1) bNext.disabled = true; h[0].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
+      if (cur < n - 1) go(cur + 1);
+    }
+    function prev() {
+      const s = frags(slides[cur]).filter(f => f.classList.contains('on'));
+      if (s.length) { s[s.length - 1].classList.remove('on'); bNext.disabled = false; return; }
+      if (cur > 0) go(cur - 1, true);
+    }
+    bNext.addEventListener('click', next); bPrev.addEventListener('click', prev);
+
+    /* overview */
+    const ov = $('.ov'), grid = $('.ov .grid');
+    grid.innerHTML = slides.map((s, i) => `<button type="button" data-i="${i}"><small>${i + 1}</small>${s.dataset.title || 'Slide'}</button>`).join('');
+    const openOv = () => { $$('button', grid).forEach((b, i) => b.classList.toggle('cur', i === cur)); ov.classList.add('open'); const c = $('.cur', grid); c && c.focus(); };
+    const closeOv = () => ov.classList.remove('open');
+    grid.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { closeOv(); go(+b.dataset.i, true); } });
+    $('#ovbtn').addEventListener('click', openOv); $('.ov .x').addEventListener('click', closeOv);
+    $('#fsbtn').addEventListener('click', () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {} });
+
+    document.addEventListener('keydown', e => {
+      const t = e.target, tag = t.tagName;
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      if (ov.classList.contains('open')) { if (e.key === 'Escape' || e.key === 'o' || e.key === 'O') closeOv(); return; }
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      if (['ArrowRight', 'PageDown'].includes(e.key) || (e.key === ' ' && tag !== 'BUTTON')) { e.preventDefault(); next(); }
+      else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+      else if (e.key === 'Home') go(0); else if (e.key === 'End') go(n - 1, true);
+      else if (e.key === 'o' || e.key === 'O') openOv();
+      else if (e.key === 'f' || e.key === 'F') $('#fsbtn').click();
+    });
+    /* swipe */
+    let sx = null, sy = 0;
+    const stage = $('.stage');
+    stage.addEventListener('touchstart', e => { if (e.target.closest('input,button,.fig,.scroll,select')) { sx = null; return; } sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    stage.addEventListener('touchend', e => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) dx < 0 ? next() : prev(); sx = null; });
+
+    $$('.ctl label').forEach(l => { const o = $('output', l), sp = document.createElement('span'); [...l.childNodes].forEach(n => { if (n !== o) sp.appendChild(n); }); l.insertBefore(sp, o); });
+    quizzes(); sorters();
+    let rt; const refit = () => { clearTimeout(rt); rt = setTimeout(() => fit(slides[cur]), 120); };
+    addEventListener('resize', refit); document.addEventListener('fullscreenchange', refit);
+    const ro = new ResizeObserver(() => { if (!fitting) refit(); }); let fitting = false; slides.forEach(sl => { const inn = $('.inner', sl); inn && ro.observe(inn); });
+    const h = /^#s(\d+)$/.exec(location.hash);
+    go(h ? +h[1] - 1 : 0, !!h);
+    addEventListener('hashchange', () => { const m = /^#s(\d+)$/.exec(location.hash); if (m && +m[1] - 1 !== cur) go(+m[1] - 1, true); });
+  }
+  return { $, $$, inr, num, pct, css, slider, seg, plot, chart, start };
+})();
+
+</script>
+<script>
+
+{
+const {inr,num,slider,seg,plot,chart,$}=D;
+/* dates */
+const DD=[['25 Oct','Declaration date','The board (or AGM, for a final dividend) declares the dividend and fixes the record date.'],['4 Nov','Last cum-dividend day','Buy today and the share settles tomorrow, in time for the record date. You get the dividend.'],['5 Nov','Ex-date = record date','The company takes the list of shareholders. Shares bought today trade without the dividend.'],['by 24 Nov','Payment date','The Companies Act requires payment within 30 days of declaration.']];
+$('#dd-cards').innerHTML=DD.map(d=>`<div class="card"><span class="tag">${d[0]}</span><h3>${d[1]}</h3><p>${d[2]}</p></div>`).join('');
+seg($('#dd-buy'),v=>{$('#dd-ans').innerHTML=v==='a'?'<b class="g">You get the dividend.</b> Your trade settles on 5 Nov, so you are on the list on the record date. The seller does not.':'<b class="r">The seller keeps the dividend.</b> Your trade settles on 6 Nov, after the record date. You should pay about one dividend less for the share.';});
+
+/* price drop */
+let pd;
+const drawPX=chart('px-c',svg=>{const d=pd.v,P=100,pts=[],obs=[];for(let t=-5;t<=4;t+=.05){pts.push([t,t<0?P:P-d]);obs.push([t,t<0?P:P-d*.85]);}
+ plot(svg,{xd:[-5,4],yd:[P-25,P+5],xt:[-5,-4,-3,-2,-1,0,1,2,3,4],yt:[75,80,85,90,95,100,105],xf:v=>v===0?'Ex-date':(v>0?'+':'')+v,yf:v=>'₹'+v,xl:'Trading days around the ex-date',yl:'Share price',
+  lines:[{pts,c:'--accent',label:'Perfect market'},{pts:obs,c:'--face',dash:'5 4'}],vl:[{x:0}],dots:[{x:0,y:P-d,c:'--accent',label:'₹'+P+' − ₹'+d+' = ₹'+(P-d),pos:'below'}]});});
+pd=slider('px-d',v=>'₹'+v,()=>drawPX());pd.run();
+
+/* homemade dividend */
+slider('hd-d',v=>'₹'+v.toFixed(2),d=>{const sell=(d-2)*80/40;
+ $('#hd-a').innerHTML=`<tbody><tr><td>Cash from dividend</td><td>${inr(80*d)}</td></tr><tr><td>Shares held</td><td>80</td></tr><tr><td>Ex-dividend price</td><td>${inr(42-d)}</td></tr><tr><td>Value of shares</td><td>${inr(80*(42-d))}</td></tr><tr class="tot"><td>Total wealth</td><td>${inr(3360)}</td></tr></tbody>`;
+ $('#hd-b').innerHTML=`<tbody><tr><td>Cash from ₹2 dividend</td><td>${inr(160)}</td></tr><tr><td>${sell>=0?'Cash from selling':'Cash used to buy'} ${num(Math.abs(sell),1)} shares at ₹40</td><td>${inr(Math.abs(sell)*40)}</td></tr><tr><td>Cash in hand</td><td>${inr(80*d)}</td></tr><tr><td>Value of ${num(80-sell,1)} shares at ₹40</td><td>${inr((80-sell)*40)}</td></tr><tr class="tot"><td>Total wealth</td><td>${inr(3360)}</td></tr></tbody>`;
+ $('#hd-n').textContent=d>2?`Bob sells ${num(sell,1)} shares after the ex-date. He ends with the same cash and the same wealth as if Bianchi had paid ₹${d}.`:d<2?`Bob wants less cash, so he reinvests ₹${num(80*(2-d))} in ${num(-sell,1)} more shares. Same result as a ₹${d} dividend.`:'Bianchi already pays what Bob wants.';}).run();
+
+/* buyback */
+const BB=[{k:[['Cash','₹1,50,000'],['Equity','₹10,00,000'],['Shares','1,00,000'],['Price','₹10.00'],['EPS','₹0.49'],['P/E','20.4']],n:'A holder of 100 shares owns ₹1,000 of stock.'},
+ {k:[['Cash','₹50,000'],['Equity','₹9,00,000'],['Shares','1,00,000'],['Price','₹9.00'],['EPS','₹0.49'],['P/E','18.4']],n:'The holder of 100 shares now has ₹900 of stock plus ₹100 of dividends: still ₹1,000.'},
+ {k:[['Cash','₹50,000'],['Equity','₹9,00,000'],['Shares','90,000'],['Price','₹10.00'],['EPS','₹0.544'],['P/E','18.4']],n:'A seller of 10 shares gets ₹100 cash and keeps ₹900 of stock: ₹1,000. EPS rises to ₹0.544 only because there are fewer shares; the P/E is the same as with the dividend.'}];
+seg($('#bb-m'),v=>{const b=BB[+v];$('#bb-k').innerHTML=b.k.map((x,i)=>`<div class="kpi ${i===3?'hi':''}"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('');$('#bb-n').textContent=b.n;})('0');
+
+/* bonus and split */
+const SP=[[1.1,'Bonus: reserves are moved to share capital. Face value stays the same.'],[2,'Bonus: reserves move to share capital. Same economics as a 2-for-1 split.'],[2,'Split: face value halves (say ₹10 to ₹5). Nothing moves between reserves and capital.'],[5,'Split: face value falls to one fifth (say ₹10 to ₹2).']];
+seg($('#sp-m'),v=>{const [m,t]=SP[+v],sh=100*m,p=600/m;$('#sp-k').innerHTML=`<div class="kpi"><span>Shares after</span><b>${num(sh)}</b></div><div class="kpi"><span>Price after (about)</span><b>${inr(p,2)}</b></div><div class="kpi hi"><span>Your wealth</span><b>${inr(sh*p)}</b></div>`;$('#sp-n').textContent=t+' No cash leaves the firm, so your wealth does not change.';})('0');
+}
+
+D.start();
+</script>
+</body>
+</html>

@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Capital Structure · CF II</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<!-- To track students with the CF1 platform, add these three lines here (paths relative to the site root):
+<script src="assets/js/config.js"></script>
+<script src="assets/js/vendor/supabase-2.117.3.js"></script>
+<script src="assets/js/cf.js"></script>
+The deck then reports the slide reached as the step, and each quick check as an attempt. -->
+<style>
+/* CF II slide engine. Same palette, type and dark mode as the CF1 site.
+   One slide fills the screen; header names the deck and slide, footer moves between slides. */
+:root{
+  --bg:#F4F4F1; --surface:#FFFFFF; --ink:#16223A; --muted:#5B6578; --line:#DADDD8; --faint:#E7E8E3;
+  --accent:#6B3FA0; --accent-soft:#EEE6F7; --face:#0F6E8C; --face-soft:#DCEEF3;
+  --good:#2F6B3F; --good-soft:#E2F0E5; --bad:#B4530F; --bad-soft:#FAEBDD;
+  --display:'Source Serif 4', Georgia, serif; --body:'IBM Plex Sans','Segoe UI',Arial,sans-serif; --mono:'IBM Plex Mono',Consolas,monospace;
+  --c-liq:#1F6FB2; --c-lev:#C2410C; --c-tur:#2F7D4A; --c-pro:#6B3FA0; --c-mkt:#9A6A06;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12131A; --surface:#1C1E29; --ink:#ECEDF2; --muted:#A1A6B8; --line:#2F3242; --faint:#262938;
+  --accent:#B794E6; --accent-soft:#2E2340; --face:#5BB8D4; --face-soft:#16384A;
+  --good:#86C998; --good-soft:#1C3324; --bad:#F0A266; --bad-soft:#3A2617; color-scheme:dark; --c-liq:#6CB4F0; --c-lev:#F59E62; --c-tur:#7FCF97; --c-pro:#B794E6; --c-mkt:#E0B04A}}
+:root[data-theme="dark"]{
+  --bg:#12131A; --surface:#1C1E29; --ink:#ECEDF2; --muted:#A1A6B8; --line:#2F3242; --faint:#262938;
+  --accent:#B794E6; --accent-soft:#2E2340; --face:#5BB8D4; --face-soft:#16384A;
+  --good:#86C998; --good-soft:#1C3324; --bad:#F0A266; --bad-soft:#3A2617; color-scheme:dark; --c-liq:#6CB4F0; --c-lev:#F59E62; --c-tur:#7FCF97; --c-pro:#B794E6; --c-mkt:#E0B04A}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;overflow:hidden}
+button,input,select{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* frame */
+.deck{display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:100vh;height:100dvh;padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+.bar{display:flex;align-items:center;gap:14px;padding:10px max(3vw,14px);border-bottom:1px solid var(--line);background:var(--surface);font-size:14px}
+.bar a{color:var(--accent);text-decoration:none;font-weight:600;white-space:nowrap}
+.bar a:hover{text-decoration:underline}
+.bar .dt{flex:1;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .dt b{color:var(--ink);font-weight:600}
+.icon{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:13.5px;font-weight:600;white-space:nowrap}
+.icon:hover{border-color:var(--accent);color:var(--accent)}
+.stage{position:relative;overflow:hidden}
+.slide{position:absolute;inset:0;overflow-y:auto;padding:clamp(16px,3vw,40px) max(4vw,16px) 24px;display:none}
+.slide.active{display:block;animation:in .25s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.slide.active{animation:none}.f{transition:none!important}}
+.inner{max-width:1140px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.foot{display:flex;align-items:center;gap:12px;padding:10px max(3vw,14px) calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--surface)}
+.prog{flex:1;height:6px;border-radius:99px;background:var(--faint);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.count{font-family:var(--mono);font-size:13px;color:var(--muted);white-space:nowrap}
+.btn{font-weight:600;font-size:15px;padding:9px 18px;border-radius:999px;border:1px solid var(--line);background:var(--surface);cursor:pointer;min-height:42px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.btn[disabled]{opacity:.35;cursor:default}
+.hint{font-size:12.5px;color:var(--muted)}
+@media (max-width:640px){.hint,.bar .dt span,#fsbtn{display:none}.btn{padding:8px 14px}}
+
+/* overview */
+.ov{position:fixed;inset:0;z-index:50;background:var(--bg);overflow:auto;padding:24px max(4vw,16px);display:none}
+.ov.open{display:block}
+.ov h2{font-family:var(--display);margin:0 0 14px;font-size:28px}
+.ov .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;max-width:1140px}
+.ov button{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-height:64px}
+.ov button small{font-family:var(--mono);color:var(--muted);font-size:12px}
+.ov button.cur{border-color:var(--accent);background:var(--accent-soft)}
+.ov .x{position:sticky;top:0;float:right}
+
+/* type */
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,5.4vw,58px);line-height:1.04;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,38px);line-height:1.1;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-size:21px;margin:0;line-height:1.2}
+p{margin:0}
+.lede{font-size:clamp(17px,1.8vw,20px);color:var(--muted);max-width:66ch}
+.muted{color:var(--muted)}
+ul.pts{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px;max-width:72ch}
+ul.pts li::marker{color:var(--accent)}
+.mono{font-family:var(--mono)}
+.c{color:var(--accent)} .fc{color:var(--face)} .g{color:var(--good)} .r{color:var(--bad)}
+b,strong{font-weight:600}
+
+/* layout pieces */
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.two.wide-l{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:860px){.two,.two.wide-l{grid-template-columns:1fr}.three,.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.three,.four{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.card.soft{background:var(--accent-soft);border-color:transparent}
+.card.face{background:var(--face-soft);border-color:transparent}
+.card h3{font-size:19px}
+.card p{font-size:15.5px;color:var(--muted)}
+.tag{align-self:flex-start;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.tag.f2{background:var(--face-soft);color:var(--face)}
+.formula{font-family:var(--mono);font-size:clamp(16px,1.9vw,21px);background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:12px 16px;overflow-x:auto;white-space:nowrap}
+.formula small{display:block;font-family:var(--body);font-size:13px;color:var(--muted);white-space:normal;margin-top:4px}
+.note{font-size:15.5px;color:var(--muted);border-left:3px solid var(--face);padding-left:12px;max-width:74ch}
+.big{font-family:var(--mono);font-size:clamp(30px,4.4vw,48px);line-height:1;color:var(--accent);white-space:nowrap}
+.kpis{display:flex;flex-wrap:wrap;gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;flex:1 1 130px}
+.kpi span{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.kpi b{font-family:var(--mono);font-weight:500;font-size:22px;white-space:nowrap}
+.kpi.hi{border-color:var(--accent);background:var(--accent-soft)}
+.kpi.hi b{color:var(--accent)}
+
+/* fragments: revealed one at a time with Next */
+.f{opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;pointer-events:none}
+.f.on{opacity:1;transform:none;pointer-events:auto}
+
+/* tables */
+.scroll{overflow-x:auto}
+table.t{border-collapse:collapse;width:100%;font-size:15.5px;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+table.t th,table.t td{padding:7px 12px;border-bottom:1px solid var(--faint);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+table.t th:first-child,table.t td:first-child{text-align:left;white-space:normal}
+table.t thead th{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--bg);font-weight:600}
+table.t tr.tot td{font-weight:600;border-top:1.5px solid var(--line)}
+table.t tr.hl td{background:var(--accent-soft)}
+table.t td.neg{color:var(--bad)}
+table.t td.pos{color:var(--good)}
+table.t .sub td:first-child{padding-left:26px;color:var(--muted)}
+
+/* controls */
+.ctls{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px 20px}
+.ctl{display:flex;flex-direction:column;gap:4px}
+.ctl label{display:flex;justify-content:space-between;gap:8px;font-weight:500;font-size:15px}
+.ctl output{font-family:var(--mono);color:var(--accent);white-space:nowrap}
+.ctl input[type=range]{width:100%;accent-color:var(--accent);height:28px}
+.ctl small{color:var(--muted);font-size:13.5px}
+.seg{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;padding:3px;background:var(--bg);gap:2px}
+.seg button{flex:1 1 120px;font-weight:500;font-size:14.5px;border:none;background:transparent;padding:8px 10px;border-radius:9px;cursor:pointer;min-height:38px}
+.seg button.on{background:var(--surface);color:var(--accent);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+input.num{width:100%;font-family:var(--mono);font-size:16px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);text-align:right}
+
+/* charts */
+.fig{position:relative;min-height:300px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.fig.sm{min-height:230px}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.fig svg text{font-family:var(--body);font-size:12.5px;fill:var(--muted)}
+.fig svg .ax{stroke:var(--line)}
+.fig svg .grd{stroke:var(--faint)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+/* quiz */
+.q{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.q p.qt{font-weight:600}
+.q .opts{display:grid;gap:8px}
+.q .opts button{text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 12px;cursor:pointer;min-height:42px}
+.q .opts button:hover:not([disabled]){border-color:var(--accent)}
+.q .opts button.right{border-color:var(--good);background:var(--good-soft)}
+.q .opts button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.q .opts button[disabled]{cursor:default}
+.q .why{font-size:15px;color:var(--muted);display:none}
+.q.done .why{display:block}
+.score{font-family:var(--mono);font-size:15px;color:var(--accent)}
+
+/* sorting / click-to-classify activity */
+.sorter{display:flex;flex-direction:column;gap:8px}
+.sorter .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.sorter .row > span{flex:1 1 180px}
+.sorter .row button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:5px 12px;font-size:14px;cursor:pointer;min-height:36px}
+.sorter .row button.pick{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.sorter .row.ok{border-color:var(--good)}
+.sorter .row.no{border-color:var(--bad)}
+.sorter .row em{font-style:normal;font-size:13.5px;color:var(--muted);flex-basis:100%;display:none}
+.sorter.checked .row em{display:block}
+
+/* title slide */
+.title-slide .inner{min-height:calc(100% - 20px);justify-content:center}
+.title-slide h1{font-size:clamp(38px,6.4vw,72px)}
+.title-slide .goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px}
+.title-slide .goals div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15.5px}
+.title-slide .goals b{display:block;font-family:var(--mono);color:var(--accent);font-size:12px;margin-bottom:2px}
+.keys{font-size:13.5px;color:var(--muted)}
+.keys kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--surface)}
+
+/* ---- design-option slides ---- */
+.opt-tag{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}
+.opt-tag .pill{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--face-soft);color:var(--face)}
+.opt-tag .pill.cur{background:var(--good-soft);color:var(--good)}
+.pc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;font-size:14px}
+.pc div{border-radius:10px;padding:8px 12px;border:1px dashed var(--line)}
+.pc b{display:block;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.pc .pro b{color:var(--good)} .pc .con b{color:var(--bad)}
+@media (max-width:640px){.pc{grid-template-columns:1fr}}
+
+/* ratio lab */
+.rx{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);gap:18px;align-items:start}
+.rx-stm{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:10px;align-items:start}
+.rx.map{grid-template-columns:minmax(0,1.75fr) minmax(0,1fr)}
+table.t.sm{font-size:13.5px}
+table.t.sm th,table.t.sm td{padding:4px 8px}
+table.t.sm thead th{font-size:11px}
+table.t td.src-n{background:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent);color:var(--accent);font-weight:600}
+table.t td.src-d{background:var(--face-soft);box-shadow:inset 0 0 0 2px var(--face);color:var(--face);font-weight:600}
+table.t td.dim,table.t th.dim{color:var(--muted);opacity:.55}
+table.t td.pickable{cursor:pointer}
+table.t td.pickable:hover{box-shadow:inset 0 0 0 1.5px var(--accent)}
+table.t tr.sec td{background:var(--bg);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding-top:3px;padding-bottom:3px}
+.rx-work{display:flex;flex-direction:column;gap:12px}
+.fams{display:flex;flex-wrap:wrap;gap:4px 16px}
+.fams button{border:0;background:none;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--muted);padding:6px 0;cursor:pointer;border-bottom:2px solid transparent}
+.fams button.on{color:var(--accent);border-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;font-size:14px;cursor:pointer;min-height:38px}
+.chips button:hover{border-color:var(--accent)}
+.chips button.on{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.eqn{display:flex;align-items:center;justify-content:center;gap:14px 18px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 14px;min-height:150px}
+.frac{display:inline-flex;flex-direction:column;align-items:center;gap:8px}
+.frac .row{display:flex;align-items:flex-start;gap:8px}
+.frac .fbar{align-self:stretch;height:2px;background:var(--ink);border-radius:2px}
+.slot{display:flex;flex-direction:column;align-items:center;min-width:80px}
+.slot b{font-family:var(--mono);font-weight:500;font-size:21px;min-width:74px;text-align:center;padding:4px 8px;border-radius:8px;border:1.5px dashed var(--line);color:var(--muted);transition:background .2s}
+.slot.n.filled b{border:1.5px solid var(--accent);color:var(--accent);background:var(--accent-soft)}
+.slot.d.filled b{border:1.5px solid var(--face);color:var(--face);background:var(--face-soft)}
+.slot.const b{border-style:solid;color:var(--ink)}
+.slot small{font-size:11.5px;color:var(--muted);margin-top:3px;text-align:center;max-width:120px;line-height:1.25}
+.op{font-family:var(--mono);font-size:21px;padding-top:5px}
+.eq{font-family:var(--mono);font-size:26px;color:var(--muted)}
+.res{font-family:var(--mono);font-size:clamp(28px,3.6vw,40px);color:var(--accent);min-width:3ch;white-space:nowrap}
+.flyer{position:fixed;z-index:60;pointer-events:none;font-family:var(--mono);font-size:18px;padding:3px 9px;border-radius:8px;background:var(--surface);border:1.5px solid var(--accent);color:var(--accent);box-shadow:0 8px 22px rgba(0,0,0,.2);white-space:nowrap}
+.flyer.d{border-color:var(--face);color:var(--face)}
+@media (max-width:860px){.rx{grid-template-columns:1fr}.rx-work{order:-1}}
+@media (max-width:520px){.rx-stm{grid-template-columns:1fr}}
+
+/* towers and strips */
+.towers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.tw h3{font-size:17px;margin-bottom:6px}
+.tw .pair{display:grid;grid-template-columns:1fr 1fr;gap:6px;height:340px}
+.tw .col{display:flex;flex-direction:column;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.tw .seg2{display:flex;flex-direction:column;justify-content:center;padding:2px 8px;font-size:12.5px;color:var(--surface);overflow:hidden;cursor:default;min-height:0;line-height:1.2}
+.tw .seg2 span{font-family:var(--mono);font-size:12px;opacity:.9}
+.tw .cap{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;color:var(--muted);text-align:center;margin-top:4px}
+.strip{display:grid;grid-template-columns:150px repeat(3,minmax(0,1fr)) 90px;gap:8px;align-items:center}
+.strip .cell{background:var(--bg);border-radius:8px;height:34px;position:relative;overflow:hidden}
+.strip .cell i{position:absolute;inset:0 auto 0 0;background:var(--accent);opacity:.85;border-radius:8px}
+.strip .cell span{position:relative;font-family:var(--mono);font-size:13.5px;padding:0 8px;line-height:34px;color:var(--ink)}
+.strip .hd{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+@media (max-width:700px){.strip{grid-template-columns:90px repeat(3,minmax(0,1fr)) 64px}.strip .cell span{font-size:12px;padding:0 4px}}
+.tree{display:flex;flex-direction:column;align-items:center;gap:10px}
+.tree .lvl{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;align-items:center}
+.node{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:8px 14px;text-align:center;min-width:140px}
+.node b{display:block;font-family:var(--mono);font-size:20px;font-weight:500;color:var(--accent)}
+.node small{color:var(--muted);font-size:12.5px}
+.node.top{border-color:var(--accent);background:var(--accent-soft)}
+.tree .x{font-family:var(--mono);font-size:20px;color:var(--muted)}
+.gapbars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:end;height:360px}
+.gapbars .gb{display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.gapbars .stack{display:flex;flex-direction:column-reverse;border-radius:8px;overflow:hidden}
+.gapbars .stack div{display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:13px;color:var(--surface);min-height:0;overflow:hidden;white-space:nowrap}
+.gapbars .stack div span{font-family:var(--mono)}
+.gapbars .gap{border:2px dashed var(--bad);background:var(--bad-soft)!important;color:var(--bad)!important;font-weight:600}
+.gapbars p{text-align:center;font-size:13.5px;color:var(--muted);margin-top:6px}
+
+/* ---- family colours ---- */
+.fams button{display:inline-flex;align-items:center;gap:6px}
+.fams button[style*="--fc"]{color:var(--fc)}
+.fams button.on{border-color:var(--fc,var(--accent))}
+.fdot{width:9px;height:9px;border-radius:50%;background:var(--fc);display:inline-block}
+.chips button.fam{border-color:color-mix(in srgb,var(--fc) 45%,var(--line))}
+.chips button.fam.on{background:var(--fc);border-color:var(--fc);color:var(--surface)}
+.tag.fc{background:color-mix(in srgb,var(--fc) 14%,transparent);color:var(--fc)}
+.card.fcard{border-top:4px solid var(--fc)}
+.fdots{display:inline-flex;gap:3px;margin-left:8px;vertical-align:middle}
+.fdots i{width:9px;height:9px;border-radius:50%;display:inline-block}
+table.t tr.lit td{background:color-mix(in srgb,var(--fc) 13%,var(--surface));color:var(--fc);font-weight:600}
+table.t tr.lit td:first-child{box-shadow:inset 4px 0 0 var(--fc)}
+table.t.lg{font-size:17px}
+table.t.lg th,table.t.lg td{padding:6px 12px}
+table.t.lg thead th{font-size:12px}
+.sub-note{display:block;font-size:11.5px;color:var(--muted);font-weight:400}
+table.t.lg .sub-note{font-size:12.5px}
+.famrow{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--fc);border-radius:10px;padding:8px 12px;font-size:15px}
+.famrow b{color:var(--fc)}
+.famrow span{color:var(--muted);font-size:14px}
+/* growth, step by step */
+.gsrow{display:grid;grid-template-columns:minmax(0,230px) minmax(0,1fr) 90px;gap:12px;align-items:center;font-size:15px}
+.gsbar{height:34px;background:var(--faint);border-radius:8px;display:flex;overflow:hidden}
+.gsbar i{height:100%;transition:width .2s}
+.gsrow b{text-align:right}
+@media (max-width:640px){.gsrow{grid-template-columns:1fr 70px}.gsrow .gsbar{grid-column:1/-1;grid-row:2}}
+
+.node .nlab{display:block;margin-top:6px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--face)}
+
+.eqs{display:block;font-family:var(--mono);font-size:13.5px;line-height:1.7;margin:2px 0 8px;padding:6px 8px;background:var(--surface);border-radius:8px}
+#gs-steps{grid-template-columns:minmax(0,.8fr) minmax(0,.9fr) minmax(0,.9fr) minmax(0,1.5fr)}
+@media (max-width:860px){#gs-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){#gs-steps{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div class="deck">
+ <header class="bar"><a href="index.html">← All CF II topics</a><div class="dt"><b>Capital Structure</b> <span></span></div><button class="icon" id="ovbtn" type="button">All slides</button><button class="icon" id="fsbtn" type="button">Full screen</button></header>
+ <main class="stage">
+
+
+<section class="slide title-slide" data-title="Overview">
+ <div class="inner">
+  <p class="eyebrow">Module 2 · Sessions 5 and 6 · RWJK Ch 16</p>
+  <h1>Capital Structure: Basic Concepts</h1>
+  <p class="lede">Does the mix of debt and equity change what a firm is worth? In a perfect market, no. Add corporate taxes, and debt starts to add value.</p>
+  <div class="goals">
+   <div><b>1</b>See how financial leverage changes EPS and ROE</div>
+   <div><b>2</b>Use homemade leverage to undo the firm's choice</div>
+   <div><b>3</b>State M&amp;M Propositions I and II, with and without taxes</div>
+   <div><b>4</b>Compute the value of the unlevered and levered firm</div>
+  </div>
+  <p class="keys">Move with <kbd>→</kbd> <kbd>←</kbd>. <kbd>O</kbd> shows all slides.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="The pie">
+ <div class="inner">
+  <p class="eyebrow">Session 5 · The capital structure question</p>
+  <h2>The value of the firm is a pie: V = B + S</h2>
+  <div class="two">
+   <div class="fig sm" style="min-height:280px"><svg id="pie-c" role="img" aria-label="Firm value split into debt and equity"></svg></div>
+   <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="ctl"><label for="pie-d">Debt share of firm value <output for="pie-d"></output></label><input type="range" id="pie-d" min="0" max="80" value="40"></div>
+    <div class="kpis"><div class="kpi"><span>Debt B</span><b id="pie-b"></b></div><div class="kpi"><span>Equity S</span><b id="pie-s"></b></div><div class="kpi hi"><span>Firm V</span><b>₹20,000</b></div></div>
+    <p class="f">If management's goal is to make the firm as valuable as possible, it should pick the debt-equity ratio that makes <b>the pie as big as possible</b>.</p>
+    <p class="note f">Here the slices change but the pie does not. The rest of this module asks when cutting the pie differently can make it bigger.</p>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Whose value?">
+ <div class="inner">
+  <p class="eyebrow">Session 5 · Firm value versus shareholder value</p>
+  <h2>Why should shareholders care about firm value?</h2>
+  <div class="two">
+   <div class="card"><h3>Question 1</h3><p>Shareholders own S, not V. Should managers maximise firm value or shareholder value?</p></div>
+   <div class="card"><h3>Question 2</h3><p>Which debt-equity ratio maximises the shareholders' wealth?</p></div>
+  </div>
+  <div class="card soft f"><h3>Answer</h3><p style="color:var(--ink)">A change in capital structure benefits shareholders if and only if the value of the firm rises. So the two goals point to the same debt-equity ratio.</p></div>
+ </div>
+</section>
+
+<section class="slide" data-title="The proposal">
+ <div class="inner">
+  <p class="eyebrow">Session 5 · An example</p>
+  <h2>An all-equity firm thinks about borrowing</h2>
+  <p class="lede">It would borrow ₹8,000 at 8% and use the money to buy back 160 shares at ₹50. Perhaps some original shareholders want to cash out.</p>
+  <div class="scroll" style="max-width:640px"><table class="t">
+   <thead><tr><th></th><th>Current</th><th>Proposed</th></tr></thead>
+   <tbody><tr><td>Assets</td><td>₹20,000</td><td>₹20,000</td></tr><tr><td>Debt</td><td>₹0</td><td>₹8,000</td></tr><tr><td>Equity</td><td>₹20,000</td><td>₹12,000</td></tr><tr><td>Debt-equity ratio</td><td>0</td><td>2/3</td></tr><tr><td>Interest rate</td><td>n/a</td><td>8%</td></tr><tr><td>Shares outstanding</td><td>400</td><td>240</td></tr><tr><td>Share price</td><td>₹50</td><td>₹50</td></tr></tbody></table></div>
+  <p class="note">No taxes for now. Three states of the economy: recession, expected and expansion, with EBIT of ₹1,000, ₹2,000 and ₹3,000.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="EPS and ROE">
+ <div class="inner">
+  <p class="eyebrow">Session 5 · Leverage, EPS and ROE</p>
+  <h2>Debt makes EPS swing harder</h2>
+  <div class="ctl" style="max-width:520px"><label for="lv-d">Debt raised to buy back shares <output for="lv-d"></output></label><input type="range" id="lv-d" min="0" max="16000" step="2000" value="8000"><small id="lv-sh"></small></div>
+  <div class="two">
+   <div class="scroll"><table class="t" id="lv-u"></table></div>
+   <div class="scroll"><table class="t" id="lv-l"></table></div>
+  </div>
+  <p class="note" id="lv-n"></p>
+ </div>
+</section>
+
+<section class="slide" data-title="EBIT and EPS">
+ <div class="inner">
+  <p class="eyebrow">Session 5 · Break-even EBIT</p>
+  <h2>Debt helps above the break-even point and hurts below it</h2>
+  <div class="two wide-l">
+   <div class="fig"><svg id="ee-c" role="img" aria-label="EPS against EBIT with and without debt"></svg></div>
+   <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="ctl"><label for="ee-e">EBIT <output for="ee-e"></output></label><input type="range" id="ee-e" min="0" max="3500" step="50" value="2000"></div>
+    <div class="kpis"><div class="kpi"><span>EPS, no debt</span><b id="ee-u"></b></div><div class="kpi"><span>EPS, ₹8,000 debt</span><b id="ee-l"></b></div></div>
+    <p class="legend"><span><i style="background:var(--face)"></i>No debt</span><span><i style="background:var(--accent)"></i>With debt</span></p>
+    <p class="note f">The lines cross at EBIT ₹1,600: a return on assets of 1,600 / 20,000 = 8%, exactly the interest rate. Debt pays off only when the assets earn more than the debt costs.</p>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="M&M assumptions">
+ <div class="inner">
+  <p class="eyebrow">Session 5 · Modigliani and Miller</p>
+  <h2>The M&amp;M world</h2>
+  <div class="three">
+   <div class="card"><h3>Homogeneous expectations</h3><p>Everyone agrees on the firm's future cash flows.</p></div>
+   <div class="card"><h3>Same business risk class</h3><p>Firms being compared differ only in how they are financed.</p></div>
+   <div class="card"><h3>Perpetual cash flows</h3><p>EBIT is expected to continue forever.</p></div>
+  </div>
+  <div class="card soft"><h3>Perfect capital markets</h3>
+   <ul class="pts"><li>Perfect competition</li><li>Firms and investors borrow and lend at the same rate</li><li>Everyone has the same information</li><li>No transaction costs</li><li>No taxes</li></ul></div>
+ </div>
+</section>
+
+<section class="slide" data-title="Homemade leverage">
+ <div class="inner">
+  <p class="eyebrow">Session 5 · The fundamental insight of M&amp;M</p>
+  <h2>Investors can copy, or undo, the firm's leverage on their own</h2>
+  <div class="seg" id="hm-m" style="max-width:620px"><button class="on" data-v="lev">Homemade leverage</button><button data-v="unlev">Homemade unleverage</button></div>
+  <p id="hm-d"></p>
+  <div class="scroll"><table class="t" id="hm-t"></table></div>
+  <p class="note" id="hm-n"></p>
+ </div>
+</section>
+
+<section class="slide" data-title="Proposition I, no taxes">
+ <div class="inner">
+  <p class="eyebrow">Session 6 · M&amp;M Proposition I (no taxes)</p>
+  <h2>Capital structure does not change firm value</h2>
+  <div class="formula" style="font-size:clamp(24px,3vw,34px)">V<sub>L</sub> = V<sub>U</sub></div>
+  <ul class="pts">
+   <li class="f">If a levered firm were worth more, investors would buy the unlevered firm's shares on personal borrowing and get the same payoff for less.</li>
+   <li class="f">If it were worth less, they would buy the levered firm's shares and some of its debt, and get the unlevered payoff for less.</li>
+   <li class="f">Either way, trading pushes the two values together. Investors will not pay the firm for leverage they can create themselves.</li>
+  </ul>
+ </div>
+</section>
+
+<section class="slide" data-title="Proposition II">
+ <div class="inner">
+  <p class="eyebrow">Session 6 · M&amp;M Proposition II</p>
+  <h2>Leverage raises the risk and the required return on equity</h2>
+  <div class="seg" id="m2-t" style="max-width:420px"><button class="on" data-v="0">No taxes</button><button data-v="1">Corporate tax 21%</button></div>
+  <div class="formula" id="m2-f"></div>
+  <div class="two wide-l">
+   <div class="fig"><svg id="m2-c" role="img" aria-label="Cost of equity, WACC and cost of debt against debt-equity ratio"></svg></div>
+   <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="ctl"><label for="m2-r0">R<sub>0</sub>, return on unlevered equity <output for="m2-r0"></output></label><input type="range" id="m2-r0" min="8" max="20" step="0.5" value="12"></div>
+    <div class="ctl"><label for="m2-rb">R<sub>B</sub>, cost of debt <output for="m2-rb"></output></label><input type="range" id="m2-rb" min="4" max="10" step="0.5" value="8"></div>
+    <div class="ctl"><label for="m2-de">Debt-equity ratio B/S <output for="m2-de"></output></label><input type="range" id="m2-de" min="0" max="3" step="0.05" value="1"></div>
+    <div class="kpis"><div class="kpi hi"><span>R<sub>S</sub></span><b id="m2-rs"></b></div><div class="kpi"><span>WACC</span><b id="m2-w"></b></div></div>
+    <p class="legend"><span><i style="background:var(--accent)"></i>R<sub>S</sub></span><span><i style="background:var(--face)"></i>WACC</span><span><i style="background:var(--muted)"></i>R<sub>B</sub></span></p>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Deriving Proposition II">
+ <div class="inner">
+  <p class="eyebrow">Session 6 · Where the formula comes from</p>
+  <h2>Proposition I says WACC stays at R<sub>0</sub></h2>
+  <div class="formula">R<sub>WACC</sub> = (B / (B+S)) × R<sub>B</sub> + (S / (B+S)) × R<sub>S</sub> = R<sub>0</sub><small>With no taxes, firm value does not change, so the overall cost of capital stays at R<sub>0</sub>.</small></div>
+  <div class="formula f">Multiply both sides by (B+S)/S: (B/S) × R<sub>B</sub> + R<sub>S</sub> = (B+S)/S × R<sub>0</sub> = (B/S) × R<sub>0</sub> + R<sub>0</sub></div>
+  <div class="formula f" style="border-left-color:var(--face)">R<sub>S</sub> = R<sub>0</sub> + (B/S) × (R<sub>0</sub> − R<sub>B</sub>)</div>
+  <p class="note f">Cheap debt does not lower the cost of capital: every extra rupee of cheap debt makes the equity riskier, and shareholders demand exactly enough extra return to cancel the saving.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="Taxes split the pie">
+ <div class="inner">
+  <p class="eyebrow">Session 6 · Adding corporate taxes</p>
+  <h2>With taxes, the government takes a slice. Debt makes that slice smaller</h2>
+  <div class="ctls">
+   <div class="ctl"><label for="tx-d">Debt at 8% <output for="tx-d"></output></label><input type="range" id="tx-d" min="0" max="16000" step="1000" value="8000"></div>
+   <div class="ctl"><label for="tx-t">Corporate tax rate T<sub>C</sub> <output for="tx-t"></output></label><input type="range" id="tx-t" min="0" max="50" value="21"></div>
+   <div class="ctl"><label>State of the economy</label><div class="seg" id="tx-s"><button data-v="1000">Recession</button><button class="on" data-v="2000">Expected</button><button data-v="3000">Expansion</button></div></div>
+  </div>
+  <div id="tx-bars" style="display:flex;flex-direction:column;gap:12px"></div>
+  <p class="legend"><span><i style="background:var(--accent)"></i>Shareholders</span><span><i style="background:var(--face)"></i>Bondholders</span><span><i style="background:var(--bad)"></i>Government</span></p>
+  <p class="note" id="tx-n"></p>
+ </div>
+</section>
+
+<section class="slide" data-title="Proposition I, with taxes">
+ <div class="inner">
+  <p class="eyebrow">Session 6 · M&amp;M Proposition I (corporate taxes)</p>
+  <h2>Firm value rises with leverage: V<sub>L</sub> = V<sub>U</sub> + T<sub>C</sub>B</h2>
+  <div class="formula">Cash flow to all investors = EBIT × (1 − T<sub>C</sub>) + T<sub>C</sub> × R<sub>B</sub> × B</div>
+  <div class="two f">
+   <div class="card"><h3>First term</h3><p>Same as the unlevered firm's cash flow. Discounted at R<sub>0</sub>, its present value is V<sub>U</sub>.</p></div>
+   <div class="card"><h3>Second term: the interest tax shield</h3><p>As certain as the interest itself, so discount it at R<sub>B</sub>: T<sub>C</sub>R<sub>B</sub>B / R<sub>B</sub> = T<sub>C</sub>B.</p></div>
+  </div>
+  <div class="ctls f">
+   <div class="ctl"><label for="vl-r0">R<sub>0</sub> (assumed) <output for="vl-r0"></output></label><input type="range" id="vl-r0" min="8" max="20" step="0.5" value="13"></div>
+   <div class="ctl"><label for="vl-b">Perpetual debt B <output for="vl-b"></output></label><input type="range" id="vl-b" min="0" max="10000" step="500" value="8000"></div>
+   <div class="ctl"><label for="vl-t">T<sub>C</sub> <output for="vl-t"></output></label><input type="range" id="vl-t" min="0" max="50" value="21"></div>
+  </div>
+  <div class="kpis f"><div class="kpi"><span>V<sub>U</sub> = 2,000 (1 − T<sub>C</sub>) / R<sub>0</sub></span><b id="vl-u"></b></div><div class="kpi"><span>Tax shield T<sub>C</sub>B</span><b id="vl-s"></b></div><div class="kpi hi"><span>V<sub>L</sub></span><b id="vl-l"></b></div><div class="kpi"><span>Levered equity S = V<sub>L</sub> − B</span><b id="vl-e"></b></div></div>
+ </div>
+</section>
+
+<section class="slide" data-title="Summary">
+ <div class="inner">
+  <p class="eyebrow">Sessions 5 and 6 · Summary</p>
+  <h2>M&amp;M in one table</h2>
+  <div class="scroll"><table class="t">
+   <thead><tr><th></th><th style="text-align:left">No taxes</th><th style="text-align:left">Corporate taxes</th></tr></thead>
+   <tbody>
+    <tr><td><b>Proposition I</b></td><td style="text-align:left;white-space:normal">V<sub>L</sub> = V<sub>U</sub>. Capital structure is irrelevant because investors can use homemade leverage.</td><td style="text-align:left;white-space:normal">V<sub>L</sub> = V<sub>U</sub> + T<sub>C</sub>B. The interest tax shield makes the pie bigger: the government's slice shrinks.</td></tr>
+    <tr><td><b>Proposition II</b></td><td style="text-align:left;white-space:normal">R<sub>S</sub> = R<sub>0</sub> + (B/S)(R<sub>0</sub> − R<sub>B</sub>). Leverage raises equity risk and return; WACC stays flat.</td><td style="text-align:left;white-space:normal">R<sub>S</sub> = R<sub>0</sub> + (B/S)(1 − T<sub>C</sub>)(R<sub>0</sub> − R<sub>B</sub>). Equity return rises more slowly; WACC falls.</td></tr>
+   </tbody></table></div>
+  <p class="note f">Taken literally, the tax version says a firm should be almost all debt. Real firms are not, because of the costs of financial distress, which come next in the elective courses.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="Quick check">
+ <div class="inner quiz" data-key="capital-structure-quick-check">
+  <p class="eyebrow">Quick check</p>
+  <h2>Five questions</h2>
+  <div class="two">
+   <div class="q" data-a="1"><p class="qt">Assets of ₹20,000, debt at 8%. Above what EBIT does borrowing raise EPS?</p><div class="opts"><button>₹640</button><button>₹1,600</button><button>₹2,000</button></div><p class="why">Break-even is where ROA equals the interest rate: 8% × 20,000 = ₹1,600, whatever the amount of debt.</p></div>
+   <div class="q" data-a="0"><p class="qt">Homemade leverage implies that, without taxes,</p><div class="opts"><button>investors will not pay extra for a levered firm</button><button>levered firms always have higher EPS</button><button>firms should hold no debt</button></div><p class="why">Investors can borrow on their own account, so the firm's leverage adds nothing they cannot do themselves.</p></div>
+   <div class="q" data-a="2"><p class="qt">R<sub>0</sub> = 12%, R<sub>B</sub> = 8%, B/S = 1, no taxes. R<sub>S</sub> is</p><div class="opts"><button>12%</button><button>14%</button><button>16%</button></div><p class="why">12% + 1 × (12% − 8%) = 16%.</p></div>
+   <div class="q" data-a="1"><p class="qt">V<sub>U</sub> = ₹10,000, T<sub>C</sub> = 30%, the firm issues ₹4,000 of perpetual debt. V<sub>L</sub> is</p><div class="opts"><button>₹10,000</button><button>₹11,200</button><button>₹14,000</button></div><p class="why">V<sub>L</sub> = 10,000 + 0.30 × 4,000 = ₹11,200.</p></div>
+   <div class="q" data-a="2"><p class="qt">With corporate taxes, where does the gain from debt come from?</p><div class="opts"><button>Debt is cheaper than equity</button><button>Shareholders take less risk</button><button>The government's share of the cash flows falls</button></div><p class="why">Interest is paid before tax, so more of EBIT reaches investors.</p></div>
+  </div>
+  <p class="score"></p>
+ </div>
+</section>
+
+
+ </main>
+ <footer class="foot"><button class="btn" id="prev" type="button">Back</button><div class="prog"><i></i></div><span class="count"></span><span class="hint">← → to move</span><button class="btn primary" id="next" type="button">Next</button></footer>
+</div>
+<div class="ov" role="dialog" aria-label="All slides"><button class="icon x" type="button">Close</button><h2>Capital Structure: Basic Concepts</h2><div class="grid"></div></div>
+<script>
+/* CF II slide engine.
+   Slides are <section class="slide" data-title="..."> inside .stage.
+   Elements with class "f" are revealed one at a time by Next.
+   Keys: right/left arrows, space, PageUp/PageDown, Home/End, O for overview, F for full screen.
+   If the CF1 tracker (cf.js) is on the page, the slide reached is reported as the step. */
+window.D = (() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const inr = (v, d = 0) => (v < 0 ? '−' : '') + '₹' + Math.abs(v).toLocaleString('en-IN', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const num = (v, d = 0) => (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('en-IN', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const pct = (v, d = 1) => (v < 0 ? '−' : '') + Math.abs(v * 100).toFixed(d) + '%';
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+  /* bind a range input to an output and a callback */
+  function slider(id, fmt, cb) {
+    const el = document.getElementById(id), out = document.querySelector(`output[for="${id}"]`);
+    const run = () => { const v = +el.value; if (out) out.textContent = fmt ? fmt(v) : v; cb && cb(v); };
+    el.addEventListener('input', run);
+    return { el, run, get v() { return +el.value; }, set v(x) { el.value = x; run(); } };
+  }
+  /* a segmented control: buttons with data-v; calls cb(value) */
+  function seg(el, cb) {
+    const bs = $$('button', el);
+    bs.forEach(b => b.addEventListener('click', () => { bs.forEach(x => x.classList.toggle('on', x === b)); cb(b.dataset.v); }));
+    return v => { const b = bs.find(x => x.dataset.v == v); b && b.click(); };
+  }
+
+  /* small line-chart helper drawn at real pixel size.
+     o = {xd:[a,b], yd:[a,b], xt:[ticks], yt:[ticks], xf, yf, xl, yl,
+          lines:[{pts:[[x,y]..], c:'--accent', w, dash, label}],
+          dots:[{x,y,c,label,pos}], vl:[{x,label,c}], hl:[{y,label,c}], areas:[{pts, c, o}] } */
+  function plot(svg, o) {
+    const W = svg.clientWidth, H = svg.clientHeight;
+    if (!W || !H) return;
+    const sm = W < 520;
+    const m = { l: sm ? 44 : 60, r: 18, t: 16, b: o.xl ? 46 : 30 };
+    const [x0, x1] = o.xd, [y0, y1] = o.yd;
+    const X = x => m.l + (x - x0) / (x1 - x0) * (W - m.l - m.r);
+    const Y = y => H - m.b - (y - y0) / (y1 - y0) * (H - m.t - m.b);
+    const col = c => c && c.startsWith('--') ? css(c) : (c || css('--accent'));
+    const xf = o.xf || (v => v), yf = o.yf || (v => v);
+    let s = '';
+    const yt = o.yt || [], xt = o.xt || [];
+    yt.forEach(v => { s += `<line class="grd" x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${yf(v)}</text>`; });
+    xt.forEach((v, i) => { if (sm && xt.length > 6 && i % 2) return; s += `<text x="${X(v)}" y="${H - m.b + 18}" text-anchor="middle">${xf(v)}</text>`; });
+    s += `<line class="ax" x1="${m.l}" x2="${W - m.r}" y1="${Y(Math.max(y0, Math.min(0, y1)))}" y2="${Y(Math.max(y0, Math.min(0, y1)))}" />`;
+    s += `<line class="ax" x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H - m.b}"/>`;
+    if (o.xl) s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 8}" text-anchor="middle">${o.xl}</text>`;
+    if (o.yl && !sm) s += `<text x="${m.l + 6}" y="${m.t + 4}" style="font-weight:600">${o.yl}</text>`;
+    (o.areas || []).forEach(a => { s += `<polygon points="${a.pts.map(p => X(p[0]) + ',' + Y(p[1])).join(' ')}" fill="${col(a.c)}" opacity="${a.o || .15}"/>`; });
+    (o.vl || []).forEach(v => { s += `<line x1="${X(v.x)}" x2="${X(v.x)}" y1="${m.t}" y2="${H - m.b}" stroke="${col(v.c || '--muted')}" stroke-dasharray="4 4"/>` + (v.label ? `<text x="${X(v.x) + 6}" y="${m.t + 12}" style="fill:${col(v.c || '--muted')}">${v.label}</text>` : ''); });
+    (o.hl || []).forEach(v => { s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v.y)}" y2="${Y(v.y)}" stroke="${col(v.c || '--muted')}" stroke-dasharray="4 4"/>` + (v.label ? `<text x="${W - m.r - 4}" y="${Y(v.y) - 6}" text-anchor="end" style="fill:${col(v.c || '--muted')}">${v.label}</text>` : ''); });
+    (o.lines || []).forEach(l => {
+      const pts = l.pts.filter(p => isFinite(p[1]) && p[1] >= y0 - (y1 - y0) && p[1] <= y1 + (y1 - y0));
+      s += `<polyline fill="none" stroke="${col(l.c)}" stroke-width="${l.w || 2.5}" ${l.dash ? `stroke-dasharray="${l.dash}"` : ''} stroke-linejoin="round" points="${pts.map(p => X(p[0]).toFixed(1) + ',' + Y(Math.max(y0, Math.min(y1, p[1]))).toFixed(1)).join(' ')}"/>`;
+      if (l.label) { const p = l.at ? l.pts[l.at] : pts[pts.length - 1]; s += `<text x="${Math.min(X(p[0]), W - m.r - 4)}" y="${Y(Math.max(y0, Math.min(y1, p[1]))) - 8}" text-anchor="end" style="fill:${col(l.c)};font-weight:600">${l.label}</text>`; }
+    });
+    (o.dots || []).forEach(d => {
+      s += `<circle cx="${X(d.x)}" cy="${Y(d.y)}" r="6" fill="${col(d.c)}" stroke="${css('--surface')}" stroke-width="2"/>`;
+      if (d.label) { const left = X(d.x) > W * .7; s += `<text x="${X(d.x) + (left ? -10 : 10)}" y="${Y(d.y) + (d.pos === 'below' ? 20 : -10)}" text-anchor="${left ? 'end' : 'start'}" style="fill:${col(d.c)};font-weight:600">${d.label}</text>`; }
+    });
+    svg.innerHTML = s;
+  }
+  /* keep a chart redrawn when its box changes size (also when its slide is shown) */
+  function chart(id, draw) {
+    const svg = document.getElementById(id);
+    const ro = new ResizeObserver(() => draw(svg));
+    ro.observe(svg);
+    return () => draw(svg);
+  }
+
+  /* quizzes: .q with data-a="index of right option" and buttons inside .opts */
+  function quizzes() {
+    $$('.quiz').forEach(box => {
+      const qs = $$('.q', box), out = $('.score', box);
+      let right = 0, done = 0;
+      qs.forEach(q => {
+        const a = +q.dataset.a, bs = $$('.opts button', q);
+        bs.forEach((b, i) => b.addEventListener('click', () => {
+          bs.forEach((x, j) => { x.disabled = true; if (j === a) x.classList.add('right'); });
+          if (i !== a) b.classList.add('wrong'); else right++;
+          done++; q.classList.add('done');
+          if (out) out.textContent = `Score: ${right} of ${done} answered (${qs.length} questions)`;
+          if (done === qs.length && window.CF && CF.submitAttempt) { try { CF.submitAttempt(box.dataset.key || 'quiz', right, qs.length); } catch (e) {} }
+        }));
+      });
+    });
+  }
+  /* click-to-classify: .sorter[data-opts="A|B"] > .row[data-a="A"] ; button .check */
+  function sorters() {
+    $$('.sorter').forEach(s => {
+      const opts = s.dataset.opts.split('|');
+      $$('.row', s).forEach(r => {
+        const holder = document.createElement('div'); holder.style.display = 'flex'; holder.style.gap = '6px'; holder.style.flexWrap = 'wrap';
+        opts.forEach(o => { const b = document.createElement('button'); b.type = 'button'; b.textContent = o; b.addEventListener('click', () => { $$('button', holder).forEach(x => x.classList.toggle('pick', x === b)); r.dataset.pick = o; }); holder.appendChild(b); });
+        r.insertBefore(holder, $('em', r));
+      });
+      const chk = s.parentElement.querySelector('.check');
+      if (chk) chk.addEventListener('click', () => {
+        let ok = 0; const rows = $$('.row', s);
+        rows.forEach(r => { const good = r.dataset.pick === r.dataset.a; r.classList.toggle('ok', good); r.classList.toggle('no', !good); ok += good; });
+        s.classList.add('checked');
+        const o = s.parentElement.querySelector('.score'); if (o) o.textContent = `${ok} of ${rows.length} correct`;
+        if (window.CF && CF.submitAttempt) { try { CF.submitAttempt(s.dataset.key || 'sort', ok, rows.length); } catch (e) {} }
+      });
+    });
+  }
+
+  /* navigation */
+  function start() {
+    const slides = $$('.slide'), n = slides.length;
+    const prog = $('.prog i'), count = $('.count'), bPrev = $('#prev'), bNext = $('#next'), title = $('.bar .dt span');
+    let cur = 0;
+    const frags = s => $$('.f', s);
+    /* fit: on laptop and projector widths, scale a tall slide down so it fits without a scrollbar */
+    function fit(s) {
+      const inner = $('.inner', s); if (!inner || !s.classList.contains('active')) return;
+      inner.style.zoom = '';
+      if (innerWidth < 900) return;
+      const cs = getComputedStyle(s), avail = s.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      const need = inner.scrollHeight;
+      if (need > avail) inner.style.zoom = Math.max(0.5, avail / need * 0.975).toFixed(3);
+    }
+    function go(i, all) {
+      i = Math.max(0, Math.min(n - 1, i));
+      slides.forEach((s, k) => s.classList.toggle('active', k === i));
+      frags(slides[i]).forEach(f => f.classList.toggle('on', !!all));
+      cur = i; slides[i].scrollTop = 0;
+      prog.style.width = ((i + 1) / n * 100) + '%';
+      count.textContent = `${i + 1} / ${n}`;
+      if (title) title.textContent = slides[i].dataset.title || '';
+      bPrev.disabled = i === 0;
+      bNext.textContent = i === n - 1 ? 'End' : 'Next';
+      bNext.disabled = i === n - 1 && !frags(slides[i]).some(f => !f.classList.contains('on'));
+      try { history.replaceState(null, '', '#s' + (i + 1)); } catch (e) {}
+      requestAnimationFrame(() => fit(slides[i]));
+      slides[i].dispatchEvent(new Event('enter'));
+      if (window.CF && CF.setStep) { try { CF.setStep(i + 1); } catch (e) {} }
+    }
+    function next() {
+      const h = frags(slides[cur]).filter(f => !f.classList.contains('on'));
+      if (h.length) { h[0].classList.add('on'); if (cur === n - 1 && h.length === 1) bNext.disabled = true; h[0].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
+      if (cur < n - 1) go(cur + 1);
+    }
+    function prev() {
+      const s = frags(slides[cur]).filter(f => f.classList.contains('on'));
+      if (s.length) { s[s.length - 1].classList.remove('on'); bNext.disabled = false; return; }
+      if (cur > 0) go(cur - 1, true);
+    }
+    bNext.addEventListener('click', next); bPrev.addEventListener('click', prev);
+
+    /* overview */
+    const ov = $('.ov'), grid = $('.ov .grid');
+    grid.innerHTML = slides.map((s, i) => `<button type="button" data-i="${i}"><small>${i + 1}</small>${s.dataset.title || 'Slide'}</button>`).join('');
+    const openOv = () => { $$('button', grid).forEach((b, i) => b.classList.toggle('cur', i === cur)); ov.classList.add('open'); const c = $('.cur', grid); c && c.focus(); };
+    const closeOv = () => ov.classList.remove('open');
+    grid.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { closeOv(); go(+b.dataset.i, true); } });
+    $('#ovbtn').addEventListener('click', openOv); $('.ov .x').addEventListener('click', closeOv);
+    $('#fsbtn').addEventListener('click', () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {} });
+
+    document.addEventListener('keydown', e => {
+      const t = e.target, tag = t.tagName;
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      if (ov.classList.contains('open')) { if (e.key === 'Escape' || e.key === 'o' || e.key === 'O') closeOv(); return; }
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      if (['ArrowRight', 'PageDown'].includes(e.key) || (e.key === ' ' && tag !== 'BUTTON')) { e.preventDefault(); next(); }
+      else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+      else if (e.key === 'Home') go(0); else if (e.key === 'End') go(n - 1, true);
+      else if (e.key === 'o' || e.key === 'O') openOv();
+      else if (e.key === 'f' || e.key === 'F') $('#fsbtn').click();
+    });
+    /* swipe */
+    let sx = null, sy = 0;
+    const stage = $('.stage');
+    stage.addEventListener('touchstart', e => { if (e.target.closest('input,button,.fig,.scroll,select')) { sx = null; return; } sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    stage.addEventListener('touchend', e => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) dx < 0 ? next() : prev(); sx = null; });
+
+    $$('.ctl label').forEach(l => { const o = $('output', l), sp = document.createElement('span'); [...l.childNodes].forEach(n => { if (n !== o) sp.appendChild(n); }); l.insertBefore(sp, o); });
+    quizzes(); sorters();
+    let rt; const refit = () => { clearTimeout(rt); rt = setTimeout(() => fit(slides[cur]), 120); };
+    addEventListener('resize', refit); document.addEventListener('fullscreenchange', refit);
+    const ro = new ResizeObserver(() => { if (!fitting) refit(); }); let fitting = false; slides.forEach(sl => { const inn = $('.inner', sl); inn && ro.observe(inn); });
+    const h = /^#s(\d+)$/.exec(location.hash);
+    go(h ? +h[1] - 1 : 0, !!h);
+    addEventListener('hashchange', () => { const m = /^#s(\d+)$/.exec(location.hash); if (m && +m[1] - 1 !== cur) go(+m[1] - 1, true); });
+  }
+  return { $, $$, inr, num, pct, css, slider, seg, plot, chart, start };
+})();
+
+</script>
+<script>
+
+{
+const {inr,num,pct,slider,seg,plot,chart,css,$}=D;
+/* pie */
+let pieD;
+const drawPie=chart('pie-c',svg=>{const W=svg.clientWidth,H=svg.clientHeight;if(!W||!H)return;const r=Math.min(W,H)/2-26,cx=W/2,cy=H/2,d=pieD.v/100;
+ const a=2*Math.PI*d,x=cx+r*Math.sin(a),y=cy-r*Math.cos(a),large=d>.5?1:0;
+ let s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${css('--accent')}"/>`;
+ if(d>0)s+=d>=1?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${css('--face')}"/>`:`<path d="M${cx},${cy} L${cx},${cy-r} A${r},${r} 0 ${large} 1 ${x},${y} Z" fill="${css('--face')}"/>`;
+ const lab=(ang,t)=>`<text x="${cx+r*.55*Math.sin(ang)}" y="${cy-r*.55*Math.cos(ang)+5}" text-anchor="middle" style="fill:${css('--surface')};font-weight:600;font-size:15px">${t}</text>`;
+ if(d>.06)s+=lab(a/2,'B');if(d<.94)s+=lab(a+(2*Math.PI-a)/2,'S');svg.innerHTML=s;});
+pieD=slider('pie-d',v=>v+'%',v=>{$('#pie-b').textContent=inr(200*v);$('#pie-s').textContent=inr(20000-200*v);drawPie();});pieD.run();
+
+/* EPS and ROE table */
+const states=[['Recession',1000],['Expected',2000],['Expansion',3000]];
+function tab(D_,title){const sh=400-D_/50,i=.08*D_,eq=20000-D_;
+ let h=`<thead><tr><th>${title}</th>${states.map(s=>`<th>${s[0]}</th>`).join('')}</tr></thead><tbody>`;
+ const row=(n,f,cls='')=>h+=`<tr class="${cls}"><td>${n}</td>${states.map(s=>{const v=f(s[1]);return `<td class="${v<0?'neg':''}">${typeof v==='string'?v:inr(v)}</td>`}).join('')}</tr>`;
+ row('EBIT',e=>e);row('Interest',e=>i);row('Net income',e=>e-i,'tot');row('EPS',e=>sh>0?inr((e-i)/sh,2):'n/a','hl');row('ROA',e=>pct(e/20000));row('ROE',e=>eq>0?pct((e-i)/eq):'n/a');
+ return h+`</tbody>`;}
+const lv=slider('lv-d',v=>inr(v),v=>{$('#lv-u').innerHTML=tab(0,'All equity, 400 shares');$('#lv-l').innerHTML=tab(v,`Levered, ${400-v/50} shares`);
+ $('#lv-sh').textContent=`Buys back ${v/50} shares at ₹50; ${400-v/50} remain. D/E = ${v?(v/(20000-v)).toFixed(2):'0'}.`;
+ const e1=1000/400,e3=3000/400,l1=(1000-.08*v)/(400-v/50),l3=(3000-.08*v)/(400-v/50);
+ $('#lv-n').textContent=v?`EPS range without debt: ₹${e1.toFixed(2)} to ₹${e3.toFixed(2)}. With ₹${num(v)} of debt: ₹${l1.toFixed(2)} to ₹${l3.toFixed(2)}. Higher expected EPS, but more risk.`:'Move the slider to add debt.';});
+lv.run();
+
+/* EBIT-EPS */
+let ee;
+const drawEE=chart('ee-c',svg=>{const e=ee.v,U=x=>x/400,L=x=>(x-640)/240;
+ plot(svg,{xd:[0,3500],yd:[-3,12],xt:[0,500,1000,1500,2000,2500,3000,3500],yt:[-2,0,2,4,6,8,10,12],xf:v=>num(v),yf:v=>'₹'+v,xl:'EBIT (₹, no taxes)',yl:'EPS',
+  areas:[{pts:[[1600,U(1600)],[3500,L(3500)],[3500,U(3500)]],c:'--good',o:.15},{pts:[[0,U(0)],[1600,U(1600)],[0,L(0)]],c:'--bad',o:.15}],
+  lines:[{pts:[[0,U(0)],[3500,U(3500)]],c:'--face'},{pts:[[0,L(0)],[3500,L(3500)]],c:'--accent'}],
+  vl:[{x:1600,label:'Break-even ₹1,600'}],dots:[{x:e,y:U(e),c:'--face'},{x:e,y:L(e),c:'--accent'}]});});
+ee=slider('ee-e',v=>inr(v),v=>{$('#ee-u').textContent=inr(v/400,2);$('#ee-l').textContent=inr((v-640)/240,2);drawEE();});ee.run();
+
+/* homemade leverage */
+const HM={lev:{d:'Our investor wants the levered firm\'s payoff but the firm has no debt. She borrows ₹800 at 8% and adds ₹1,200 of her own money to buy 40 shares of the unlevered firm at ₹50. Her personal debt-equity ratio is 800 / 1,200 = 2/3, the same as the proposed firm.',
+ rows:[['EPS of unlevered firm',[2.5,5,7.5],2],['Earnings on 40 shares',[100,200,300]],['Less interest on ₹800 at 8%',[-64,-64,-64]],['Net profit',[36,136,236],0,'tot'],['ROE on her ₹1,200',['3.0%','11.3%','19.7%'],0,'hl']],
+ n:'Same ROE as owning shares of the levered firm: 3.0%, 11.3%, 19.7%.'},
+ unlev:{d:'Now the firm has borrowed, but our investor prefers the all-equity payoff. She puts ₹1,200 into 24 shares of the levered firm and ₹800 into the firm\'s debt: ₹2,000 in all.',
+ rows:[['EPS of levered firm',[1.5,5.67,9.83],2],['Earnings on 24 shares',[36,136,236]],['Plus interest on ₹800 of debt',[64,64,64]],['Net profit',[100,200,300],0,'tot'],['ROE on her ₹2,000',['5%','10%','15%'],0,'hl']],
+ n:'Same ROE as the unlevered firm: 5%, 10%, 15%. Whatever the firm chooses, the investor can reach the other payoff on her own.'}};
+seg($('#hm-m'),m=>{const x=HM[m];$('#hm-d').textContent=x.d;$('#hm-n').textContent=x.n;
+ $('#hm-t').innerHTML=`<thead><tr><th></th>${states.map(s=>`<th>${s[0]}</th>`).join('')}</tr></thead><tbody>`+x.rows.map(r=>`<tr class="${r[3]||''}"><td>${r[0]}</td>${r[1].map(v=>`<td>${typeof v==='string'?v:inr(v,r[2]||0)}</td>`).join('')}</tr>`).join('')+'</tbody>';})('lev');
+
+/* Proposition II */
+let tax=0;const r0=slider('m2-r0',v=>v+'%',m2),rb=slider('m2-rb',v=>v+'%',m2),de=slider('m2-de',v=>v.toFixed(2),m2);
+const Rs=(x)=>{const R0=r0.v,RB=Math.min(rb.v,R0);return R0+x*(1-tax)*(R0-RB);};
+const Wacc=x=>{const RB=Math.min(rb.v,r0.v),s=1/(1+x),b=x/(1+x);return s*Rs(x)+b*RB*(1-tax);};
+const drawM2=chart('m2-c',svg=>{const pts=f=>{const a=[];for(let x=0;x<=3.0001;x+=.05)a.push([x,f(x)]);return a;};const x=de.v,RB=Math.min(rb.v,r0.v);
+ plot(svg,{xd:[0,3],yd:[0,Math.ceil((r0.v+3*(r0.v-4))/5)*5],xt:[0,.5,1,1.5,2,2.5,3],yt:[0,5,10,15,20,25,30,35,40,45,50].filter(v=>v<=r0.v+3*(r0.v-4)+5),xf:v=>v,yf:v=>v+'%',xl:'Debt-equity ratio B/S',yl:'Cost of capital',
+  lines:[{pts:pts(Rs),c:'--accent',label:'Cost of equity'},{pts:pts(Wacc),c:'--face',label:'WACC'},{pts:[[0,RB],[3,RB]],c:'--muted',dash:'5 4',label:'Cost of debt'}],
+  dots:[{x,y:Rs(x),c:'--accent'},{x,y:Wacc(x),c:'--face'}]});});
+function m2(){const R0=r0.v,RB=Math.min(rb.v,R0),x=de.v;$('#m2-rs').textContent=Rs(x).toFixed(2)+'%';$('#m2-w').textContent=Wacc(x).toFixed(2)+'%';
+ $('#m2-f').innerHTML=tax?`R<sub>S</sub> = R<sub>0</sub> + (B/S)(1 − T<sub>C</sub>)(R<sub>0</sub> − R<sub>B</sub>) = ${R0}% + ${x.toFixed(2)} × 0.79 × (${R0}% − ${RB}%) = <b class="c">${Rs(x).toFixed(2)}%</b><small>Equity return rises more slowly, and WACC (with after-tax R<sub>B</sub>) falls as debt rises.</small>`
+ :`R<sub>S</sub> = R<sub>0</sub> + (B/S)(R<sub>0</sub> − R<sub>B</sub>) = ${R0}% + ${x.toFixed(2)} × (${R0}% − ${RB}%) = <b class="c">${Rs(x).toFixed(2)}%</b><small>R<sub>S</sub> rises in a straight line with B/S; WACC stays at R<sub>0</sub>.</small>`;drawM2();}
+seg($('#m2-t'),v=>{tax=+v?.21:0;m2();});r0.run();rb.run();de.run();
+
+/* who gets EBIT */
+let ebit=2000;const td=slider('tx-d',v=>inr(v),tx),tt=slider('tx-t',v=>v+'%',tx);
+function bar(name,parts,max){const tot=parts.reduce((a,p)=>a+p[1],0);
+ return `<div><div style="display:flex;justify-content:space-between;font-size:14.5px;margin-bottom:4px"><b>${name}</b><span class="mono">to investors ${inr(parts[0][1]+parts[1][1])}</span></div>
+ <div style="display:flex;height:40px;border-radius:8px;overflow:hidden;border:1px solid var(--line);width:${tot/max*100}%">${parts.filter(p=>p[1]>0).map(p=>`<div style="flex:${p[1]} 0 0;background:var(${p[2]});color:var(--surface);display:flex;align-items:center;padding:0 8px;font-family:var(--mono);font-size:13px;white-space:nowrap;overflow:hidden">${inr(p[1])}</div>`).join('')}</div></div>`;}
+function tx(){const t=tt.v/100,I=Math.min(.08*td.v,ebit);
+ const uG=ebit*t,uS=ebit-uG,lG=(ebit-I)*t,lS=ebit-I-lG;
+ $('#tx-bars').innerHTML=bar('All-equity firm',[[ '',uS,'--accent'],['',0,'--face'],['',uG,'--bad']],ebit)+bar(`Levered firm, debt ${inr(td.v)}`,[['',lS,'--accent'],['',I,'--face'],['',lG,'--bad']],ebit);
+ $('#tx-n').textContent=`Interest of ${inr(I)} is paid before tax, so the government's slice falls by tax rate × interest = ${inr(t*I)}. Investors as a group get that much more every year.`;}
+seg($('#tx-s'),v=>{ebit=+v;tx();});td.run();tt.run();
+
+/* VL = VU + TcB */
+const v0=slider('vl-r0',v=>v+'%',vl),vb=slider('vl-b',v=>inr(v),vl),vt=slider('vl-t',v=>v+'%',vl);
+function vl(){const VU=2000*(1-vt.v/100)/(v0.v/100),sh=vt.v/100*vb.v;$('#vl-u').textContent=inr(VU);$('#vl-s').textContent=inr(sh);$('#vl-l').textContent=inr(VU+sh);$('#vl-e').textContent=inr(VU+sh-vb.v);}
+v0.run();vb.run();vt.run();
+}
+
+D.start();
+</script>
+</body>
+</html>
