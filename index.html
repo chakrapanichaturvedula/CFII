@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Corporate Finance II</title>
+<meta name="description" content="Interactive slides for Corporate Finance II, IMT Hyderabad.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<!-- To track students with the CF1 platform, add these three lines here (paths relative to the site root):
+<script src="assets/js/config.js"></script>
+<script src="assets/js/vendor/supabase-2.117.3.js"></script>
+<script src="assets/js/cf.js"></script>
+The deck then reports the slide reached as the step, and each quick check as an attempt. -->
+<style>
+/* Layout: course header, then one row per module in session order; each row lists its slide decks as cards. Same design as the CF1 site. */
+:root{
+  --bg:#F4F4F1; --surface:#FFFFFF; --ink:#16223A; --muted:#5B6578; --line:#DADDD8; --faint:#E7E8E3;
+  --accent:#6B3FA0; --accent-soft:#EEE6F7; --face:#0F6E8C; --face-soft:#DCEEF3;
+  --display:'Source Serif 4', Georgia, serif; --body:'IBM Plex Sans','Segoe UI',Arial,sans-serif; --mono:'IBM Plex Mono',Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#12131A; --surface:#1C1E29; --ink:#ECEDF2; --muted:#A1A6B8; --line:#2F3242; --faint:#262938;
+  --accent:#B794E6; --accent-soft:#2E2340; --face:#5BB8D4; --face-soft:#16384A; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;padding-inline:20px;padding-block:40px 60px}
+.wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,5.5vw,54px);line-height:1.02;margin:6px 0 0;text-wrap:balance}
+.lede{color:var(--muted);font-size:18px;max-width:62ch;margin:10px 0 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px;color:var(--muted);margin-top:12px}
+.meta b{color:var(--ink);font-weight:600}
+.module{display:grid;grid-template-columns:200px minmax(0,1fr);gap:20px;border-top:1px solid var(--line);padding-top:22px}
+.mhead .num{font-family:var(--mono);font-size:13px;color:var(--accent)}
+.mhead .sess{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.mhead h2{font-family:var(--display);font-size:24px;line-height:1.15;margin:4px 0 6px;text-wrap:balance}
+.mhead p{margin:0;font-size:14px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.card{display:flex;flex-direction:column;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s}
+a.card:hover{border-color:var(--accent);transform:translateY(-1px)}
+a.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kind{align-self:flex-start;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:999px}
+.kind.w{background:var(--accent-soft);color:var(--accent)}
+.kind.a{background:var(--face-soft);color:var(--face)}
+.card h3{font-family:var(--display);font-size:19px;margin:2px 0 0;line-height:1.2}
+.card p{margin:0;font-size:14px;color:var(--muted)}
+.card.soon{background:transparent;border-style:dashed;color:var(--muted)}
+.card.soon h3{color:var(--muted)}
+.foot{border-top:1px solid var(--line);padding-top:18px;font-size:13px;color:var(--muted)}
+@media (max-width:720px){.module{grid-template-columns:1fr;gap:10px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">IMT Hyderabad · PGDM · Term III</p>
+    <h1>Corporate Finance II</h1>
+    <p class="lede">Interactive slides for each topic in the course. Step through a deck with the arrow keys, move the sliders to see the numbers change, and check yourself at the end of each deck.</p>
+    <div class="meta"><span><b>Text</b> Ross, Westerfield, Jaffe, Jordan and Shue, Corporate Finance</span><span><b>Keys</b> → next · ← back · O all slides · F full screen</span></div>
+  </header>
+
+  <section class="module" aria-labelledby="m1">
+    <div class="mhead"><span class="num">Module 1</span><span class="sess">Sessions 1 to 4 · Ch 3</span><h2 id="m1">Financial Statements and Planning</h2><p>Ratios, Du Pont, the percentage of sales approach, EFN and growth.</p></div>
+    <div class="cards">
+      <a class="card" href="financial-statement-analysis.html"><span class="kind w">Slides · 18</span><h3>Financial Statement Analysis and Long-Term Planning</h3><p>Two years of Prufrock statements, the ratio lab, the Du Pont tree, EFN as the plug, and where the growth formulas come from.</p></a><div class="card soon"><span class="kind a">Coming soon</span><h3>Financial forecasting in Excel</h3><p>Tire City case: pro forma statements and EFN in a spreadsheet.</p></div>
+    </div>
+  </section>
+  <section class="module" aria-labelledby="m2">
+    <div class="mhead"><span class="num">Module 2</span><span class="sess">Sessions 5 and 6 · Ch 16</span><h2 id="m2">Capital Structure and Firm Value</h2><p>The pie, leverage and EPS, homemade leverage, M&amp;M with and without taxes.</p></div>
+    <div class="cards">
+      <a class="card" href="capital-structure.html"><span class="kind w">Slides · 15</span><h3>Capital Structure: Basic Concepts</h3><p>Move the debt slider and watch EPS, ROE, the cost of equity and the tax shield.</p></a>
+    </div>
+  </section>
+  <section class="module" aria-labelledby="m3">
+    <div class="mhead"><span class="num">Module 3</span><span class="sess">Session 7</span><h2 id="m3">Leverage</h2><p>Operating, financial and total leverage.</p></div>
+    <div class="cards">
+      <a class="card" href="leverage.html"><span class="kind w">Slides · 10</span><h3>Operating, Financial and Total Leverage</h3><p>Toll bridges and toy factories: DOL, DFL, DTL and the indifference EBIT.</p></a>
+    </div>
+  </section>
+  <section class="module" aria-labelledby="m4">
+    <div class="mhead"><span class="num">Module 4</span><span class="sess">Sessions 8 and 9 · Ch 19</span><h2 id="m4">Dividend Policy</h2><p>Payout theories, dividends against buybacks, and payouts in India.</p></div>
+    <div class="cards">
+      <a class="card" href="dividend-policy.html"><span class="kind w">Slides · 17</span><h3>Dividends and Other Payouts</h3><p>Dividend dates under T+1, homemade dividends, buybacks, taxes in India, bonus issues and splits.</p></a>
+    </div>
+  </section>
+  <section class="module" aria-labelledby="m5">
+    <div class="mhead"><span class="num">Module 5</span><span class="sess">Sessions 10 to 12 · Ch 26</span><h2 id="m5">Working Capital Management</h2><p>Operating and cash cycles, short-term policy, cash budgets and short-term financing.</p></div>
+    <div class="cards">
+      <a class="card" href="working-capital.html"><span class="kind w">Slides · 11</span><h3>Short-Term Finance and Planning</h3><p>Sources and uses of cash, the cash cycle, flexible and restrictive policies, and a cash budget.</p></a><div class="card soon"><span class="kind a">Coming soon</span><h3>Credit and inventory management</h3><p>Session 11.</p></div><div class="card soon"><span class="kind a">Coming soon</span><h3>Introduction to derivatives</h3><p>Sessions 11 and 12.</p></div>
+    </div>
+  </section>
+  <p class="foot">Corporate Finance II · IMT Hyderabad</p>
+</div>
+</body>
+</html>
